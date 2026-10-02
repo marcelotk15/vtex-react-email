@@ -3,7 +3,8 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
-import { buildProject, exportPreview, previewBuiltEmail, renderPreview, validateProject } from './project'
+import { buildProject, validateProject } from './project/build-project'
+import { exportPreview, previewBuiltEmail, renderPreview } from './project/preview-evaluation'
 
 const root = path.resolve('examples/basic-store')
 const configPath = path.join(root, 'vtex-email.config.ts')

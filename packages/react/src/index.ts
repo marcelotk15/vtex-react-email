@@ -1,12 +1,11 @@
+export { Email } from './adapter/email'
+export { diagnoseStyles } from './adapter/style-diagnostics'
 export {
   compileEmail,
   type BuildManifest,
+  type CompiledArtifact,
   type CompileEmailInput,
   type CompileEmailResult,
-  type CompiledArtifact,
-} from './compile'
-export { diagnoseStyles } from './styles'
-export { Each, expr, Helper, If, Trans, Unless, Value, Vtex } from './dsl'
-export { Email } from './email'
-export { isExpression, type Expression } from './expr'
-export { loadEmailEntry, type LoadEmailResult } from './load'
+} from './compile/compile-email'
+export { isExpression, type Expression } from './dsl/expr'
+export { Each, expr, Helper, If, Trans, Unless, Value, Vtex } from './dsl/vtex'

@@ -1,4 +1,13 @@
-export { bindSites, type BindResult } from './bind'
+export {
+  normalizeOutput,
+  sha256,
+  type BuildManifest,
+  type CompiledArtifact,
+  type CompileEmailResult,
+} from './compile/artifact'
+export { assembleDocument, type AssembleDocumentInput } from './compile/assemble'
+export { validateHandlebarsSyntax } from './compile/syntax'
+export { unverifiedCapabilityDiagnostic } from './compile/target'
 export {
   defineEmail,
   isSafeEmailId,
@@ -7,52 +16,17 @@ export {
   type EmailI18n,
   type EmailValidationOverride,
 } from './define-email'
-export { errorDiagnostic, warningDiagnostic, type Diagnostic, type DiagnosticSource } from './diagnostics'
-export {
-  emitBlockClose,
-  emitBlockOpen,
-  emitHelperCall,
-  emitInterpolation,
-  emitLiteral,
-  emitPath,
-  parentHops,
-  parsePath,
-  type Expression,
-  type PathResult,
-} from './emit'
-export { checkFixture, schemaMutates } from './fixture'
-export { checkCatalogs, sha256 } from './hash'
-export { withForcedLocale } from './locale-value'
-export { parseMessage, placeholderSignature, type MessagePart, type ParsedMessage } from './message'
-export { mergeLocaleDocuments, singleDocumentIssue } from './merge'
-export { assertPinnedNode } from './node-pin'
-export type {
-  BlockHelper,
-  BlockName,
-  BlockOptions,
-  DynamicAttribute,
-  EmissionCapability,
-  EmissionProfile,
-  Evidence,
-  InlineHelper,
-  LocalSimulator,
-  Profile,
-  ResolvedPath,
-  SimulatorHelper,
-  SiteArgument,
-  SiteRecord,
-} from './profile'
-export { analyzePaths, analyzeRootPath } from './paths'
-export { restoreHandlebars, type RestoreResult } from './restore'
-export { nestSites, type ScopeArg, type ScopeBlock, type ScopeNode, type ScopeRef } from './structure'
-export {
-  evaluateArtifact,
-  releaseArtifacts,
-  renderTemplate,
-  syntaxHelperNames,
-  TemplateFailure,
-  validateHandlebarsSyntax,
-} from './runtime'
+export { errorDiagnostic, warningDiagnostic, type Diagnostic, type DiagnosticSource, type Failure } from './diagnostics'
+export { emitPath, parentHops, parsePath, type Expression, type PathResult } from './expression/path'
+export { checkFixture, schemaMutates } from './fixture/check'
+export { readPathValue, withForcedLocale } from './fixture/locale-path'
+export { emitBlockClose, emitBlockOpen, emitHelperCall, emitInterpolation, emitLiteral } from './hbs/source'
+export { checkCatalogs } from './i18n/catalog'
+export { mergeLocaleDocuments } from './i18n/merge'
+export { parseMessage, placeholderSignature, type MessagePart, type ParsedMessage } from './i18n/message'
+export { bindSites, type BindResult } from './markers/bind'
+export { restoreHandlebars, type RestoreResult } from './markers/restore'
+export type { BlockName, DynamicAttribute, ResolvedPath, SiteArgument, SiteRecord } from './markers/sites'
 export {
   mintToken,
   opaqueTokenIssue,
@@ -65,5 +39,22 @@ export {
   type Marker,
   type OpenMarker,
   type TextMarker,
-} from './tokens'
-export { commitArtifacts, normalizeOutput } from './write'
+} from './markers/tokens'
+export { commitArtifacts, releaseArtifacts } from './output/commit'
+export {
+  findCapability,
+  syntaxHelperNames,
+  type BlockHelper,
+  type BlockOptions,
+  type EmissionCapability,
+  type EmissionProfile,
+  type Evidence,
+  type InlineHelper,
+  type LocalSimulator,
+  type Profile,
+  type SimulatorHelper,
+} from './profile'
+export { singleDocumentIssue } from './runtime/document'
+export { evaluateArtifact, renderTemplate, TemplateFailure } from './runtime/evaluate'
+export { analyzePaths, analyzeRootPath } from './scope/analyze-paths'
+export { nestSites, type ScopeArg, type ScopeBlock, type ScopeNode, type ScopeRef } from './scope/structure'

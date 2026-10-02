@@ -7,7 +7,17 @@
     "proof/**/*.tsx",
     "examples/**/*.ts",
     "examples/**/*.tsx",
-    "vitest.config.ts"
+    "tooling/**/*.ts",
+    "packages/react/load-fixtures/**/*.ts",
+    "packages/react/load-fixtures/**/*.tsx",
+    "vitest.config.ts",
+    "vitest.setup.ts"
   ],
-  "exclude": ["**/node_modules/**", "**/dist/**", "proof/out/**", "packages/preview/src/ui/**"]
+  "exclude": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "proof/out/**",
+    "packages/preview/src/ui/**",
+    "packages/react/load-fixtures/broken.tsx"
+  ]
 }

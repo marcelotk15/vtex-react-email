@@ -1,4 +1,4 @@
-import type { PreviewState, SelectionInput } from '../../contract'
+import type { PreviewState, SelectionInput } from '../../shared/contract'
 
 export type ConnectionStatus = 'connecting' | 'open' | 'reconnecting'
 

@@ -6,7 +6,7 @@ import path from 'node:path'
 import { chromium, type Page } from 'playwright-core'
 import { describe, expect, it } from 'vitest'
 
-import { startPreview, type PreviewEndpoint } from './server'
+import { startPreview, type PreviewEndpoint } from './server/start-preview'
 import { prefsKey } from './ui/prefs/prefs'
 
 const example = path.resolve('examples/basic-store')

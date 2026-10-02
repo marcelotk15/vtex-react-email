@@ -50,26 +50,15 @@ export interface Profile extends EmissionProfile {
   helpers: readonly SimulatorHelper[]
 }
 
-export type BlockName = 'each' | 'if' | 'unless'
-
-export type DynamicAttribute = 'href' | 'src' | 'alt' | 'title'
-
-export interface ResolvedPath {
-  emitted: string
-  parentHops: number
+export function syntaxHelperNames(profile: EmissionProfile): string[] {
+  return profile.capabilities.filter((capability) => capability.form !== 'path').map((capability) => capability.name)
 }
 
-export interface SiteArgument {
-  kind: ArgKind
-  emitted: string
-  path?: ResolvedPath
-}
-
-export interface SiteRecord {
-  kind: 'value' | 'helper' | 'block' | 'attr' | 'literal'
-  path?: ResolvedPath
-  block?: BlockName
-  helper?: string
-  args?: readonly SiteArgument[]
-  attribute?: DynamicAttribute
+export function findCapability(
+  profile: EmissionProfile,
+  name: string | undefined,
+  form?: EmissionCapability['form'],
+): EmissionCapability | undefined {
+  if (!name) return undefined
+  return profile.capabilities.find((item) => item.name === name && (form === undefined || item.form === form))
 }

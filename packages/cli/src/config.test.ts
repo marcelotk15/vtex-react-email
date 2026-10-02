@@ -1,8 +1,8 @@
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
-import { outputDirectoryError, validateConfig } from './config'
-import { duplicateId } from './project'
+import { outputDirectoryError, validateConfig } from './config/config'
+import { duplicateId } from './project/discover'
 
 const tailwind = { presets: [] }
 

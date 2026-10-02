@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from '@/components/ui/empty'
 
-import type { PreviewState } from '../../contract'
+import type { PreviewState } from '../../shared/contract'
 import type { ViewportPreset } from '../model/viewport'
 
 import { viewportChoice } from '../model/viewport'

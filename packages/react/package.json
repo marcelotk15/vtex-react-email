@@ -10,8 +10,10 @@
   "dependencies": {
     "@react-email/components": "1.0.12",
     "@vtex-email/core": "workspace:*",
-    "esbuild": "0.28.2",
     "react": "19.3.0",
     "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@vtex-email/vtex": "workspace:*"
   }
 }

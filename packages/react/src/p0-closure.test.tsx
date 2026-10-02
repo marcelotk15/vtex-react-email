@@ -2,12 +2,12 @@ import type { ReactNode } from 'react'
 
 import { pixelBasedPreset, Text } from '@react-email/components'
 import { checkCatalogs, evaluateArtifact, mintToken, TemplateFailure } from '@vtex-email/core'
+import { p0Profile } from '@vtex-email/vtex'
 import { describe, expect, it } from 'vitest'
 
-import { p0Profile } from '../../vtex/src/index'
-import { compileEmail, type CompileEmailInput } from './compile'
-import { Each, expr, If, Vtex } from './dsl'
-import { Email } from './email'
+import { Email } from './adapter/email'
+import { compileEmail, type CompileEmailInput } from './compile/compile-email'
+import { Each, expr, If, Vtex } from './dsl/vtex'
 
 const catalogs = {
   'pt-BR': { note: 'vtx-logo' },

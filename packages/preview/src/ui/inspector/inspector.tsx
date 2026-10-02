@@ -2,7 +2,7 @@ import { AlertCircle, AlertTriangle, Info } from 'lucide-react'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-import type { PreviewDiagnostic, PreviewEmail, PreviewState } from '../../contract'
+import type { PreviewDiagnostic, PreviewEmail, PreviewState } from '../../shared/contract'
 import type { InspectorTab } from '../prefs/prefs'
 
 import { CodeView, CopyButton } from './code-view'

@@ -1,0 +1,7 @@
+{
+  "description": "Missing order id.",
+  "origin": "synthetic",
+  "event": "order-confirmed",
+  "purpose": "negative schema case",
+  "expect": "invalid"
+}

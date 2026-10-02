@@ -1,5 +1,4 @@
 import {
-  assertPinnedNode,
   checkFixture,
   commitArtifacts,
   defineEmail,
@@ -17,6 +16,7 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { assertPinnedNode } from '../tooling/node-pin'
 import { OrderConfirmed } from './emails/order-confirmed.email'
 import { OrderConfirmedSchema } from './schema'
 import { proofTailwind } from './tailwind'

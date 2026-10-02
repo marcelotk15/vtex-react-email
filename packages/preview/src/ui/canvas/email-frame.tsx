@@ -1,6 +1,6 @@
 import { memo, useEffect, useRef } from 'react'
 
-import { displayDocument } from '../../images'
+import { displayDocument } from '../../shared/display-document'
 
 export const EmailFrame = memo(function EmailFrame({
   html,

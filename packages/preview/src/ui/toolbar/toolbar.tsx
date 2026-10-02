@@ -14,11 +14,11 @@ import { Toggle } from '@/components/ui/toggle'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
-import type { PreviewSelection } from '../../contract'
+import type { PreviewSelection } from '../../shared/contract'
 
 import { IconButton } from '../components/icon-button'
-import { localeOptions, localeValueToSelection, selectionToLocaleValue } from '../model/locale'
 import { viewportChoices, type ViewportPreset } from '../model/viewport'
+import { localeOptions, selectionToLocaleValue } from './locale-options'
 
 const icons = {
   mobile: Smartphone,
@@ -166,5 +166,3 @@ export function Toolbar({
     </header>
   )
 }
-
-export { localeValueToSelection }

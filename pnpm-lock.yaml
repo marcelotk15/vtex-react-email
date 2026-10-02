@@ -295,9 +295,6 @@ importers:
       class-variance-authority:
         specifier: 0.7.1
         version: 0.7.1
-      clsx:
-        specifier: 2.1.1
-        version: 2.1.1
       cn:
         specifier: 0.4.0
         version: 0.4.0
@@ -322,9 +319,6 @@ importers:
       react-resizable-panels:
         specifier: 4.14.1
         version: 4.14.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      tailwind-merge:
-        specifier: 3.7.0
-        version: 3.7.0
       tailwindcss:
         specifier: 4.1.18
         version: 4.1.18
@@ -347,15 +341,16 @@ importers:
       '@vtex-email/core':
         specifier: workspace:*
         version: link:../core
-      esbuild:
-        specifier: 0.28.2
-        version: 0.28.2
       react:
         specifier: 19.3.0
         version: 19.3.0
       react-dom:
         specifier: 19.3.0
         version: 19.3.0(react@19.3.0)
+    devDependencies:
+      '@vtex-email/vtex':
+        specifier: workspace:*
+        version: link:../vtex
 
   packages/vtex:
     dependencies:
@@ -1663,9 +1658,6 @@ packages:
   std-env@4.3.0:
     resolution: {integrity: sha512-OtU/EgQ1kIm5KwqQpBC6ZEMXrZRui11w8zgfTWp8cdO9B8OaPsbA8bTHO2P+HNo1VlUTGMVBwPhydu6poeXiag==}
 
-  tailwind-merge@3.7.0:
-    resolution: {integrity: sha512-XPPUyAc+cvspz3lHTcR/QgPfW2A0lv/xQNIjX3HGhLR+Nq2lHaLq5MtTesHn8GUr3W3DguT2KT5x3NVgRtYwmA==}
-
   tailwindcss@4.1.18:
     resolution: {integrity: sha512-4+Z+0yiYyEtUVCScyfHCxOYP06L5Ne+JiHhY2IjR2KWMIWhJOYZKLSGZaP5HkZ8+bY0cxfzwDE5uOmzFXyIwxw==}
 
@@ -2695,8 +2687,6 @@ snapshots:
   source-map@0.6.1: {}
 
   std-env@4.3.0: {}
-
-  tailwind-merge@3.7.0: {}
 
   tailwindcss@4.1.18: {}
 

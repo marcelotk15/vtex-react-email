@@ -15,7 +15,10 @@ export interface Diagnostic {
   source?: DiagnosticSource
   path?: string
   suggestion?: string
+  capability?: { name: string; evidence: string }
 }
+
+export type Failure = { ok: false; diagnostics: Diagnostic[] }
 
 export function errorDiagnostic(
   code: string,

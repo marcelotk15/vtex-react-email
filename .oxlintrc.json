@@ -11,7 +11,8 @@
       "error",
       "never",
       { "ignorePackages": true, "pattern": { "css": "always", "json": "always" } }
-    ]
+    ],
+    "import/no-cycle": "error"
   },
   "env": {
     "builtin": true,
@@ -29,10 +30,131 @@
   ],
   "overrides": [
     {
+      "files": ["packages/core/src/**/*.ts"],
+      "excludeFiles": ["packages/core/src/output/**", "**/*.test.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "node:fs",
+                "message": "Filesystem access stays in output writing."
+              },
+              {
+                "name": "node:fs/promises",
+                "message": "Filesystem access stays in output writing."
+              }
+            ],
+            "patterns": [
+              {
+                "group": ["@vtex-email/*"],
+                "message": "The compiler does not depend on other toolchain packages."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["packages/core/src/compile/**/*.ts"],
+      "excludeFiles": ["**/*.test.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "node:fs",
+                "message": "Filesystem access stays in output writing."
+              },
+              {
+                "name": "node:fs/promises",
+                "message": "Filesystem access stays in output writing."
+              }
+            ],
+            "patterns": [
+              {
+                "group": ["@vtex-email/*"],
+                "message": "The compiler does not depend on other toolchain packages."
+              },
+              {
+                "regex": "[\\\\/](fixture|runtime|output)([\\\\/]|$)",
+                "message": "Compilation does not read fixtures, evaluate templates, or write files."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["packages/core/src/runtime/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "node:fs",
+                "message": "Filesystem access stays in output writing."
+              },
+              {
+                "name": "node:fs/promises",
+                "message": "Filesystem access stays in output writing."
+              }
+            ],
+            "patterns": [
+              {
+                "group": ["@vtex-email/*"],
+                "message": "The compiler does not depend on other toolchain packages."
+              },
+              {
+                "regex": "[\\\\/](compile|output)([\\\\/]|$)",
+                "message": "Local evaluation stays separate from emission and filesystem output."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["packages/react/**/*.{ts,tsx}"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@vtex-email/cli",
+                "message": "Authoring components do not depend on the CLI."
+              },
+              {
+                "name": "@vtex-email/preview",
+                "message": "Authoring components do not depend on the preview server."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
       "files": ["packages/preview/src/ui/**/*.{ts,tsx}"],
       "env": {
         "browser": true,
         "node": false
+      },
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["node:*", "@vtex-email/*"],
+                "message": "The browser interface cannot import Node or toolchain packages."
+              }
+            ]
+          }
+        ]
       }
     }
   ]

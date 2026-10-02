@@ -1,0 +1,10 @@
+{
+  "orders": [
+    {
+      "orderId": "ORDER-MISSING",
+      "clientProfileData": { "firstName": "Ada" },
+      "shippingData": { "address": { "street": "Rua das Flores" } },
+      "items": [{ "name": "Caderno", "quantity": 1 }]
+    }
+  ]
+}

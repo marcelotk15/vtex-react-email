@@ -8,6 +8,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["./**/*.ts", "./**/*.tsx"],
-  "exclude": ["**/*.test.ts", "**/*.test.tsx"]
+  "include": ["./**/*.ts", "./**/*.tsx", "../shared/**/*.ts"],
+  "exclude": ["**/*.test.ts", "**/*.test.tsx", "../shared/**/*.test.ts"]
 }

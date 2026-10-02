@@ -2,12 +2,12 @@ import type { ReactNode } from 'react'
 
 import { pixelBasedPreset, Section, Text } from '@react-email/components'
 import { type EmissionProfile } from '@vtex-email/core'
+import { p0Profile } from '@vtex-email/vtex'
 import { describe, expect, it } from 'vitest'
 
-import { p0Profile } from '../../vtex/src/index'
-import { compileEmail } from './compile'
-import { Each, expr, If, Unless, Vtex } from './dsl'
-import { Email } from './email'
+import { Email } from './adapter/email'
+import { compileEmail } from './compile/compile-email'
+import { Each, expr, If, Unless, Vtex } from './dsl/vtex'
 
 function compile(component: () => ReactNode, profile: EmissionProfile = p0Profile) {
   return compileEmail({
@@ -188,5 +188,27 @@ describe('P1 DSL', () => {
     expect(compiled.ok).toBe(false)
     if (compiled.ok) return
     expect(compiled.diagnostics[0]?.code).toBe('HBS002')
+  })
+
+  it('records the template file when a static URL is rejected', async () => {
+    const compiled = await compileEmail({
+      email: {
+        id: 'sample',
+        event: 'sample',
+        template: () => (
+          <Email>
+            <Vtex.Link href="http://example.com">open</Vtex.Link>
+          </Email>
+        ),
+      },
+      locale: 'pt-BR',
+      catalog: {},
+      profile: p0Profile,
+      tailwind: { presets: [pixelBasedPreset] },
+      file: 'emails/sample.email.tsx',
+    })
+    expect(compiled.ok).toBe(false)
+    if (compiled.ok) return
+    expect(compiled.diagnostics[0]?.source?.file).toBe('emails/sample.email.tsx')
   })
 })
