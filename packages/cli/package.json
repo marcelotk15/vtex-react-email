@@ -1,0 +1,23 @@
+{
+  "name": "@vtex-email/cli",
+  "version": "0.0.0",
+  "private": true,
+  "bin": {
+    "vtex-email": "./src/launch.mjs"
+  },
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@react-email/components": "1.0.12",
+    "@vtex-email/core": "workspace:*",
+    "@vtex-email/react": "workspace:*",
+    "esbuild": "0.28.2",
+    "handlebars": "4.7.9",
+    "parse5": "7.3.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "zod": "4.6.5"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "@vtex-email/example",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node ./run.mjs build",
+    "validate": "node ./run.mjs validate"
+  },
+  "dependencies": {
+    "@react-email/components": "1.0.12",
+    "@vtex-email/cli": "workspace:*",
+    "@vtex-email/core": "workspace:*",
+    "@vtex-email/preview": "workspace:*",
+    "@vtex-email/react": "workspace:*",
+    "@vtex-email/vtex": "workspace:*",
+    "esbuild": "0.28.2",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "zod": "4.6.5"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "description": "Delivery with two orders, an address, locale en-US, and special characters. Synthetic fixture; it is not the real VTEX envelope.",
+  "origin": "synthetic",
+  "event": "order-confirmed",
+  "purpose": "en-US branch, nested loops, and escaping",
+  "expectedLocale": "en-US"
+}

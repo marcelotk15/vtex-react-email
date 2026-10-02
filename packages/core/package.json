@@ -1,0 +1,15 @@
+{
+  "name": "@vtex-email/core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "handlebars": "4.7.9",
+    "parse5": "7.3.0",
+    "zod": "4.6.5"
+  }
+}

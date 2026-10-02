@@ -1,0 +1,7 @@
+{
+  "description": "Locale outside the catalog.",
+  "origin": "synthetic",
+  "event": "order-confirmed",
+  "purpose": "fallback when locale is unknown",
+  "expect": "valid"
+}

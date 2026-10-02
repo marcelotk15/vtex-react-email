@@ -1,0 +1,6 @@
+{
+  "order.hello": "Olá, {name}",
+  "order.pickup": "Retirada na loja",
+  "auth.title": "Seu código",
+  "auth.active": "Ainda válido"
+}

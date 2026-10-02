@@ -1,0 +1,10 @@
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+proof/out/
+examples/basic-store/out/
+examples/basic-store/.cli-*
+examples/basic-store/preview/
+.cache/
+.DS_Store

@@ -1,0 +1,18 @@
+{
+  "orders": [
+    {
+      "orderId": "ORD-P",
+      "orderUrl": "https://example.com/orders/ORD-P",
+      "clientProfileData": { "firstName": "Rita" },
+      "items": [
+        {
+          "name": "Copo",
+          "quantity": 1,
+          "sellingPrice": 20000,
+          "imageUrl": "https://example.com/images/copo.png",
+          "shippingEstimate": "8bd"
+        }
+      ]
+    }
+  ]
+}

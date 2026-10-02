@@ -1,0 +1,10 @@
+packages:
+  - 'packages/*'
+  - 'proof'
+  - 'examples/*'
+
+overrides:
+  tailwindcss: 4.1.18
+
+allowBuilds:
+  esbuild: true
