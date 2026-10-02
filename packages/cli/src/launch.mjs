@@ -17,6 +17,8 @@ await esbuild.build({
   outfile,
   jsx: 'automatic',
   logLevel: 'silent',
+  mainFields: ['module', 'main'],
+  conditions: ['import', 'module', 'default'],
   external: [
     'react',
     'react-dom',

@@ -85,7 +85,7 @@ describe('preview server', () => {
       expect(digest(forced.source)).toBe(deliverySource)
       expect(await missing(path.join(root, 'dist'))).toBe(true)
 
-      const changed = fixtureBefore.replace('Ada', 'PreviewName')
+      const changed = fixtureBefore.replace('Caramujo', 'PreviewName')
       await writeFile(fixtureFile, changed)
       const updated = await waitForState(events, (state) => state.html.includes('PreviewName'))
       expect(updated.status).toBe('ready')

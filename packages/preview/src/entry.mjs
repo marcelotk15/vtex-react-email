@@ -37,6 +37,8 @@ await esbuild.build({
   outfile,
   jsx: 'automatic',
   logLevel: 'silent',
+  mainFields: ['module', 'main'],
+  conditions: ['import', 'module', 'default'],
   define: {
     __VTEX_EMAIL_UI_ROOT__: JSON.stringify(path.join(here, 'ui')),
   },

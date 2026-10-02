@@ -6,7 +6,7 @@ Consulta em 2026-10-02. Complementa os ADR 0001 a 0005. Não cria pacote novo. O
 
 Cada pasta tem uma responsabilidade. Não há barrel por pasta. Os únicos `index.ts` são os dos pacotes.
 
-- `@vtex-email/core` guarda contratos (`define-email`, `diagnostics`, `profile`), `expression/`, `hbs/`, `markers/`, `schema/`, `scope/`, `compile/`, `i18n/`, `fixture/`, `runtime/` e `output/`. A compilação não lê fixtures, não avalia e não grava arquivo. `runtime/` não importa `compile/` nem `output/`. `node:fs` fica em `output/`.
+- `@vtex-email/core` guarda contratos (`define-email` / `EmailSettings`, `diagnostics`, `profile`), `expression/`, `hbs/`, `markers/`, `schema/`, `scope/`, `compile/`, `i18n/`, `fixture/`, `runtime/` e `output/`. A compilação não lê fixtures, não avalia e não grava arquivo. `runtime/` não importa `compile/` nem `output/`. `node:fs` fica em `output/`.
 - `@vtex-email/react` tem `dsl/`, `compile/` (sessão e `compileEmail`) e `adapter/`. Não usa esbuild, CLI nem preview.
 - `@vtex-email/vtex` separa `capabilities.ts` de `simulator.ts`. `index.ts` só compõe `p0Profile`. O id continua `p0-message-center-experimental`.
 - `@vtex-email/cli` separa `commands/` (processo e saída), `config/` e `project/` (esbuild só em `project/module-loader.ts`). `project/` não usa `process` nem stdout.

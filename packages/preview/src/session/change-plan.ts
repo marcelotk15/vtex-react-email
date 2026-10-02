@@ -9,6 +9,7 @@ export interface SessionPaths {
   profilePath: string
   catalogFiles: readonly string[]
   emailRoots: readonly string[]
+  schemasDir: string
 }
 
 export type ChangePlan =
@@ -55,6 +56,11 @@ export function classifyChange(input: {
       fixtures.add(fixtureOwner.id)
       continue
     }
+    const schemaOwner = schemaEmailId(input.paths.schemasDir, input.emails, file)
+    if (schemaOwner) {
+      compile.add(schemaOwner)
+      continue
+    }
     const entry = input.emails.find((email) => samePath(email.file, file))
     if (entry && missing(file)) {
       full = true
@@ -86,12 +92,22 @@ function isFixtureFile(configDir: string, email: BuiltEmail, file: string): bool
   return inside(fixtureDirectory(configDir, email.fixturesPattern), file)
 }
 
-export function fixtureDirectory(configDir: string, pattern: string): string {
-  const parts = pattern
-    .replaceAll('\\', '/')
-    .split('/')
-    .filter((part) => part.length > 0 && !part.includes('*'))
-  return path.resolve(configDir, ...parts)
+function schemaEmailId(schemasDir: string, emails: readonly BuiltEmail[], file: string): string | null {
+  if (!file.endsWith('.ts')) return null
+  if (!samePath(path.dirname(file), schemasDir)) return null
+  const fileKey = path.basename(file, '.ts')
+  const email = emails.find((item) => emailFileKey(item.file) === fileKey)
+  return email?.id ?? null
+}
+
+function emailFileKey(file: string): string | null {
+  const base = path.basename(file)
+  if (!base.endsWith('.email.tsx')) return null
+  return base.slice(0, -'.email.tsx'.length)
+}
+
+export function fixtureDirectory(configDir: string, fixturesRelative: string): string {
+  return path.resolve(configDir, fixturesRelative)
 }
 
 function isEmailEntry(roots: readonly string[], file: string): boolean {

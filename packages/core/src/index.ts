@@ -9,11 +9,12 @@ export { assembleDocument, type AssembleDocumentInput } from './compile/assemble
 export { validateHandlebarsSyntax } from './compile/syntax'
 export { unverifiedCapabilityDiagnostic } from './compile/target'
 export {
-  defineEmail,
   isSafeEmailId,
   type EmailDefinition,
   type EmailDocument,
   type EmailI18n,
+  type EmailI18nSettings,
+  type EmailSettings,
   type EmailValidationOverride,
 } from './define-email'
 export { errorDiagnostic, warningDiagnostic, type Diagnostic, type DiagnosticSource, type Failure } from './diagnostics'

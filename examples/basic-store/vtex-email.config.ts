@@ -4,12 +4,15 @@ import { defineConfig } from '@vtex-email/cli'
 export default defineConfig({
   emails: ['emails/**/*.email.tsx'],
   outDir: 'dist',
+  fixturesDir: 'fixtures',
+  schemasDir: 'schemas',
   target: { profile: './vtex-target.ts' },
   i18n: {
     locales: ['pt-BR', 'en-US'],
     defaultLocale: 'pt-BR',
     catalogs: 'locales/{locale}.json',
     missingKey: 'error',
+    localePath: 'locale',
   },
   tailwind: {
     presets: [pixelBasedPreset],

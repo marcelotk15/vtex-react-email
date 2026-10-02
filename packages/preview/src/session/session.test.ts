@@ -76,6 +76,13 @@ describe('preview session', () => {
     expect(compiled).toEqual([])
     expect(refreshed).toBe(1)
 
+    compiled = []
+    refreshed = 0
+    const jsonc = path.join(root, 'fixtures', 'alpha', 'two.jsonc')
+    await session.ingest([jsonc])
+    expect(compiled).toEqual([])
+    expect(refreshed).toBe(1)
+
     await session.ingest([shared])
     expect(compiled).toEqual([['alpha', 'beta']])
     await rm(root, { recursive: true, force: true })
@@ -214,6 +221,7 @@ function paths(root: string, emailsDir = path.join(root, 'emails')): SessionPath
     profilePath: path.join(root, 'vtex-target.ts'),
     catalogFiles: [path.join(root, 'locales', 'pt-BR.json')],
     emailRoots: [emailsDir],
+    schemasDir: path.join(root, 'schemas'),
   }
 }
 
@@ -252,7 +260,7 @@ function fakeEmail(root: string, id: string, fixtureIds: string[], dependencies:
       },
       negative: false,
     })),
-    fixturesPattern: `fixtures/${id}/*.json`,
+    fixturesPattern: `fixtures/${id}`,
     file: path.join(root, 'emails', `${id}.email.tsx`),
     schema: {} as BuiltEmail['schema'],
     manifest: null,

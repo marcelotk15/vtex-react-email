@@ -1,0 +1,6 @@
+// Valid authentication code used by the basic-store example.
+{
+  "locale": "pt-BR",
+  "code": "AUTH-KEEP",
+  "expired": false,
+}

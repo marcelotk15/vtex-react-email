@@ -15,6 +15,7 @@ const external = [
   '@react-email/render',
   '@react-email/tailwind',
   'esbuild',
+  'zod',
 ]
 
 export type LoadEmailResult =
@@ -97,6 +98,8 @@ async function bundleEntry(
       jsx: 'automatic',
       logLevel: 'silent',
       metafile: options.metafile,
+      mainFields: ['module', 'main'],
+      conditions: ['import', 'module', 'default'],
       external,
       plugins: options.guardTemplate ? [rejectTemplateImports(entry, options.onReject)] : [],
     })

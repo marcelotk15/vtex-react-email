@@ -97,6 +97,7 @@ export interface PreviewResult {
 export interface ResolvedEmail {
   definition: EmailDefinition<() => unknown>
   file: string
+  fileKey: string
   dependencies: string[]
   locales: string[]
   defaultLocale: string

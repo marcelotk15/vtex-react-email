@@ -1,10 +1,14 @@
 import { Section, Text } from '@react-email/components'
-import { defineEmail } from '@vtex-email/core'
+import type { EmailSettings } from '@vtex-email/core'
 import { Email, Trans, Vtex } from '@vtex-email/react'
 
-import { AuthCodeSchema } from '../schemas/auth-code'
+export const settings = {
+  i18n: {
+    output: 'per-locale',
+  },
+} satisfies EmailSettings
 
-export function AuthCode() {
+export default function AuthCode() {
   return (
     <Email className="m-0 bg-white font-sans">
       <Section>
@@ -23,15 +27,3 @@ export function AuthCode() {
     </Email>
   )
 }
-
-export default defineEmail({
-  id: 'auth-code',
-  event: 'auth-code',
-  template: AuthCode,
-  schema: AuthCodeSchema,
-  fixtures: 'fixtures/auth-code/*.json',
-  i18n: {
-    localePath: 'locale',
-    output: 'per-locale',
-  },
-})

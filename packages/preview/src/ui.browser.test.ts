@@ -147,7 +147,7 @@ describe('preview workbench', () => {
       await expect.poll(() => frameDocument(page).then((value) => value.includes("img-src 'none'"))).toBe(true)
       expect(await readFile(emailFile, 'utf8')).not.toContain('Content-Security-Policy')
 
-      await writeFile(emailFile, originalEmail.replace('export function', 'export function <<<'))
+      await writeFile(emailFile, originalEmail.replace('export default function', 'export default function <<<'))
       await page.getByText('Stale').waitFor({ timeout: 20_000 })
       await frame.getByRole('img', { name: 'Camisa' }).waitFor()
       await page.getByRole('tab', { name: /^Diagnostics/ }).click()

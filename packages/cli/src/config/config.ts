@@ -5,6 +5,8 @@ import path from 'node:path'
 import { z } from 'zod'
 
 const defaults = {
+  fixturesDir: 'fixtures',
+  schemasDir: 'schemas',
   validation: {
     unknownPath: 'error',
     unverifiedCapability: 'error',
@@ -24,6 +26,8 @@ const defaults = {
 const ConfigSchema = z.strictObject({
   emails: z.array(z.string().min(1)).min(1),
   outDir: z.string().min(1),
+  fixturesDir: z.string().min(1).optional(),
+  schemasDir: z.string().min(1).optional(),
   target: z.strictObject({
     profile: z.string().min(1),
   }),
@@ -32,6 +36,7 @@ const ConfigSchema = z.strictObject({
     defaultLocale: z.string().min(1),
     catalogs: z.string().min(1),
     missingKey: z.literal('error'),
+    localePath: z.string().min(1).optional(),
   }),
   tailwind: z.custom<CompileEmailInput['tailwind']>(
     (value) => value !== null && typeof value === 'object' && !Array.isArray(value),
@@ -64,6 +69,9 @@ export interface ResolvedConfig {
   configDir: string
   emails: string[]
   outDir: string
+  fixturesDir: string
+  schemasDir: string
+  localePath: string | null
   profilePath: string
   locales: string[]
   defaultLocale: string
@@ -107,8 +115,15 @@ export function validateConfig(
   if (!parsed.data.i18n.locales.includes(parsed.data.i18n.defaultLocale)) {
     return { ok: false, diagnostics: [errorDiagnostic('CFG001', 'defaultLocale must be one of locales.')] }
   }
+  const fixturesDir = parsed.data.fixturesDir ?? defaults.fixturesDir
+  const schemasDir = parsed.data.schemasDir ?? defaults.schemasDir
   const outDir = path.resolve(configDir, parsed.data.outDir)
-  const sourceDirs = [staticRoot(parsed.data.emails[0] ?? 'emails'), staticRoot(parsed.data.i18n.catalogs), 'fixtures']
+  const sourceDirs = [
+    staticRoot(parsed.data.emails[0] ?? 'emails'),
+    staticRoot(parsed.data.i18n.catalogs),
+    staticRoot(fixturesDir),
+    staticRoot(schemasDir),
+  ]
   const outputError = outputDirectoryError(configDir, outDir, sourceDirs)
   if (outputError) return { ok: false, diagnostics: [errorDiagnostic('CFG001', outputError)] }
   return {
@@ -117,6 +132,9 @@ export function validateConfig(
       configDir,
       emails: parsed.data.emails,
       outDir,
+      fixturesDir,
+      schemasDir,
+      localePath: parsed.data.i18n.localePath ?? null,
       profilePath: path.resolve(configDir, parsed.data.target.profile),
       locales: parsed.data.i18n.locales,
       defaultLocale: parsed.data.i18n.defaultLocale,
@@ -142,7 +160,8 @@ export function configuredOutputError(config: ResolvedConfig, candidate: string)
   return outputDirectoryError(config.configDir, outDir, [
     staticRoot(config.emails[0] ?? 'emails'),
     staticRoot(config.catalogs),
-    'fixtures',
+    staticRoot(config.fixturesDir),
+    staticRoot(config.schemasDir),
   ])
 }
 

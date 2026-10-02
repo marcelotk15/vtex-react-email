@@ -1,7 +1,6 @@
 import {
   checkFixture,
   commitArtifacts,
-  defineEmail,
   evaluateArtifact,
   mergeLocaleDocuments,
   normalizeOutput,
@@ -60,19 +59,11 @@ async function readJson<T>(file: string): Promise<T> {
 
 function compileLocale(locale: string, catalog: Readonly<Record<string, string>>): Promise<CompileEmailResult> {
   return compileEmail({
-    email: defineEmail({
+    email: {
       id: 'order-confirmed',
       event: 'order-confirmed',
       template: OrderConfirmed,
-      schema: OrderConfirmedSchema,
-      fixtures: 'fixtures/order-confirmed/*.json',
-      i18n: {
-        locales: ['pt-BR', 'en-US'],
-        defaultLocale: 'pt-BR',
-        localePath: 'orders.0.clientPreferencesData.locale',
-        output: 'merged',
-      },
-    }),
+    },
     locale,
     catalog,
     profile: p0Profile,

@@ -1,10 +1,16 @@
 import { Section, Text } from '@react-email/components'
-import { defineEmail } from '@vtex-email/core'
+import type { EmailSettings } from '@vtex-email/core'
 import { Email, expr, Trans, Vtex } from '@vtex-email/react'
 
-import { OrderConfirmedSchema } from '../schemas/order-confirmed'
+export const settings = {
+  i18n: {
+    localePath: 'orders.0.clientPreferencesData.locale',
+    output: 'merged',
+    aliases: { 'pt-br': 'pt-BR' },
+  },
+} satisfies EmailSettings
 
-export function OrderConfirmed() {
+export default function OrderConfirmed() {
   return (
     <Email className="m-0 bg-white font-sans">
       <Section className="mx-auto bg-white p-6 sm:p-4">
@@ -36,16 +42,3 @@ export function OrderConfirmed() {
     </Email>
   )
 }
-
-export default defineEmail({
-  id: 'order-confirmed',
-  event: 'order-confirmed',
-  template: OrderConfirmed,
-  schema: OrderConfirmedSchema,
-  fixtures: 'fixtures/order-confirmed/*.json',
-  i18n: {
-    localePath: 'orders.0.clientPreferencesData.locale',
-    output: 'merged',
-    aliases: { 'pt-br': 'pt-BR' },
-  },
-})

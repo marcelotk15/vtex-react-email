@@ -158,7 +158,7 @@ Os módulos devem ser pequenos por responsabilidade, sem impor uma classe ou int
 | `tests/golden/`         | Artefatos de regressão                   |
 | `docs/`                 | Guia, referência, decisões e limitações  |
 
-Um projeto consumidor contém `vtex-email.config.ts`, `emails/`, `components/`, `schemas/`, `fixtures/`, `locales/`, `assets/` e `dist/`. Exemplos de nomes: `emails/order-confirmed.email.tsx`, `fixtures/order-confirmed/default.json`, `locales/pt-BR.json`.
+Um projeto consumidor contém `vtex-email.config.ts`, `emails/`, `components/`, `schemas/`, `fixtures/`, `locales/`, `assets/` e `dist/`. Exemplos de nomes: `emails/order-confirmed.email.tsx`, `fixtures/order-confirmed/default.json` (ou `.jsonc` com sidecar `default.meta.json`), `locales/pt-BR.json`.
 
 `dist/` e cache são gerados. Arquivos de configuração, fixtures sanitizadas, schemas, traduções e componentes são versionados. Nenhum arquivo secreto é necessário.
 
@@ -170,12 +170,15 @@ import { defineConfig } from '@vtex-email/cli'
 export default defineConfig({
   emails: ['emails/**/*.email.tsx'],
   outDir: 'dist',
+  fixturesDir: 'fixtures',
+  schemasDir: 'schemas',
   target: { profile: './vtex-target.json' },
   i18n: {
     locales: ['pt-BR', 'en-US', 'es-CO'],
     defaultLocale: 'pt-BR',
     catalogs: 'locales/{locale}.json',
     missingKey: 'error',
+    localePath: 'locale',
   },
   tailwind: {
     preset: 'email-safe',
@@ -205,34 +208,55 @@ Regras de configuração:
 - Paths resolvidos em relação ao diretório da configuração, não ao cwd ocasional.
 - IDs únicos e restritos a caracteres seguros para nomes de arquivo.
 - `outDir` não pode coincidir com diretório de fontes, raiz do projeto ou ancestral dela.
-- Overrides por email são permitidos apenas para campos documentados; a precedência é email → projeto → defaults.
+- Overrides por email (`settings`) são permitidos apenas para campos documentados; a precedência é settings → projeto → convenção do arquivo.
+- `schemasDir` (default `schemas`) associa `{schemasDir}/{fileKey}.ts` com `export default` Zod à chave do arquivo (basename sem `.email.tsx`).
+- `i18n.localePath` no projeto é o default; se ausente no projeto e no email, a resolução falha com diagnóstico.
 - Configuração TypeScript é código confiável local, não um formato seguro para executar projetos de terceiros.
 
 ## 9. Definição de email
 
-```tsx
-import { defineEmail } from '@vtex-email/core'
-import { OrderConfirmedSchema } from '../schemas/order-confirmed'
-import { OrderConfirmed } from '../components/order-confirmed'
+O default export é o componente React. Overrides opcionais ficam em `export const settings`.
 
-export default defineEmail({
-  id: 'order-confirmed',
-  event: 'order-confirmed',
-  template: OrderConfirmed,
-  schema: OrderConfirmedSchema,
-  fixtures: 'fixtures/order-confirmed/*.json',
+```tsx
+import type { EmailSettings } from '@vtex-email/core'
+import { Email, Trans, Vtex } from '@vtex-email/react'
+
+export const settings = {
   i18n: {
-    locales: ['pt-BR', 'en-US'],
-    defaultLocale: 'pt-BR',
     localePath: 'orders.0.clientPreferencesData.locale',
     output: 'merged',
+    aliases: { 'pt-br': 'pt-BR' },
   },
-})
+} satisfies EmailSettings
+
+export default function OrderConfirmed() {
+  return (
+    <Email className="m-0 bg-white font-sans">
+      {/* … */}
+    </Email>
+  )
+}
 ```
+
+Exemplo mínimo (quando `{schemasDir}/{fileKey}.ts` e `localePath` do projeto bastam):
+
+```tsx
+import { Email, Trans, Vtex } from '@vtex-email/react'
+
+export default function AuthCode() {
+  return (
+    <Email className="m-0 bg-white font-sans">{/* … */}</Email>
+  )
+}
+```
+
+Para `auth-code.email.tsx`, a chave é `auth-code`: `id`/`event` default, fixtures em `{fixturesDir}/auth-code/`, schema em `{schemasDir}/auth-code.ts` (`export default`). Sobrescrever `id` ou `event` em `settings` não muda a pasta de fixtures nem o arquivo de schema.
 
 `event` é metadado local, não um identificador registrado automaticamente na VTEX. O schema e o `localePath` devem corresponder ao JSON do evento escolhido. Não se presume que todo evento contenha `orders`.
 
 O componente não recebe o JSON da fixture como props. Ele pode receber configuração estática aprovada — tema, marca e parâmetros de composição — mas não dados de pedido resolvidos localmente.
+
+Fixtures aceitam `.json` (estrito) e `.jsonc` (comentários e trailing commas). Ambas exigem o sidecar `{id}.meta.json`. Colisão entre `default.json` e `default.jsonc` é erro.
 
 Um assunto pode ser definido como expressão textual separada em fase posterior. O corpo HTML nunca deve ser reutilizado como assunto. O suporte de helpers nesse campo exige sua própria verificação de destino.
 

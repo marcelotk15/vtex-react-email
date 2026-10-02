@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const OrderConfirmedSchema = z.looseObject({
+export default z.looseObject({
   orders: z.array(
     z.looseObject({
       orderId: z.string(),

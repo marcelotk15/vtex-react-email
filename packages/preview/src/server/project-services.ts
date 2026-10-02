@@ -27,6 +27,7 @@ export function previewPaths(config: ResolvedConfig, configPath: string): Sessio
       .map((pattern) => emailRoot(pattern))
       .filter((root) => root.length > 0)
       .map((root) => path.resolve(config.configDir, root)),
+    schemasDir: path.resolve(config.configDir, config.schemasDir),
   }
 }
 

@@ -33,10 +33,10 @@ describe('remote image display', () => {
   it('uses the same function and the view warning in the workbench', () => {
     const frame = readFileSync(new URL('../ui/canvas/email-frame.tsx', import.meta.url), 'utf8')
     const canvas = readFileSync(new URL('../ui/canvas/canvas.tsx', import.meta.url), 'utf8')
-    const toolbar = readFileSync(new URL('../ui/toolbar/toolbar.tsx', import.meta.url), 'utf8')
+    const properties = readFileSync(new URL('../ui/properties/properties-panel.tsx', import.meta.url), 'utf8')
     expect(frame).toContain('displayDocument(html, blocked)')
     expect(frame).toContain("setAttribute('sandbox', '')")
     expect(canvas).toContain('Remote images are blocked in this view. The template was not changed.')
-    expect(toolbar).toContain('Block remote images')
+    expect(properties).toContain('Block remote images')
   })
 })
