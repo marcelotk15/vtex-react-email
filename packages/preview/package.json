@@ -8,8 +8,8 @@
   },
   "dependencies": {
     "@base-ui/react": "1.8.0",
-    "@fontsource/ibm-plex-mono": "5.3.0",
-    "@fontsource/ibm-plex-sans": "5.3.0",
+    "@fontsource/jetbrains-mono": "5.2.8",
+    "@fontsource/public-sans": "5.2.7",
     "@react-email/components": "1.0.12",
     "@tailwindcss/node": "4.1.18",
     "@tailwindcss/oxide": "4.1.18",

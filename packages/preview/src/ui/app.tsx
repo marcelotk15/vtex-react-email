@@ -5,6 +5,7 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { createPreviewClient } from './client/preview-client'
 import { PreviewProvider } from './client/preview-context'
 import { PrefsProvider } from './prefs/prefs-context'
+import { ThemeProvider } from './theme/theme-context'
 import { Workbench } from './workbench/workbench'
 
 export function App() {
@@ -12,11 +13,13 @@ export function App() {
   useEffect(() => client.connect(), [client])
   return (
     <TooltipProvider delay={400}>
-      <PreviewProvider client={client}>
-        <PrefsProvider storage={window.localStorage}>
-          <Workbench />
-        </PrefsProvider>
-      </PreviewProvider>
+      <ThemeProvider storage={window.localStorage}>
+        <PreviewProvider client={client}>
+          <PrefsProvider storage={window.localStorage}>
+            <Workbench />
+          </PrefsProvider>
+        </PreviewProvider>
+      </ThemeProvider>
     </TooltipProvider>
   )
 }

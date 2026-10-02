@@ -29,8 +29,8 @@ export function Canvas({
     if (!node) return
     const measure = () => {
       setSpace({
-        width: Math.max(160, node.clientWidth - 48),
-        height: Math.max(160, node.clientHeight - 84),
+        width: Math.max(160, node.clientWidth - 32),
+        height: Math.max(160, node.clientHeight - 64),
       })
     }
     measure()
@@ -47,41 +47,43 @@ export function Canvas({
   const onMeasure = useCallback((size: { width: number; height: number }) => {
     setMeasured((current) => (current.width === size.width && current.height === size.height ? current : size))
   }, [])
+  const frameLabel = choice.width == null ? choice.label : `${choice.label} · ${choice.width}px`
+  const sizeLabel = `${measured.width} × ${measured.height}`
 
   return (
     <div className="relative flex min-h-0 flex-1 flex-col bg-canvas">
       {compiling ? <div aria-hidden="true" className="compile-bar absolute inset-x-0 top-0" /> : null}
-      <div ref={stage} className="flex min-h-0 flex-1 justify-center overflow-auto p-6">
+      <div ref={stage} className="flex min-h-0 flex-1 justify-center overflow-auto p-3">
         <div className="flex min-h-full flex-col items-center">
           <div
-            className={`mb-2 flex h-7 shrink-0 items-center justify-between gap-3 px-1 font-mono text-[12px] ${stale ? 'bg-warning-tint text-[#7F5200]' : 'text-muted-foreground'}`}
+            className={`mb-1.5 flex h-6 shrink-0 items-center justify-between gap-3 ${
+              stale ? 'border border-border bg-warning-tint px-1.5 text-foreground' : 'px-0.5 text-muted-foreground'
+            }`}
             style={{ width: frameWidth }}
           >
-            <span>
-              {stale ? 'Último resultado válido · ver Diagnósticos' : 'viewport'}
-              {blocked ? ' · imagens bloqueadas' : ''}
+            <span className={stale ? 'type-meta' : 'type-code'}>
+              {stale ? 'Last valid result · see Diagnostics' : frameLabel}
+              {blocked ? ' · images blocked' : ''}
               {blocked ? (
-                <span className="sr-only">
-                  Imagens remotas bloqueadas nesta visualização. O template não foi alterado.
-                </span>
+                <span className="sr-only">Remote images are blocked in this view. The template was not changed.</span>
               ) : null}
             </span>
-            <span>
-              {measured.width} × {measured.height}
+            <span className="type-code" title="Rendered frame size">
+              {sizeLabel}
             </span>
           </div>
           {failed || !state ? (
-            <div className="grid w-[28rem] max-w-full place-items-center px-4 py-10">
-              <Empty className="border-0 bg-transparent p-0">
+            <div className="w-md max-w-full py-2">
+              <Empty className="p-0">
                 <EmptyHeader>
-                  <EmptyTitle>{state ? 'Não foi possível atualizar' : 'Conectando ao servidor de preview.'}</EmptyTitle>
+                  <EmptyTitle>{state ? 'Could not update' : 'Connecting to the preview server.'}</EmptyTitle>
                   <EmptyDescription>
-                    {state?.diagnostics[0]?.message ?? 'O último resultado válido continua disponível quando existir.'}
+                    {state?.diagnostics[0]?.message ?? 'The last valid result remains available when one exists.'}
                   </EmptyDescription>
                 </EmptyHeader>
                 {state ? (
                   <Button size="sm" type="button" variant="outline" onClick={onOpenDiagnostics}>
-                    Ver diagnósticos
+                    View diagnostics
                   </Button>
                 ) : null}
               </Empty>

@@ -1,6 +1,10 @@
 {
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "oxc.oxc-vscode",
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "css.validate": false,
   "[javascript]": {
     "editor.defaultFormatter": "oxc.oxc-vscode"
   },

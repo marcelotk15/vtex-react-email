@@ -134,12 +134,12 @@ function TreeItem({
 }) {
   const failed = row.kind === 'fixture' && errors.has(`${row.emailId}/${row.fixtureId}`)
   return (
-    <div className={row.depth === 1 ? 'tree-guide ml-3.5' : undefined}>
+    <div className={row.depth === 1 ? 'tree-guide ml-3' : undefined}>
       <div
         aria-expanded={row.kind === 'email' ? row.expanded : undefined}
         aria-level={row.depth + 1}
         aria-selected={row.kind === 'fixture' ? selected : undefined}
-        className={`tree-item flex h-7 cursor-pointer items-center gap-1.5 pr-2 text-[13px] outline-none hover:bg-muted ${row.depth === 0 ? 'pl-2' : 'pl-2'}`}
+        className={`tree-item type-ui flex h-8 cursor-pointer items-center gap-1 pr-2 outline-none ${row.depth === 0 ? 'pl-2' : 'pl-1.5'}`}
         data-row={row.id}
         role="treeitem"
         tabIndex={row.id === current ? 0 : -1}
@@ -153,18 +153,22 @@ function TreeItem({
       >
         {row.kind === 'email' ? (
           <ChevronRight
-            className={`size-3.5 shrink-0 text-muted-foreground ${row.expanded ? 'rotate-90' : ''} ${row.emailId === activeEmail ? 'text-primary' : ''}`}
+            className={`size-4 shrink-0 text-muted-foreground ${row.expanded ? 'rotate-90' : ''}`}
           />
         ) : (
-          <span className="w-3.5 shrink-0" />
+          <span className="w-4 shrink-0" />
         )}
-        <span className={`min-w-0 flex-1 truncate ${row.kind === 'fixture' ? 'font-mono text-[12px]' : ''}`}>
+        <span
+          className={`min-w-0 flex-1 truncate ${
+            row.kind === 'fixture' ? 'type-code' : row.emailId === activeEmail ? 'font-semibold' : ''
+          }`}
+        >
           {row.label}
         </span>
         {row.expectedLocale ? (
-          <span className="shrink-0 font-mono text-[11px] text-muted-foreground">{row.expectedLocale}</span>
+          <span className="type-code shrink-0 text-muted-foreground">{row.expectedLocale}</span>
         ) : null}
-        {failed ? <span aria-label="Erro" className="size-1.5 shrink-0 rounded-full bg-destructive" /> : null}
+        {failed ? <span aria-label="Error" className="size-1.5 shrink-0 rounded-full bg-destructive" /> : null}
       </div>
     </div>
   )

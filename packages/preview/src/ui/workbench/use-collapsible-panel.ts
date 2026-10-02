@@ -44,8 +44,8 @@ export function useCollapsiblePanel(
   }, [open, query])
 
   function toggle(): boolean {
+    const opening = !shown
     const panel = panelRef.current
-    const opening = panel?.isCollapsed() ?? !shown
     if (opening) panel?.expand()
     else panel?.collapse()
     setShown(opening)

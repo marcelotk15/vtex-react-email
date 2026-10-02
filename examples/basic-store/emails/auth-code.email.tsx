@@ -15,7 +15,7 @@ export function AuthCode() {
           <Vtex.Value path="code" />
         </Text>
         <Vtex.Unless path="expired">
-          <Text>
+          <Text className="text-black bg-red-500">
             <Trans id="auth.active" />
           </Text>
         </Vtex.Unless>

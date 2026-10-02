@@ -45,20 +45,21 @@ export function Sidebar({
   const visible = filterEmails(emails, query)
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-panel text-foreground">
-      <div className="flex h-9 shrink-0 items-center border-b border-border px-3">
-        <p className="truncate font-mono text-[12px] text-muted-foreground" title={name || 'vtex-email'}>
+      <div className="flex h-8 shrink-0 items-center gap-2 border-b border-border px-3">
+        <p className="type-section-title shrink-0">Stories</p>
+        <p className="type-code min-w-0 truncate text-muted-foreground" title={name || 'vtex-email'}>
           {name || 'vtex-email'}
         </p>
       </div>
-      <div className="shrink-0 px-2 py-1">
+      <div className="shrink-0 border-b border-border px-2 py-1.5">
         <div className="relative">
-          <Search className="pointer-events-none absolute top-1.5 left-2 size-3.5 text-muted-foreground" />
+          <Search className="pointer-events-none absolute top-2 left-2 size-4 text-muted-foreground" />
           <Input
             ref={searchRef}
-            aria-label="Buscar email ou fixture"
-            className="h-7 pl-7 text-[13px]"
+            aria-label="Search email or fixture"
+            className="h-8 type-ui pl-8"
             id={searchId}
-            placeholder="Buscar email ou fixture"
+            placeholder="Search email or fixture"
             value={query}
             onChange={(event) => onQuery(event.target.value)}
             onKeyDown={(event) => {
@@ -71,20 +72,20 @@ export function Sidebar({
         </div>
       </div>
       {loading ? (
-        <div className="grid gap-2 px-3 py-2">
-          <Skeleton className="h-4 w-3/4" />
-          <Skeleton className="ml-4 h-4 w-1/2" />
-          <Skeleton className="h-4 w-2/3" />
+        <div className="grid gap-1.5 px-3 py-2">
+          <Skeleton className="h-3.5 w-3/4" />
+          <Skeleton className="ml-4 h-3.5 w-1/2" />
+          <Skeleton className="h-3.5 w-2/3" />
         </div>
       ) : visible.length === 0 && query.trim().length > 0 ? (
-        <div className="grid gap-2 px-3 py-3">
-          <p className="text-[13px] text-muted-foreground">Nenhum resultado para “{query.trim()}”.</p>
+        <div className="grid gap-2 px-3 py-2">
+          <p className="type-ui text-muted-foreground">No results for “{query.trim()}”.</p>
           <Button className="justify-self-start" size="sm" type="button" variant="outline" onClick={() => onQuery('')}>
-            Limpar
+            Clear
           </Button>
         </div>
       ) : emails.length === 0 ? (
-        <p className="px-3 py-3 text-[13px] text-muted-foreground">Nenhum email neste projeto.</p>
+        <p className="type-ui px-3 py-2 text-muted-foreground">No emails in this project.</p>
       ) : (
         <TemplateTree
           diagnostics={diagnostics}

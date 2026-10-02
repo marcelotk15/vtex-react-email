@@ -5,6 +5,7 @@ export function useWorkbenchShortcuts(input: {
   sheet: boolean
   onOpenSearch: () => void
   onToggleNav: () => void
+  onToggleProperties: () => void
   onToggleInspector: () => void
 }): void {
   const pendingSearch = useRef(false)
@@ -27,10 +28,14 @@ export function useWorkbenchShortcuts(input: {
         return
       }
       if (!event.altKey) return
-      if (event.key.toLowerCase() === 's') {
+      const key = event.key.toLowerCase()
+      if (key === 's') {
         event.preventDefault()
         input.onToggleNav()
-      } else if (event.key.toLowerCase() === 'i') {
+      } else if (key === 'p') {
+        event.preventDefault()
+        input.onToggleProperties()
+      } else if (key === 'i') {
         event.preventDefault()
         input.onToggleInspector()
       }

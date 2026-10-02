@@ -44,7 +44,7 @@ export const EmailFrame = memo(function EmailFrame({
   return (
     <iframe
       ref={frame}
-      className="block shrink-0 border-0 bg-white"
+      className="block shrink-0 border-0"
       data-testid="email-frame"
       sandbox=""
       style={{ width, height }}

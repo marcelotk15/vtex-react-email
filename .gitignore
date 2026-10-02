@@ -7,4 +7,5 @@ examples/basic-store/out/
 examples/basic-store/.cli-*
 examples/basic-store/preview/
 .cache/
+.preview-shots/
 .DS_Store

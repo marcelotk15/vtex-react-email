@@ -21,9 +21,12 @@ describe('preview preferences', () => {
       JSON.stringify({
         sidebar: 900,
         sidebarOpen: false,
+        properties: 10,
+        propertiesOpen: false,
+        propertiesTab: 'diagnostics',
         inspector: 10,
         inspectorOpen: 'yes',
-        tab: 'diagnostics',
+        tab: 'source',
         viewport: 'wide',
         expanded: ['order', 4],
         data: { secret: true },
@@ -34,9 +37,12 @@ describe('preview preferences', () => {
     expect(prefs).toEqual({
       sidebar: 360,
       sidebarOpen: false,
+      properties: 220,
+      propertiesOpen: false,
+      propertiesTab: 'diagnostics',
       inspector: 160,
       inspectorOpen: true,
-      tab: 'diagnostics',
+      tab: 'source',
       viewport: 'wide',
       expanded: ['order'],
     })
@@ -44,12 +50,43 @@ describe('preview preferences', () => {
     expect(prefs).not.toHaveProperty('html')
   })
 
+  it('migrates legacy diagnostics tab into the properties panel', () => {
+    const storage = memory()
+    storage.setItem(
+      'vtex-email.preview.ui.v1',
+      JSON.stringify({
+        sidebar: 248,
+        sidebarOpen: true,
+        inspector: 280,
+        inspectorOpen: true,
+        tab: 'diagnostics',
+        viewport: 'desktop',
+        expanded: [],
+      }),
+    )
+    const prefs = readPrefs(storage)
+    expect(prefs.tab).toBe('data')
+    expect(prefs.propertiesTab).toBe('diagnostics')
+    expect(prefs.propertiesOpen).toBe(true)
+  })
+
   it('writes a versioned object without fixture content', () => {
     const storage = memory()
     writePrefs(storage, { ...defaultPrefs, viewport: 'mobile', expanded: ['auth-code'] })
     const stored = JSON.parse(storage.raw() ?? '{}') as Record<string, unknown>
     expect(Object.keys(stored).sort()).toEqual(
-      ['expanded', 'inspector', 'inspectorOpen', 'sidebar', 'sidebarOpen', 'tab', 'viewport'].sort(),
+      [
+        'expanded',
+        'inspector',
+        'inspectorOpen',
+        'properties',
+        'propertiesOpen',
+        'propertiesTab',
+        'sidebar',
+        'sidebarOpen',
+        'tab',
+        'viewport',
+      ].sort(),
     )
     expect(JSON.stringify(stored)).not.toContain('fixture')
   })

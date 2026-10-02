@@ -7,7 +7,7 @@ export interface LocaleOption {
 
 export function localeOptions(locales: readonly string[]): LocaleOption[] {
   return [
-    { value: 'runtime', label: 'Locale da fixture' },
+    { value: 'runtime', label: 'Fixture locale' },
     ...locales.map((locale) => ({ value: `forced:${locale}`, label: locale })),
   ]
 }

@@ -26,7 +26,7 @@ export function CopyButton({ value, label }: { value: string; label: string }) {
       onClick={() => void copy()}
     >
       {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
-      {copied ? 'Copiado' : label}
+      {copied ? 'Copied' : label}
     </Button>
   )
 }
@@ -35,14 +35,14 @@ export function CodeView({ value, highlight }: { value: string; highlight: boole
   const lines = value.length > 0 ? value.split('\n') : []
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div className="flex min-h-0 flex-1 flex-col bg-code-bg text-code-fg">
       {lines.length === 0 ? (
-        <p className="px-3 py-3 text-[13px] text-muted-foreground">Nada para mostrar.</p>
+        <p className="type-ui px-3 py-3 text-muted-foreground">Nothing to show.</p>
       ) : (
-        <pre className="m-0 min-h-0 flex-1 overflow-auto px-2 py-2 font-mono text-[12px] leading-5">
+        <pre className="type-code m-0 min-h-0 flex-1 overflow-auto px-2 py-2">
           {lines.map((line, index) => (
             <span key={index} className="flex">
-              <span className="w-10 shrink-0 pr-3 text-right text-muted-foreground select-none">{index + 1}</span>
+              <span className="w-10 shrink-0 pr-3 text-right text-code-muted select-none">{index + 1}</span>
               <span className="min-w-0 flex-1">{highlight ? highlightLine(line) : line || ' '}</span>
             </span>
           ))}
@@ -56,7 +56,7 @@ function highlightLine(line: string) {
   const parts = line.split(/(\{\{[\s\S]*?\}\})/g)
   return parts.map((part, index) =>
     part.startsWith('{{') ? (
-      <span key={index} className="text-primary">
+      <span key={index} className="text-syntax-mustache">
         {part}
       </span>
     ) : (

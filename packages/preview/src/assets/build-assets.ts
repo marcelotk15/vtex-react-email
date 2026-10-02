@@ -2,6 +2,7 @@ import * as esbuild from 'esbuild'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { themeBootScript } from '../ui/theme/theme'
 import { boundaryPlugin } from './browser-boundary'
 import { tailwindPlugin } from './interface-css'
 
@@ -78,7 +79,8 @@ function shellDocument(script: string, style: string): string {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>vtex-email</title>${stylesheet}
+  <title>vtex-email</title>
+  <script>${themeBootScript()}</script>${stylesheet}
 </head>
 <body>
   <div id="root"></div>

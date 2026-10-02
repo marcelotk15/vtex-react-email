@@ -1,0 +1,37 @@
+---
+description: Anti-slop UI defaults — avoid AI design tells in product UI
+globs: packages/preview/src/ui/**/*.{tsx,css}
+alwaysApply: false
+---
+
+# Anti-Slop UI
+
+Dense product chrome, not marketing pages. Do not apply landing section padding, 60/40 grids, or 1200px max-width to the workbench.
+
+## Never
+
+- Gradient backgrounds or CTAs (especially blue→purple)
+- Glassmorphism / backdrop-blur, floating orbs, aurora wallpaper
+- `rounded-3xl` everywhere; drop shadows on every card
+- Hover effects on non-interactive elements
+- Emoji in headings; decorative stock/abstract hero imagery
+- Colored body text on colored backgrounds for decoration
+
+## Defaults
+
+- Background: solid. Radius: 4px (theme). Cards: border, not shadow (one shadow/page max)
+- Palette: one accent + grays. Text: near-black / near-white on surfaces
+- Hover: opacity, underline, or border — subtle. Animation: opacity + transform, ~200ms ease-out
+- CTA: solid fill
+
+## Typography
+
+Use size, weight, case/tracking, color, and family — not size alone.
+
+- Display: lighter (300–400). Body: 400. Labels/emphasis: 600
+- Labels/eyebrows: uppercase + letter-spacing (use `.type-label`); mono for metadata/code
+- Chrome may stay 14px; empty-state / readable body prefer ≥16px when space allows
+
+## Semantic status
+
+Tint backgrounds + icons OK. Prefer `text-foreground` / `text-muted-foreground` on tints; put semantic color on the icon. Avoid `text-warning` on `bg-warning-tint` when border + muted text works.

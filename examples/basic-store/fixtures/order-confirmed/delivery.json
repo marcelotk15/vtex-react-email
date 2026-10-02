@@ -2,7 +2,7 @@
   "orders": [
     {
       "orderId": "ORDER-KEEP",
-      "clientProfileData": { "firstName": "Ada" },
+      "clientProfileData": { "firstName": "Caramujo" },
       "clientPreferencesData": { "locale": "en-US" },
       "shippingData": { "address": { "street": "Rua das Flores" } },
       "items": [{ "name": "Caderno", "quantity": 1 }]

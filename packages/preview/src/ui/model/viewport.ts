@@ -12,8 +12,8 @@ export interface ViewportChoice {
 export const viewportChoices: readonly ViewportChoice[] = [
   { id: 'mobile', label: 'Mobile', width: 375, height: 667 },
   { id: 'desktop', label: 'Desktop', width: 600, height: null },
-  { id: 'wide', label: 'Largo', width: 1024, height: null },
-  { id: 'fit', label: 'Ajustar', width: null, height: null },
+  { id: 'wide', label: 'Wide', width: 1024, height: null },
+  { id: 'fit', label: 'Fit', width: null, height: null },
 ]
 
 export function viewportChoice(id: string): ViewportChoice {

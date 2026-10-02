@@ -14,7 +14,7 @@ export function OrderConfirmed() {
               <Trans id="order.hello" values={{ name: expr.path('clientProfileData.firstName') }} />
             </Text>
             <Vtex.Each path="items">
-              <Text className="text-red-300 bg-black">
+              <Text className="bg-red-900 text-white text-lg">
                 <Vtex.Value path="name" />
               </Text>
             </Vtex.Each>
