@@ -67,7 +67,9 @@ On push to `main`, `.github/workflows/release.yml` waits for CI checks on **that
 4. The Version PR must pass the same CI and external-install proof.
 5. **Supported merge strategy: squash merge.** The squash commit message must remain `chore(release): version packages`. Cohort discovery compares `HEAD^` (single parent) to `HEAD`. Merge commits and rebase merges are not supported for publish discovery.
 
-`GITHUB_TOKEN` commits from Actions do not re-trigger `pull_request` workflows. Configure secret `RELEASE_GITHUB_TOKEN` (PAT or GitHub App with `contents` + `pull_requests`) so the Version PR receives required checks. Without it, checks may never run on bot-created PRs. CI listens to `opened`, `synchronize`, `reopened`, and `edited` so title fixes re-run commitlint.
+`GITHUB_TOKEN` commits from Actions do not re-trigger `pull_request` workflows. Configure secret `RELEASE_GITHUB_TOKEN` (PAT or GitHub App with `contents` + `pull_requests`) for checkout push, Version PR create/update, and release metadata (`gh` / git tags). Without it, checks may never run on bot-created PRs. CI listens to `opened`, `synchronize`, `reopened`, and `edited` so title fixes re-run commitlint.
+
+Read-only gate steps (wait for checks and download CI artifacts) use the job’s automatic `github.token` (`GH_TOKEN` / `github-token`), not the PAT.
 
 Changeset coverage skips the Version PR only when the head branch is `changeset-release/*` **and** the diff is structural (package.json / CHANGELOG / `.changeset` / lockfile only). Title or author alone is not enough.
 
@@ -76,7 +78,7 @@ Changeset coverage skips the Version PR only when the head branch is `changeset-
 After the Version PR squash-merges and validations succeed on that commit:
 
 1. CI job `pack-release-artifacts` builds once and uploads packed tarballs + SHA-256 manifest for that SHA.
-2. `release.yml` waits for checks `ci-result` and `pack-release-artifacts` on the same SHA, then downloads those artifacts.
+2. `release.yml` waits for checks `ci-result` and `pack-release-artifacts` on the same SHA, resolves the workflow `run_id` from the successful `pack-release-artifacts` check (`details_url`), then downloads those artifacts from that run.
 3. Publish set = non-private packages whose version **changed in the release commit** (message `chore(release): version packages`) and whose version is **absent** from the registry (or treated as already present after a lost success / 409).
 4. Publish the **validated tarballs** (`npm publish <tarball>`). No rebuild in the publish path.
 5. Publish in dependency order. If a package fails, skip its dependents; report published / failed / skipped; fail the job.
@@ -112,7 +114,7 @@ Supported procedure:
    - **Workflow filename:** `release.yml` (filename only — not `.github/workflows/release.yml`)
    - Allow `npm publish` for this trusted publisher as required by the current npm UI
 4. Confirm the workflow job has `permissions.id-token: write` (already set). npm CLI ≥ 11.5.1 is required (Node `24.21.0` satisfies this).
-5. Set `RELEASE_GITHUB_TOKEN` for Version PR CI.
+5. Set `RELEASE_GITHUB_TOKEN` for Version PR create/update, checkout push, and git/GitHub release metadata (not for wait/download).
 6. Add intentional changesets bumping selected packages (for example to `0.1.0`), open/merge the Version PR after CI is green.
 7. Subsequent releases publish via OIDC from `release.yml` **without** `NPM_TOKEN`.
 8. First real cohort must satisfy the internal-dependency gate (do not publish Preview alone if its packed dependency on CLI/core is not available).

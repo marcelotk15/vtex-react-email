@@ -44,37 +44,30 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
+      - name: Tool versions
+        run: |
+          node -v
+          pnpm -v
+          npm -v
+
       - name: Wait for CI on this SHA
+        id: wait_ci
         env:
-          GH_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN || github.token }}
+          GH_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           RELEASE_COMMIT_SHA: ${{ github.sha }}
           REQUIRED_CHECK_NAMES: ci-result,pack-release-artifacts
+          PACK_ARTIFACT_CHECK_NAME: pack-release-artifacts
         run: node scripts/wait-for-ci.mjs
-
-      - name: Resolve pack artifact run
-        id: pack_run
-        env:
-          GH_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN || github.token }}
-          SHA: ${{ github.sha }}
-        run: |
-          set -euo pipefail
-          RUN_ID=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs?head_sha=${SHA}&status=completed&per_page=20" \
-            --jq '.workflow_runs[] | select(.name=="ci") | .id' | head -n 1)
-          if [ -z "$RUN_ID" ]; then
-            echo "Could not find completed ci workflow run for ${SHA}"
-            exit 1
-          fi
-          echo "run_id=${RUN_ID}" >> "$GITHUB_OUTPUT"
 
       - name: Download release artifacts from CI
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: release-artifacts-${{ github.sha }}
           path: .release-artifacts
-          github-token: ${{ secrets.RELEASE_GITHUB_TOKEN || github.token }}
+          github-token: ${{ github.token }}
           repository: ${{ github.repository }}
-          run-id: ${{ steps.pack_run.outputs.run_id }}
+          run-id: ${{ steps.wait_ci.outputs.run_id }}
 
       - name: Create release PR or publish
         id: changesets
