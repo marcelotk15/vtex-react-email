@@ -7,7 +7,7 @@ The file [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) describes 
 - Systems: `ubuntu-latest`, `windows-latest`, `macos-latest`.
 - Node: only `24.21.0`, the ADR 0001 pin. Other versions are intentionally out.
 - pnpm `12.8.1`, install with `--frozen-lockfile`, `HUSKY=0`.
-- On each system (`check` job): `format:check`, `lint`, `typecheck`, `test` (includes `tooling/external-install`), `build`, and the `@vtex-email/example` build.
+- On each system (`check` job): `format:check`, `lint`, `build`, `typecheck`, `test` (includes `tooling/external-install`), and the `@vtex-email/example` build. `build` must precede `typecheck` because workspace package `exports.types` resolve to generated `dist/*.d.ts`.
 - On pull requests (Ubuntu): `changeset` coverage + `changeset status`, and `commitlint` for new commits and the PR title.
 - On push to `main`: `pack-release-artifacts` uploads packed tarballs + SHA-256 manifest for the commit.
 - Aggregated gate: `ci-result` so required checks have a defined outcome when PR-only jobs are skipped on push.
@@ -30,7 +30,7 @@ Executed in the developer workspace (not GitHub Actions / not npmjs):
 | Publish gate evaluator (`tooling/release/wait-for-ci.test.ts`)                 | Failed/missing checks block; success requires `ci-result` + `pack-release-artifacts`                                                                                                                        |
 | Local `pnpm release:pack`                                                      | Packs five publishable tarballs; Preview’s packed dep is `@vtex-email/cli@0.0.0` (workspace rewrite)                                                                                                        |
 
-**Local CI gate executed:** `format:check`, `lint`, `typecheck`, `test` (185), `build`, `@vtex-email/example` build, `release:pack`.
+**Local CI gate executed:** `format:check`, `lint`, `build`, `typecheck`, `test` (185), `@vtex-email/example` build, `release:pack`.
 
 **Limitation:** while packages are unpublished on npmjs, partial-release proof uses file tarballs, not registry resolution of “new Preview + previously published CLI”.
 

@@ -4,6 +4,7 @@
 
 - Node `24.21.0` (see `.nvmrc`) and pnpm `12.8.1`
 - `pnpm install` — installs dependencies and, when a `.git` directory is present, Husky hooks via `prepare`
+- `pnpm build` — required after a clean checkout before `pnpm typecheck` (and useful before local CLI/example use). Package `exports.types` point at `dist/*.d.ts`, which are not committed (`dist/` is gitignored)
 - CI and production-style installs set `HUSKY=0` so hooks are not installed or executed there
 
 ### Git hooks
@@ -72,7 +73,7 @@ Details, dependency graph, release PR, bootstrap, and retries: [docs/release.md]
 | ------------------------------------------------------ | -------------------- | --------------------------------------------- |
 | Format / lint on staged files                          | pre-commit           | full tree `format:check` + `lint`             |
 | Commit message                                         | commit-msg           | all new PR commits + PR title                 |
-| Typecheck / tests / build / example / external-install | manual / `pnpm test` | required on every PR                          |
+| Build then typecheck / tests / example / external-install | `pnpm build` then `pnpm typecheck` / `pnpm test` | required on every PR (`build` before `typecheck`) |
 | Changeset coverage                                     | optional             | required on PRs                               |
 | Publish                                                | never from hooks     | only `release.yml` on `main` after Version PR |
 
