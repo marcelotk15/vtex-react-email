@@ -206,7 +206,7 @@ async function writeConsumer(consumer: string, tarballs: Record<(typeof packages
       zod: '4.6.5',
     },
   }
-  // pnpm 12 reads overrides from pnpm-workspace.yaml, not package.json#pnpm.
+  // pnpm 12 reads overrides / allowBuilds from pnpm-workspace.yaml, not package.json#pnpm.
   await writeFile(
     path.join(consumer, 'pnpm-workspace.yaml'),
     [
@@ -217,6 +217,9 @@ async function writeConsumer(consumer: string, tarballs: Record<(typeof packages
       `  "@vtex-email/react": "${pathToFileUrl(tarballs.react)}"`,
       `  "@vtex-email/vtex": "${pathToFileUrl(tarballs.vtex)}"`,
       '  tailwindcss: 4.1.18',
+      '',
+      'allowBuilds:',
+      '  esbuild: true',
       '',
     ].join('\n'),
   )

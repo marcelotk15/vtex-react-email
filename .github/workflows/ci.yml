@@ -61,6 +61,8 @@ jobs:
         with:
           name: release-artifacts-${{ github.sha }}
           path: .release-artifacts/
+          # Directory name starts with '.' — upload-artifact v4 excludes hidden paths by default.
+          include-hidden-files: true
           if-no-files-found: error
           retention-days: 14
 

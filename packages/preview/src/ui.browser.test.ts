@@ -63,9 +63,11 @@ describe('preview workbench', () => {
       await tree.getByRole('treeitem', { name: 'auth-code' }).waitFor()
 
       await page.getByRole('tab', { name: 'Handlebars' }).click()
-      const source = page.locator('pre')
+      // Base UI keeps inactive tab panels mounted; scope to the visible Handlebars panel.
+      const source = page.locator('[data-slot="tabs-content"]:visible pre')
       await source.waitFor()
       const before = normalizeSource(await source.innerText())
+      expect(before).toContain('{{')
       const beforeLoads = iframeLoads
       await page.getByRole('tab', { name: 'Data' }).click()
       await page.getByRole('tab', { name: /^Diagnostics/ }).click()
