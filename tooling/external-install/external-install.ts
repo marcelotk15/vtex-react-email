@@ -51,9 +51,10 @@ export async function runExternalInstall(): Promise<{
       (await readFile(path.join(consumer, 'vtex-email.config.ts'), 'utf8')).replace('port: 3000', `port: ${port}`),
     )
 
-    const dev = spawn('pnpm', ['exec', 'vtex-email', 'dev'], {
+    // Spawn the CLI entry directly so SIGTERM reaches the preview server (not a pnpm wrapper).
+    const cliBin = path.join(consumer, 'node_modules', '@vtex-email', 'cli', 'dist', 'bin.js')
+    const dev = spawn(process.execPath, [cliBin, 'dev'], {
       cwd: consumer,
-      shell: process.platform === 'win32',
       windowsHide: true,
       stdio: ['ignore', 'pipe', 'pipe'],
     })
@@ -101,7 +102,7 @@ export async function runExternalInstall(): Promise<{
       await rm(path.join(consumer, 'emails', 'auth-code.email.tsx'))
       await sleep(1_000)
     } finally {
-      await stopProcess(dev)
+      await stopProcess(dev, port)
     }
 
     const stillOpen = await reachable(port)
@@ -320,24 +321,28 @@ function waitForUrl(child: ReturnType<typeof spawn>, timeoutMs: number): Promise
   })
 }
 
-async function stopProcess(child: ReturnType<typeof spawn>): Promise<void> {
-  if (child.exitCode !== null || child.signalCode) return
-  if (process.platform === 'win32' && child.pid) {
-    await run('taskkill', ['/pid', String(child.pid), '/t', '/f'], process.cwd()).catch(() => undefined)
-  } else {
-    child.kill('SIGTERM')
-  }
-  await new Promise<void>((resolve) => {
-    const timer = setTimeout(() => {
-      child.kill('SIGKILL')
-      resolve()
-    }, 10_000)
-    child.on('exit', () => {
-      clearTimeout(timer)
-      resolve()
+async function stopProcess(child: ReturnType<typeof spawn>, port: number): Promise<void> {
+  if (child.exitCode === null && !child.signalCode) {
+    if (process.platform === 'win32' && child.pid) {
+      await run('taskkill', ['/pid', String(child.pid), '/t', '/f'], process.cwd()).catch(() => undefined)
+    } else {
+      child.kill('SIGTERM')
+    }
+    await new Promise<void>((resolve) => {
+      const timer = setTimeout(() => {
+        child.kill('SIGKILL')
+        resolve()
+      }, 10_000)
+      child.on('exit', () => {
+        clearTimeout(timer)
+        resolve()
+      })
     })
-  })
-  await sleep(500)
+  }
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    if (!(await reachable(port))) return
+    await sleep(250)
+  }
 }
 
 async function removeTree(directory: string): Promise<void> {

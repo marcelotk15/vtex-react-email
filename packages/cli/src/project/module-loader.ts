@@ -1,7 +1,7 @@
 import { errorDiagnostic, type Diagnostic } from '@vtex-email/core'
 import * as esbuild from 'esbuild'
 import { existsSync, rmSync } from 'node:fs'
-import { mkdtemp, rm, symlink } from 'node:fs/promises'
+import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -18,6 +18,8 @@ const external = [
   'zod',
 ]
 
+const externalExact = new Set(external)
+
 export type LoadEmailResult =
   | { ok: true; module: Record<string, unknown>; dependencies: string[] }
   | { ok: false; diagnostics: Diagnostic[] }
@@ -30,11 +32,6 @@ if (!(globalThis as Record<string, unknown>)[cleanupKey]) {
   ;(globalThis as Record<string, unknown>)[cleanupKey] = true
   process.once('exit', () => {
     for (const directory of pendingCaches) {
-      try {
-        rmSync(path.join(directory, 'node_modules'), { recursive: true, force: true })
-      } catch {
-        // Junction removal may fail if the target disappeared first.
-      }
       try {
         rmSync(directory, { recursive: true, force: true })
       } catch {
@@ -82,11 +79,8 @@ async function bundleEntry(
   const directory = await mkdtemp(path.join(tmpdir(), `vtex-email-bundle-${process.pid}-`))
   pendingCaches.add(directory)
   const outfile = path.join(directory, `bundle-${process.pid}-${sequence}.mjs`)
-  await symlink(
-    dependencyModules(entry),
-    path.join(directory, 'node_modules'),
-    process.platform === 'win32' ? 'junction' : 'dir',
-  )
+  const modules = dependencyModules(entry)
+  const resolveFrom = pathToFileURL(path.join(path.dirname(modules), 'package.json')).href
   try {
     const built = await esbuild.build({
       absWorkingDir: path.dirname(entry),
@@ -100,8 +94,10 @@ async function bundleEntry(
       metafile: options.metafile,
       mainFields: ['module', 'main'],
       conditions: ['import', 'module', 'default'],
-      external,
-      plugins: options.guardTemplate ? [rejectTemplateImports(entry, options.onReject)] : [],
+      plugins: [
+        absoluteExternals(resolveFrom),
+        ...(options.guardTemplate ? [rejectTemplateImports(entry, options.onReject)] : []),
+      ],
     })
     const loaded = (await import(pathToFileURL(outfile).href)) as Record<string, unknown>
     const dependencies = Object.keys(built.metafile?.inputs ?? {}).map((file) =>
@@ -109,7 +105,6 @@ async function bundleEntry(
     )
     return { ok: true, module: loaded, dependencies }
   } finally {
-    await rm(path.join(directory, 'node_modules'), { recursive: true, force: true }).catch(() => undefined)
     await rm(directory, { recursive: true, force: true }).then(
       () => {
         pendingCaches.delete(directory)
@@ -118,6 +113,22 @@ async function bundleEntry(
         // Windows may keep the imported ESM file locked until the process exits.
       },
     )
+  }
+}
+
+function absoluteExternals(resolveFrom: string): esbuild.Plugin {
+  return {
+    name: 'absolute-externals',
+    setup(build) {
+      build.onResolve({ filter: /.*/ }, (args) => {
+        if (!externalExact.has(args.path)) return null
+        try {
+          return { path: import.meta.resolve(args.path, resolveFrom), external: true }
+        } catch {
+          return { path: args.path, external: true }
+        }
+      })
+    },
   }
 }
 
