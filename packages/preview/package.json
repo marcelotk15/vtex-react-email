@@ -1,6 +1,10 @@
 {
   "name": "@vtex-email/preview",
   "version": "0.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marcelotk15/vtex-react-email.git"
+  },
   "files": [
     "dist"
   ],

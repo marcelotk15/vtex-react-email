@@ -1,9 +1,27 @@
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { watchProject } from './watch'
+import { createDebouncedBatch, watchProject } from './watch'
+
+describe('createDebouncedBatch', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('coalesces pushes within the wait window into one batch', () => {
+    vi.useFakeTimers()
+    const batches: string[][] = []
+    const batch = createDebouncedBatch(40, (files) => batches.push(files))
+    batch.push('/tmp/a.txt')
+    batch.push('/tmp/b.txt')
+    expect(batches).toHaveLength(0)
+    vi.advanceTimersByTime(40)
+    expect(batches).toEqual([[path.normalize('/tmp/a.txt'), path.normalize('/tmp/b.txt')]])
+    batch.close()
+  })
+})
 
 describe('preview watch', () => {
   it('debounces a batch and stops after close', async () => {
@@ -13,10 +31,11 @@ describe('preview watch', () => {
     try {
       await writeFile(path.join(root, 'a.txt'), 'a')
       await writeFile(path.join(root, 'b.txt'), 'b')
-      await waitFor(() => batches.length === 1)
-      const first = batches[0] ?? []
-      expect(first.some((file) => file.endsWith('a.txt'))).toBe(true)
-      expect(first.some((file) => file.endsWith('b.txt'))).toBe(true)
+      // macOS FSEvents may deliver a.txt and b.txt in separate debounce windows.
+      await waitFor(() => {
+        const seen = batches.flat()
+        return seen.some((file) => file.endsWith('a.txt')) && seen.some((file) => file.endsWith('b.txt'))
+      })
 
       await mkdir(path.join(root, 'dist'))
       await writeFile(path.join(root, 'dist', 'old.html'), 'old')

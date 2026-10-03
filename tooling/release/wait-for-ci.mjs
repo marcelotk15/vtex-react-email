@@ -38,3 +38,44 @@ export function evaluateRequiredChecks(options) {
   }
   return { ready: true, ok: true, detail: 'all required checks succeeded' }
 }
+
+const ACTIONS_RUN_ID_RE = /\/actions\/runs\/(\d+)(?:\/|$)/
+
+/**
+ * Extract a GitHub Actions workflow run id from a check-run details_url.
+ *
+ * @param {string | null | undefined} detailsUrl
+ * @returns {string | null}
+ */
+export function extractWorkflowRunIdFromDetailsUrl(detailsUrl) {
+  if (!detailsUrl) return null
+  const match = ACTIONS_RUN_ID_RE.exec(detailsUrl)
+  return match?.[1] ?? null
+}
+
+/**
+ * Resolve the workflow run id for a successful completed check-run.
+ * When multiple completed successes exist for the same name, the last one in
+ * `runs` wins (aligned with evaluateRequiredChecks overwrite semantics).
+ *
+ * @param {{
+ *   runs: ReadonlyArray<{
+ *     name?: string
+ *     status?: string
+ *     conclusion?: string | null
+ *     details_url?: string | null
+ *   }>
+ *   checkName: string
+ * }} options
+ * @returns {string | null}
+ */
+export function resolveWorkflowRunIdFromCheck(options) {
+  let runId = null
+  for (const run of options.runs) {
+    if (run.name !== options.checkName) continue
+    if (run.status !== 'completed' || run.conclusion !== 'success') continue
+    const extracted = extractWorkflowRunIdFromDetailsUrl(run.details_url)
+    if (extracted) runId = extracted
+  }
+  return runId
+}
