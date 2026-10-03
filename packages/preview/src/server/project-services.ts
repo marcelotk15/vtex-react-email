@@ -4,11 +4,12 @@ import {
   previewBuiltEmail,
   publishDiagnostics,
   refreshEmailFixtures,
+  revalidateEmail,
   type BuiltEmail,
   type PreviewResult,
   type ProjectResult,
   type ResolvedConfig,
-} from '@vtex-email/cli'
+} from '@vtex-email/cli/project'
 import path from 'node:path'
 
 import type { PreviewServices } from '../session/session'
@@ -41,6 +42,7 @@ export function createProjectServices(input: {
   configPath: string
   configDir: string
   warningsAsErrors: boolean
+  getConfig: () => ResolvedConfig
 }): PreviewServices {
   return {
     compile: async (emailIds) =>
@@ -50,6 +52,7 @@ export function createProjectServices(input: {
         emailIds,
       ),
     refreshFixtures: async (email) => presentEmail(await refreshEmailFixtures(email, input.configDir), input.configDir),
+    revalidateSchema: async (email) => presentEmail(await revalidateEmail(input.getConfig(), email), input.configDir),
     evaluate: (request) => presentPreview(previewBuiltEmail(request), input.configDir),
   }
 }

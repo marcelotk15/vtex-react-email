@@ -1,4 +1,4 @@
-import type { BuiltEmail } from '@vtex-email/cli'
+import type { BuiltEmail } from '@vtex-email/cli/project'
 
 import { existsSync } from 'node:fs'
 import path from 'node:path'
@@ -15,7 +15,7 @@ export interface SessionPaths {
 export type ChangePlan =
   | { kind: 'none' }
   | { kind: 'full' }
-  | { kind: 'partial'; compile: string[]; fixtures: string[] }
+  | { kind: 'partial'; compile: string[]; fixtures: string[]; schemas: string[] }
 
 export function samePath(left: string, right: string): boolean {
   const a = path.normalize(left)
@@ -39,6 +39,7 @@ export function classifyChange(input: {
   let full = false
   const compile = new Set<string>()
   const fixtures = new Set<string>()
+  const schemas = new Set<string>()
   for (const file of input.files) {
     if (samePath(file, input.paths.configFile) || samePath(file, input.paths.profilePath)) {
       full = true
@@ -58,7 +59,7 @@ export function classifyChange(input: {
     }
     const schemaOwner = schemaEmailId(input.paths.schemasDir, input.emails, file)
     if (schemaOwner) {
-      compile.add(schemaOwner)
+      schemas.add(schemaOwner)
       continue
     }
     const entry = input.emails.find((email) => samePath(email.file, file))
@@ -76,9 +77,13 @@ export function classifyChange(input: {
     if (isEmailEntry(input.paths.emailRoots, file)) full = true
   }
   if (full) return { kind: 'full' }
-  for (const id of compile) fixtures.delete(id)
-  if (compile.size === 0 && fixtures.size === 0) return { kind: 'none' }
-  return { kind: 'partial', compile: [...compile], fixtures: [...fixtures] }
+  for (const id of compile) {
+    fixtures.delete(id)
+    schemas.delete(id)
+  }
+  for (const id of schemas) fixtures.delete(id)
+  if (compile.size === 0 && fixtures.size === 0 && schemas.size === 0) return { kind: 'none' }
+  return { kind: 'partial', compile: [...compile], fixtures: [...fixtures], schemas: [...schemas] }
 }
 
 function localeFromCatalog(catalogFiles: readonly string[], file: string): string | null {

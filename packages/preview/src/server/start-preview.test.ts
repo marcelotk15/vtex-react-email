@@ -4,6 +4,8 @@ import { createServer } from 'node:http'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
+import type { DevNotice } from '@vtex-email/cli/project'
+
 import type { PreviewState } from '../session/session'
 
 import { displayDocument } from '../shared/display-document'
@@ -106,6 +108,96 @@ describe('preview server', () => {
       await rm(root, { recursive: true, force: true })
     }
   }, 180_000)
+
+  it('reports a busy port and closes idempotently', async () => {
+    const root = await mkdtemp(path.join(example, '.preview-busy-'))
+    const configPath = await copyStore(root)
+    const port = await freePort()
+    await writeFile(configPath, (await readFile(configPath, 'utf8')).replace('port: 3000', `port: ${port}`))
+    const blocker = createServer()
+    await new Promise<void>((resolve, reject) => {
+      blocker.once('error', reject)
+      blocker.listen(port, '127.0.0.1', () => resolve())
+    })
+    try {
+      const notices: DevNotice[] = []
+      const failed = await startPreview({
+        configPath,
+        host: '127.0.0.1',
+        port,
+        onNotice: (notice) => {
+          notices.push(notice)
+        },
+      })
+      expect(failed.ok).toBe(false)
+      if (failed.ok) return
+      expect(failed.exitCode).toBe(1)
+      expect(failed.diagnostics.some((item) => item.message.includes(String(port)))).toBe(true)
+      expect(notices.some((item) => item.kind === 'listening')).toBe(false)
+      expect(notices.some((item) => item.kind === 'failed')).toBe(true)
+      await expect(startPreview({ configPath, host: '127.0.0.1', port }).then(async (result) => {
+        if (result.ok) {
+          await result.close()
+          await result.close()
+        }
+        return result.ok
+      })).resolves.toBe(false)
+    } finally {
+      await new Promise<void>((resolve) => blocker.close(() => resolve()))
+      await rm(root, { recursive: true, force: true })
+    }
+  }, 60_000)
+
+  it('emits listening only after bind and never repeats a banner notice', async () => {
+    const root = await mkdtemp(path.join(example, '.preview-notice-'))
+    const configPath = await copyStore(root)
+    const port = await freePort()
+    await writeFile(configPath, (await readFile(configPath, 'utf8')).replace('port: 3000', `port: ${port}`))
+    const notices: DevNotice[] = []
+    const preview = await startPreview({
+      configPath,
+      onNotice: (notice) => {
+        notices.push(notice)
+      },
+    })
+    expect(preview.ok).toBe(true)
+    if (!preview.ok) return
+    try {
+      const kinds = notices.map((item) => item.kind)
+      expect(kinds.indexOf('listening')).toBeGreaterThan(kinds.lastIndexOf('phase'))
+      const listening = notices.find((item) => item.kind === 'listening')
+      expect(listening).toEqual({ kind: 'listening', url: preview.url })
+      expect(notices.some((item) => item.kind === 'startup')).toBe(true)
+      expect(notices.some((item) => item.kind === 'discovered')).toBe(true)
+      expect(JSON.stringify(notices).includes('banner')).toBe(false)
+    } finally {
+      await preview.close()
+      await rm(root, { recursive: true, force: true })
+    }
+  }, 120_000)
+
+  it('ignores a neighboring vite.config.ts and closes twice safely', async () => {
+    const root = await mkdtemp(path.join(example, '.preview-vite-cfg-'))
+    const configPath = await copyStore(root)
+    const port = await freePort()
+    await writeFile(configPath, (await readFile(configPath, 'utf8')).replace('port: 3000', `port: ${port}`))
+    await writeFile(
+      path.join(root, 'vite.config.ts'),
+      `export default { server: { port: ${port + 1}, host: '0.0.0.0' } }\n`,
+    )
+    const preview = await startPreview({ configPath })
+    expect(preview.ok).toBe(true)
+    if (!preview.ok) return
+    try {
+      expect(preview.url).toBe(`http://127.0.0.1:${port}/`)
+      await preview.close()
+      await preview.close()
+      expect(await reachable(port)).toBe(false)
+    } finally {
+      await preview.close()
+      await rm(root, { recursive: true, force: true })
+    }
+  }, 120_000)
 })
 
 async function copyStore(destination: string): Promise<string> {

@@ -31,16 +31,3 @@ export function browserImportViolation(specifier: string): string | null {
   if (!blocked) return null
   return `The preview interface cannot import ${specifier}.`
 }
-
-export function boundaryPlugin(): import('esbuild').Plugin {
-  return {
-    name: 'preview-ui-boundary',
-    setup(build) {
-      build.onResolve({ filter: /.*/ }, (args) => {
-        const violation = browserImportViolation(args.path)
-        if (!violation) return undefined
-        return { errors: [{ text: violation }] }
-      })
-    },
-  }
-}

@@ -50,6 +50,17 @@ describe('template loader', () => {
     expect(broken.diagnostics[0]?.code).not.toBe('DSL001')
   })
 
+  it('lists transitive imports in the dependency graph', async () => {
+    const entry = path.resolve('packages/react/load-fixtures/transitive-host.tsx')
+    const leaf = path.resolve('packages/react/load-fixtures/leaf.tsx')
+    const middle = path.resolve('packages/react/load-fixtures/middle.tsx')
+    const loaded = await loadEmailEntry(entry)
+    expect(loaded.ok).toBe(true)
+    if (!loaded.ok) return
+    const normalized = loaded.dependencies.map((file) => path.normalize(file))
+    expect(normalized).toEqual(expect.arrayContaining([path.normalize(entry), path.normalize(middle), path.normalize(leaf)]))
+  })
+
   it('keeps bundle files out of the package cache directory', async () => {
     const directory = path.resolve('packages/cli/src/.cache')
     const before = new Set(await listed(directory))

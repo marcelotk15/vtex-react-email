@@ -27,5 +27,5 @@ A CLI usa `jsonc-parser` (ESM). Comentários e trailing commas são aceitos. Err
 
 - Autoria mínima: componente + `localePath` no projeto + `{schemasDir}/{fileKey}.ts` + pasta de fixtures.
 - Autocomplete via `satisfies EmailSettings` (sem plugin de linguagem).
-- Watch de `.jsonc` revalida fixtures sem recompilar o template; mudança em `{schemasDir}/{fileKey}.ts` recompila o email correspondente.
+- Watch de `.jsonc` revalida fixtures sem recompilar o template; mudança em `{schemasDir}/{fileKey}.ts` revalida schema, paths e fixtures sem chamar `compileEmail`.
 - Exemplos, proof e docs migram para a nova API; sem camada de compatibilidade.

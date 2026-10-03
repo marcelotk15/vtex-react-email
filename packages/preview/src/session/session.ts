@@ -1,10 +1,16 @@
-import type { BuiltEmail, CliDiagnostic, PreviewResult, ProjectResult } from '@vtex-email/cli'
+import type {
+  BuiltEmail,
+  CliDiagnostic,
+  DevIngestPlan,
+  PreviewResult,
+  ProjectResult,
+} from '@vtex-email/cli/project'
 
 import path from 'node:path'
 
 import type { PreviewEmail, PreviewState, SelectionInput } from '../shared/contract'
 
-import { classifyChange, relativeToConfig, type SessionPaths } from './change-plan'
+import { classifyChange, relativeToConfig, type ChangePlan, type SessionPaths } from './change-plan'
 
 export type {
   PreviewDiagnostic,
@@ -18,12 +24,21 @@ export type {
 export interface PreviewServices {
   compile(emailIds: readonly string[] | null): Promise<ProjectResult>
   refreshFixtures(email: BuiltEmail): Promise<BuiltEmail>
+  revalidateSchema(email: BuiltEmail): Promise<BuiltEmail>
   evaluate(input: {
     email: BuiltEmail
     fixtureId: string
     mode: 'runtime' | 'forced'
     locale?: string
   }): PreviewResult | Promise<PreviewResult>
+}
+
+export interface IngestNotice {
+  plan: DevIngestPlan
+  failed: boolean
+  added: readonly string[]
+  removed: readonly string[]
+  diagnostics: ProjectResult['diagnostics']
 }
 
 export interface PreviewSession {
@@ -49,6 +64,7 @@ export function createPreviewSession(input: {
   diagnostics: ProjectResult['diagnostics']
   ok: boolean
   services: PreviewServices
+  onIngest?: (notice: IngestNotice) => void
 }): PreviewSession {
   let paths = input.paths
   let emails = input.emails.slice()
@@ -93,6 +109,7 @@ export function createPreviewSession(input: {
     if (closed) return state
     const plan = classifyChange({ paths, emails, files })
     if (plan.kind === 'none') return state
+    const before = emails.map((email) => email.id)
     const token = ++generation
     publish(snapshot('compiling', state.diagnostics))
     let failed = false
@@ -103,18 +120,49 @@ export function createPreviewSession(input: {
       failed = !applyCompile(ids, result)
     }
     if (!failed && plan.kind === 'partial') {
-      for (const id of plan.fixtures) {
+      for (const id of plan.schemas) {
         const current = emails.find((email) => email.id === id)
         if (!current) continue
-        const refreshed = await input.services.refreshFixtures(current)
+        const revalidated = await input.services.revalidateSchema(current)
         if (token !== generation || closed) return state
-        emails = emails.map((email) => (email.id === id ? refreshed : email))
+        emails = emails.map((email) => (email.id === id ? revalidated : email))
+        state = { ...state, diagnostics: revalidated.diagnostics }
+        if (revalidated.diagnostics.some((item) => item.severity === 'error')) failed = true
+      }
+      if (!failed) {
+        for (const id of plan.fixtures) {
+          const current = emails.find((email) => email.id === id)
+          if (!current) continue
+          const refreshed = await input.services.refreshFixtures(current)
+          if (token !== generation || closed) return state
+          emails = emails.map((email) => (email.id === id ? refreshed : email))
+        }
       }
     }
     if (token !== generation || closed) return state
-    if (failed) return publish(keep('stale', state.diagnostics))
+    if (failed) {
+      const next = publish(keep('stale', state.diagnostics))
+      emitIngest(plan, true, before)
+      return next
+    }
     normalize()
-    return finish(token, await evaluate())
+    const next = finish(token, await evaluate())
+    emitIngest(plan, false, before)
+    return next
+  }
+
+  function emitIngest(plan: ChangePlan, failed: boolean, before: readonly string[]): void {
+    if (plan.kind === 'none' || !input.onIngest) return
+    const after = emails.map((email) => email.id)
+    const beforeSet = new Set(before)
+    const afterSet = new Set(after)
+    input.onIngest({
+      plan: toDevPlan(plan),
+      failed,
+      added: after.filter((id) => !beforeSet.has(id)),
+      removed: before.filter((id) => !afterSet.has(id)),
+      diagnostics: state.diagnostics,
+    })
   }
 
   function updatePaths(next: Partial<SessionPaths>): void {
@@ -322,4 +370,9 @@ function blocksArtifact(email: BuiltEmail): boolean {
 
 function blocksFixture(email: BuiltEmail, fixtureId: string): boolean {
   return email.diagnostics.some((item) => item.severity === 'error' && item.fixtureId === fixtureId)
+}
+
+function toDevPlan(plan: Exclude<ChangePlan, { kind: 'none' }>): DevIngestPlan {
+  if (plan.kind === 'full') return { kind: 'full' }
+  return { kind: 'partial', compile: plan.compile, fixtures: plan.fixtures, schemas: plan.schemas }
 }

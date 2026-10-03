@@ -126,7 +126,7 @@ flowchart TD
 | `@vtex-email/react`   | DSL `Vtex`, `Trans`, `Email` e adaptador React Email/Tailwind   | Fixtures, envio ou regras específicas de um pedido |
 | `@vtex-email/vtex`    | Perfis, catálogo de helpers, simuladores e contratos de exemplo | Acesso automático a contas VTEX                    |
 | `@vtex-email/cli`     | Configuração, descoberta, comandos e escrita de artefatos       | Implementação duplicada de compilação              |
-| `@vtex-email/preview` | Servidor local e interface de inspeção                          | Outro interpretador da DSL                         |
+| `@vtex-email/preview` | Servidor Vite local, plugin interno e interface de inspeção     | Outro interpretador da DSL; plugin Vite público    |
 
 Contratos comuns ficam no core. O core recebe o renderizador e o perfil de destino como dependências; não importa a CLI ou a UI. O adaptador React depende dos contratos do core, evitando ciclo entre os dois. A CLI faz a composição.
 
@@ -141,7 +141,7 @@ Os módulos devem ser pequenos por responsabilidade, sem impor uma classe ou int
 - Handlebars em instância isolada por perfil/sessão, sem registro global de helpers.
 - Zod para contratos; validação não deve transformar silenciosamente os dados usados no preview.
 - Um único test runner; Vitest é a escolha proposta. Playwright para integração da UI quando necessário.
-- Bundler TSX com suporte a sourcemaps, como esbuild, encapsulado em um adaptador.
+- Bundler TSX dos templates com suporte a sourcemaps, como esbuild, encapsulado em um adaptador. O servidor e os assets da UI de preview usam Vite; a compilação dos emails não passa por `vite build`.
 - Lockfile versionado; instalações de CI em modo frozen; versões concretas documentadas na fase P0.
 
 ## 7. Organização do repositório e projeto consumidor
@@ -698,8 +698,9 @@ A interface deve apresentar lista de emails, seletor de fixture, locale runtime/
 
 Requisitos:
 
-- Watch de templates, componentes, configuração, schemas e traduções.
+- Watch de templates, componentes, configuração, schemas e traduções, coordenado pelo servidor Vite do preview.
 - Alterar apenas fixture deve reexecutar validação/renderização, sem recompilar o TSX desnecessariamente.
+- Alterar apenas o schema Zod deve revalidar paths e fixtures, sem recompilar o template.
 - Invalidação por dependência real; mudança de componente compartilhado atualiza todos os consumidores afetados.
 - Compilar alterações com debounce e descartar resultado obsoleto de execução anterior.
 - Se o build falhar, manter o último preview válido com aviso visível de desatualização.

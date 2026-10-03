@@ -1,11 +1,17 @@
 {
   "name": "@vtex-email/vtex",
   "version": "0.0.0",
-  "private": true,
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "sideEffects": false,
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
   },
   "dependencies": {
     "@vtex-email/core": "workspace:*"

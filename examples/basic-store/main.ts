@@ -1,4 +1,4 @@
-import { buildProject, validateProject } from '@vtex-email/cli'
+import { buildProject, validateProject } from '@vtex-email/cli/project'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 

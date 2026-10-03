@@ -1,4 +1,4 @@
-import type { BuiltEmail } from '@vtex-email/cli'
+import type { BuiltEmail } from '@vtex-email/cli/project'
 
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest'
 import { classifyChange, type SessionPaths } from './change-plan'
 
 describe('schema change plan', () => {
-  it('recompiles the matching email when its schema file changes', () => {
+  it('revalidates the matching email when its schema file changes', () => {
     const root = path.resolve('project')
     const paths: SessionPaths = {
       configDir: root,
@@ -22,13 +22,13 @@ describe('schema change plan', () => {
       fixturesPattern: 'fixtures/auth-code',
       dependencies: [],
       locales: ['pt-BR'],
-    } as BuiltEmail
+    } as unknown as BuiltEmail
 
     const plan = classifyChange({
       paths,
       emails: [email],
       files: [path.join(root, 'schemas', 'auth-code.ts')],
     })
-    expect(plan).toEqual({ kind: 'partial', compile: ['custom-id'], fixtures: [] })
+    expect(plan).toEqual({ kind: 'partial', compile: [], fixtures: [], schemas: ['custom-id'] })
   })
 })

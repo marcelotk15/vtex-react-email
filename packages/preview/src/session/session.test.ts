@@ -1,4 +1,4 @@
-import type { BuiltEmail, PreviewResult, ProjectResult } from '@vtex-email/cli'
+import type { BuiltEmail, PreviewResult, ProjectResult } from '@vtex-email/cli/project'
 
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -43,6 +43,43 @@ describe('preview session', () => {
         expect.objectContaining({ id: 'two', file: 'fixtures/order/two.json', expectedLocale: 'en-US' }),
       ],
     })
+    await rm(root, { recursive: true, force: true })
+  })
+
+  it('revalidates a schema without compiling the template', async () => {
+    const root = await mkdtemp(path.join(tmpdir(), 'vtex-session-schema-'))
+    const email = fakeEmail(root, 'alpha', ['one'])
+    let compiled = 0
+    let revalidated = 0
+    const session = createPreviewSession({
+      paths: paths(root),
+      emails: [email],
+      diagnostics: [],
+      ok: true,
+      services: services({
+        compile: async () => {
+          compiled += 1
+          return okResult([email])
+        },
+        revalidateSchema: async (current) => {
+          revalidated += 1
+          return {
+            ...current,
+            diagnostics: [{ code: 'PATH001', severity: 'error', message: 'bad path', templateId: current.id }],
+          }
+        },
+        evaluate: (input) => evaluated(input.email.files[0]?.content ?? '', 'SOURCE'),
+      }),
+    })
+    await session.open()
+    expect(session.state().html).toBe('<p>alpha</p>')
+    compiled = 0
+    await session.ingest([path.join(root, 'schemas', 'alpha.ts')])
+    expect(compiled).toBe(0)
+    expect(revalidated).toBe(1)
+    expect(session.state().status).toBe('stale')
+    expect(session.state().html).toBe('<p>alpha</p>')
+    expect(session.state().diagnostics.some((item) => item.code === 'PATH001')).toBe(true)
     await rm(root, { recursive: true, force: true })
   })
 
@@ -184,6 +221,34 @@ describe('preview session', () => {
     await rm(root, { recursive: true, force: true })
   })
 
+  it('reports ingest facts once without changing compile rules', async () => {
+    const root = await mkdtemp(path.join(tmpdir(), 'vtex-session-'))
+    const shared = path.join(root, 'shared.tsx')
+    await writeFile(shared, 'export {}\n')
+    const alpha = fakeEmail(root, 'alpha', ['one'], [shared])
+    const notices: Array<{ failed: boolean; compile: string[] }> = []
+    const session = createPreviewSession({
+      paths: paths(root),
+      emails: [alpha],
+      diagnostics: [],
+      ok: true,
+      services: services({
+        compile: async () => okResult([alpha]),
+      }),
+      onIngest: (notice) => {
+        notices.push({
+          failed: notice.failed,
+          compile: notice.plan.kind === 'partial' ? notice.plan.compile : ['*'],
+        })
+      },
+    })
+    await session.open()
+    expect(notices).toEqual([])
+    await session.ingest([shared])
+    expect(notices).toEqual([{ failed: false, compile: ['alpha'] }])
+    await rm(root, { recursive: true, force: true })
+  })
+
   it('removes an email from the compiler list without reading the message text', async () => {
     const root = await mkdtemp(path.join(tmpdir(), 'vtex-session-'))
     const shared = path.join(root, 'shared.tsx')
@@ -229,6 +294,7 @@ function services(overrides: Partial<PreviewServices>): PreviewServices {
   return {
     compile: async () => okResult([]),
     refreshFixtures: async (email) => email,
+    revalidateSchema: async (email) => email,
     evaluate: () => evaluated('html', 'source'),
     ...overrides,
   }

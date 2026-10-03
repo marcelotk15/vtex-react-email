@@ -22,6 +22,7 @@ export async function run(args: ParsedArgs, cwd: string, version: string): Promi
     return startDevCommand(configPath, configDir, {
       warningsAsErrors: args.warningsAsErrors,
       format: args.format,
+      version,
     })
   }
   if (args.kind === 'error') {

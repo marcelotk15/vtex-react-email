@@ -1,6 +1,8 @@
 import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
 
+import type { DevNoticeHandler } from './dev-notices'
+import { createDevPresenter } from './dev-presenter'
 import { exitUsage } from '../project/types'
 import { usageReport } from './project-commands'
 import { emitReport } from './report'
@@ -8,17 +10,27 @@ import { emitReport } from './report'
 export async function startDevCommand(
   configPath: string,
   configDir: string,
-  options: { warningsAsErrors: boolean; format: 'text' | 'json' },
+  options: { warningsAsErrors: boolean; format: 'text' | 'json'; version: string },
 ): Promise<number> {
+  const presenter = createDevPresenter({
+    version: options.version,
+    format: options.format,
+  })
   try {
     const require = createRequire(configPath)
     const resolved = require.resolve('@vtex-email/preview')
     const imported = (await import(pathToFileURL(resolved).href)) as {
-      startDev?: (input: { configPath: string; warningsAsErrors?: boolean }) => Promise<number>
+      startDev?: (input: {
+        configPath: string
+        warningsAsErrors?: boolean
+        onNotice?: DevNoticeHandler
+      }) => Promise<number>
     }
     if (!imported.startDev) throw new Error('The preview package does not export startDev.')
+    await presenter.printBanner()
     return await imported.startDev({
       configPath,
+      onNotice: (notice) => presenter.handle(notice),
       ...(options.warningsAsErrors ? { warningsAsErrors: true } : {}),
     })
   } catch (error) {

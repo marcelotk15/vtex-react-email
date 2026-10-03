@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build": "node scripts/build-packages.mjs",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "format": "oxfmt",
@@ -15,10 +16,12 @@
     "@types/node": "24.13.3",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
+    "esbuild": "0.28.2",
     "oxfmt": "0.71.0",
     "oxlint": "1.86.0",
     "parse5": "7.3.0",
     "typescript": "5.9.3",
+    "vite": "7.3.1",
     "vitest": "5.0.3"
   },
   "engines": {

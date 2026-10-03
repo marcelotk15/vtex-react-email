@@ -10,14 +10,18 @@
     "tooling/**/*.ts",
     "packages/react/load-fixtures/**/*.ts",
     "packages/react/load-fixtures/**/*.tsx",
-    "vitest.config.ts",
     "vitest.setup.ts"
   ],
   "exclude": [
     "**/node_modules/**",
     "**/dist/**",
     "proof/out/**",
+    "proof/out-external/**",
     "packages/preview/src/ui/**",
-    "packages/react/load-fixtures/broken.tsx"
+    "packages/preview/src/ui.browser.test.ts",
+    "packages/preview/src/ui.sidebar-toggle.test.ts",
+    "packages/preview/vite.config.ts",
+    "packages/react/load-fixtures/broken.tsx",
+    "vitest.config.ts"
   ]
 }
