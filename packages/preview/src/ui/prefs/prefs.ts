@@ -54,10 +54,7 @@ export function readPrefs(storage: PrefsStorage | null): UiPrefs {
   const record = parsed as Record<string, unknown>
   const legacyTab = record.tab
   const migratedDiagnostics = legacyTab === 'diagnostics'
-  const tab =
-    inspectorTabs.includes(legacyTab as InspectorTab)
-      ? (legacyTab as InspectorTab)
-      : defaultPrefs.tab
+  const tab = inspectorTabs.includes(legacyTab as InspectorTab) ? (legacyTab as InspectorTab) : defaultPrefs.tab
   const propertiesTab = propertiesTabs.includes(record.propertiesTab as PropertiesTab)
     ? (record.propertiesTab as PropertiesTab)
     : migratedDiagnostics
@@ -67,8 +64,7 @@ export function readPrefs(storage: PrefsStorage | null): UiPrefs {
     sidebar: clamp(record.sidebar, 200, 360, defaultPrefs.sidebar),
     sidebarOpen: typeof record.sidebarOpen === 'boolean' ? record.sidebarOpen : defaultPrefs.sidebarOpen,
     properties: clamp(record.properties, 220, 420, defaultPrefs.properties),
-    propertiesOpen:
-      typeof record.propertiesOpen === 'boolean' ? record.propertiesOpen : defaultPrefs.propertiesOpen,
+    propertiesOpen: typeof record.propertiesOpen === 'boolean' ? record.propertiesOpen : defaultPrefs.propertiesOpen,
     propertiesTab,
     inspector: clamp(record.inspector, 160, 640, defaultPrefs.inspector),
     inspectorOpen: typeof record.inspectorOpen === 'boolean' ? record.inspectorOpen : defaultPrefs.inspectorOpen,

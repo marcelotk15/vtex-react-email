@@ -1,15 +1,15 @@
 # RFC-001 — VTEX email toolchain with React Email and Tailwind CSS
 
-| Field             | Value                                                                      |
-| ----------------- | -------------------------------------------------------------------------- |
-| Status            | Proposal for implementation                                                |
-| Version           | 1.0                                                                        |
-| Date              | 2026-10-01                                                                 |
-| Working name      | VTEX React Email Toolchain                                                 |
-| Proposed stack    | TypeScript, React, React Email, Tailwind CSS, Handlebars, Zod, pnpm        |
-| Main deliverable  | Email HTML/CSS containing Handlebars expressions for VTEX                  |
-| Scope             | Authoring, components, internationalization, preview, validation, and compilation |
-| Out of scope      | Sending email, SMTP, VTEX credentials, and automatic publishing            |
+| Field            | Value                                                                             |
+| ---------------- | --------------------------------------------------------------------------------- |
+| Status           | Proposal for implementation                                                       |
+| Version          | 1.0                                                                               |
+| Date             | 2026-10-01                                                                        |
+| Working name     | VTEX React Email Toolchain                                                        |
+| Proposed stack   | TypeScript, React, React Email, Tailwind CSS, Handlebars, Zod, pnpm               |
+| Main deliverable | Email HTML/CSS containing Handlebars expressions for VTEX                         |
+| Scope            | Authoring, components, internationalization, preview, validation, and compilation |
+| Out of scope     | Sending email, SMTP, VTEX credentials, and automatic publishing                   |
 
 > This RFC specifies a product to build. The names `@vtex-email/*`, commands, interfaces, and diagnostic codes are proposals; they do not represent already published packages or an official VTEX integration. Internal decisions are normative for the project. Compatibility with external services depends on the evidence and tests defined here.
 
@@ -67,17 +67,17 @@ React Email offers component rendering to HTML and Tailwind integration. The Tai
 
 ### 4.2 Verifiable goals
 
-| ID     | Goal                                 | Acceptance evidence                                          |
-| ------ | ------------------------------------ | ------------------------------------------------------------ |
-| OBJ-01 | Write reusable layouts in TSX        | Two templates reuse layout, header, and button               |
-| OBJ-02 | Preserve dynamic data                | Changing the fixture does not change build bytes             |
-| OBJ-03 | Use Tailwind in development          | Supported utilities become styles, with no Tailwind runtime  |
-| OBJ-04 | Preview faithful to the pipeline     | Preview runs the same artifact and locale selector           |
-| OBJ-05 | Internationalization                 | Two languages and fallback tested in the combined artifact   |
-| OBJ-06 | Actionable diagnostics               | Errors identify template, rule, path, and available origin   |
-| OBJ-07 | Operate without credentials          | Build, preview, and validation work offline after install    |
-| OBJ-08 | Portability                          | Flow validated on Windows, Linux, and macOS                  |
-| OBJ-09 | Reproducibility                      | Same inputs and versions produce identical output            |
+| ID     | Goal                             | Acceptance evidence                                         |
+| ------ | -------------------------------- | ----------------------------------------------------------- |
+| OBJ-01 | Write reusable layouts in TSX    | Two templates reuse layout, header, and button              |
+| OBJ-02 | Preserve dynamic data            | Changing the fixture does not change build bytes            |
+| OBJ-03 | Use Tailwind in development      | Supported utilities become styles, with no Tailwind runtime |
+| OBJ-04 | Preview faithful to the pipeline | Preview runs the same artifact and locale selector          |
+| OBJ-05 | Internationalization             | Two languages and fallback tested in the combined artifact  |
+| OBJ-06 | Actionable diagnostics           | Errors identify template, rule, path, and available origin  |
+| OBJ-07 | Operate without credentials      | Build, preview, and validation work offline after install   |
+| OBJ-08 | Portability                      | Flow validated on Windows, Linux, and macOS                 |
+| OBJ-09 | Reproducibility                  | Same inputs and versions produce identical output           |
 
 ### 4.3 Non-goals
 
@@ -120,13 +120,13 @@ flowchart TD
 
 ### 6.1 Packages
 
-| Proposed package      | Responsibility                                              | Must not contain                                   |
-| --------------------- | ----------------------------------------------------------- | -------------------------------------------------- |
-| `@vtex-email/core`    | IR, paths, HBS emission, compilation, i18n, and diagnostics | UI, HTTP server, or global build state             |
-| `@vtex-email/react`   | `Vtex`, `Trans`, `Email` DSL and React Email/Tailwind adapter | Fixtures, sending, or order-specific rules       |
-| `@vtex-email/vtex`    | Profiles, helper catalog, simulators, and sample contracts  | Automatic access to VTEX accounts                  |
-| `@vtex-email/cli`     | Configuration, discovery, commands, and artifact writing    | Duplicated compilation implementation              |
-| `@vtex-email/preview` | Local Vite server, internal plugin, and inspection UI       | Another DSL interpreter; public Vite plugin        |
+| Proposed package      | Responsibility                                                | Must not contain                            |
+| --------------------- | ------------------------------------------------------------- | ------------------------------------------- |
+| `@vtex-email/core`    | IR, paths, HBS emission, compilation, i18n, and diagnostics   | UI, HTTP server, or global build state      |
+| `@vtex-email/react`   | `Vtex`, `Trans`, `Email` DSL and React Email/Tailwind adapter | Fixtures, sending, or order-specific rules  |
+| `@vtex-email/vtex`    | Profiles, helper catalog, simulators, and sample contracts    | Automatic access to VTEX accounts           |
+| `@vtex-email/cli`     | Configuration, discovery, commands, and artifact writing      | Duplicated compilation implementation       |
+| `@vtex-email/preview` | Local Vite server, internal plugin, and inspection UI         | Another DSL interpreter; public Vite plugin |
 
 Shared contracts live in core. Core receives the renderer and target profile as dependencies; it does not import the CLI or UI. The React adapter depends on core contracts, avoiding a cycle between the two. The CLI performs composition.
 
@@ -230,11 +230,7 @@ export const settings = {
 } satisfies EmailSettings
 
 export default function OrderConfirmed() {
-  return (
-    <Email className="m-0 bg-white font-sans">
-      {/* … */}
-    </Email>
-  )
+  return <Email className="m-0 bg-white font-sans">{/* … */}</Email>
 }
 ```
 
@@ -244,9 +240,7 @@ Minimal example (when project `{schemasDir}/{fileKey}.ts` and `localePath` suffi
 import { Email, Trans, Vtex } from '@vtex-email/react'
 
 export default function AuthCode() {
-  return (
-    <Email className="m-0 bg-white font-sans">{/* … */}</Email>
-  )
+  return <Email className="m-0 bg-white font-sans">{/* … */}</Email>
 }
 ```
 
@@ -310,17 +304,17 @@ The `R$` symbol is a decision of this store example, not a locale effect. A mult
 
 ### 10.2 Components and semantics
 
-| API                                | Conceptual emission               | Contract                                               |
-| ---------------------------------- | --------------------------------- | ---------------------------------------------------- |
-| `Vtex.Value path="orderId"`        | `{{orderId}}`                     | Value with Handlebars escaping                       |
-| `Vtex.Each path="items"`           | `{{#each items}}…{{/each}}`       | Dynamic iteration; changes context                   |
-| `Vtex.If path="address"`           | `{{#if address}}…{{/if}}`         | Handlebars profile truthiness                        |
-| `Vtex.Unless path="address"`       | `{{#unless address}}…{{/unless}}` | Negation of the test                                 |
-| `Vtex.With path="address"`         | `{{#with address}}…{{/with}}`     | Nested context; later phase                          |
-| `Vtex.Helper name args`            | `{{helper arg1 arg2}}`            | Inline helper registered in the profile              |
-| `Vtex.BlockHelper name args`       | `{{#helper args}}…{{/helper}}`    | Block helper with declared semantics                 |
-| `Vtex.Compare left operator right` | Profile emitter                   | Comparison only if the capability is enabled         |
-| `Trans id values`                  | Catalog text + expressions        | Static translation per variant                       |
+| API                                | Conceptual emission               | Contract                                     |
+| ---------------------------------- | --------------------------------- | -------------------------------------------- |
+| `Vtex.Value path="orderId"`        | `{{orderId}}`                     | Value with Handlebars escaping               |
+| `Vtex.Each path="items"`           | `{{#each items}}…{{/each}}`       | Dynamic iteration; changes context           |
+| `Vtex.If path="address"`           | `{{#if address}}…{{/if}}`         | Handlebars profile truthiness                |
+| `Vtex.Unless path="address"`       | `{{#unless address}}…{{/unless}}` | Negation of the test                         |
+| `Vtex.With path="address"`         | `{{#with address}}…{{/with}}`     | Nested context; later phase                  |
+| `Vtex.Helper name args`            | `{{helper arg1 arg2}}`            | Inline helper registered in the profile      |
+| `Vtex.BlockHelper name args`       | `{{#helper args}}…{{/helper}}`    | Block helper with declared semantics         |
+| `Vtex.Compare left operator right` | Profile emitter                   | Comparison only if the capability is enabled |
+| `Trans id values`                  | Catalog text + expressions        | Static translation per variant               |
 
 All blocks accept `fallback?: ReactNode`, representing `{{else}}`. `Vtex.Each` in the MVP accepts arrays; object iteration is outside the initial contract. `Vtex.FormatCurrency path` may be a transparent shortcut to `Vtex.Helper`, with no additional logic.
 
@@ -482,15 +476,15 @@ Source locations must come from TSX load/transform or sourcemaps. When the exact
 
 ### 12.1 Style policy
 
-| Category                                         | Initial policy                                                             |
-| ------------------------------------------------ | -------------------------------------------------------------------------- |
-| Colors, typography, spacing, simple borders      | Compile and validate emitted CSS                                           |
-| Widths, tables, alignment                        | Prefer email components and fallbacks                                      |
-| Responsiveness                                   | Preserve rules in `style` and required classes                             |
-| `flex`, `grid`, positioning, and transforms      | Diagnose per client matrix; avoid in the conservative preset               |
-| `hover`, compound selectors, `space-*`, `prose`  | Require demonstrated adapter and target-client support                     |
-| CSS variables and modern color formats           | Resolve when possible; warn/error if the profile does not support them     |
-| Classes derived from the payload                 | Reject in the MVP                                                          |
+| Category                                        | Initial policy                                                         |
+| ----------------------------------------------- | ---------------------------------------------------------------------- |
+| Colors, typography, spacing, simple borders     | Compile and validate emitted CSS                                       |
+| Widths, tables, alignment                       | Prefer email components and fallbacks                                  |
+| Responsiveness                                  | Preserve rules in `style` and required classes                         |
+| `flex`, `grid`, positioning, and transforms     | Diagnose per client matrix; avoid in the conservative preset           |
+| `hover`, compound selectors, `space-*`, `prose` | Require demonstrated adapter and target-client support                 |
+| CSS variables and modern color formats          | Resolve when possible; warn/error if the profile does not support them |
+| Classes derived from the payload                | Reject in the MVP                                                      |
 
 The `email-safe` preset is a project policy, not a certification. It should favor px units, explicit colors, and layouts with `Section`, `Row`, and `Column`. Real Tailwind options stay encapsulated by the adapter, without promising that any arbitrary `tailwind.config` will work.
 
@@ -590,11 +584,11 @@ Each helper must register emission name, inline/block type, arity, admitted type
 
 Evidence classification:
 
-| State          | Meaning                                                              |
-| -------------- | -------------------------------------------------------------------- |
-| `documented`   | Appears in an official source, but may have untested details         |
-| `verified`     | There is execution evidence on the target for the declared cases     |
-| `experimental` | Only indirect reference or incomplete semantics                      |
+| State          | Meaning                                                          |
+| -------------- | ---------------------------------------------------------------- |
+| `documented`   | Appears in an official source, but may have untested details     |
+| `verified`     | There is execution evidence on the target for the declared cases |
+| `experimental` | Only indirect reference or incomplete semantics                  |
 
 These states are not equivalent to universal approval. The profile relates each capability to the relevant evidence. The local Handlebars version must not be announced as VTEX's internal version without confirmation.
 
@@ -662,17 +656,17 @@ Each scenario must have metadata external to the payload: description, origin, e
 
 ### 15.3 Minimum matrix
 
-| Scenario                                  | Risk covered                  |
-| ----------------------------------------- | ----------------------------- |
-| Simple order                              | Base flow                     |
-| Multiple items                            | Iteration                     |
-| More than one order/seller                | Nested contexts               |
-| Missing address / pickup                  | Conditional and optionality   |
-| Empty array                               | Fallback without item context |
-| Long text and special characters          | Layout and escaping           |
-| Known, missing, and unknown locale        | Selector and fallback         |
-| Zero and representative monetary values   | Helper contract               |
-| Invalid data                              | Negative diagnostics          |
+| Scenario                                | Risk covered                  |
+| --------------------------------------- | ----------------------------- |
+| Simple order                            | Base flow                     |
+| Multiple items                          | Iteration                     |
+| More than one order/seller              | Nested contexts               |
+| Missing address / pickup                | Conditional and optionality   |
+| Empty array                             | Fallback without item context |
+| Long text and special characters        | Layout and escaping           |
+| Known, missing, and unknown locale      | Selector and fallback         |
+| Zero and representative monetary values | Helper contract               |
+| Invalid data                            | Negative diagnostics          |
 
 Negative fixtures live in a separate set, with an expected failure result; they must not make the normal build permanently invalid.
 
@@ -713,14 +707,14 @@ Requirements:
 
 ## 17. CLI
 
-| Command                                                               | Result                                                    |
-| --------------------------------------------------------------------- | --------------------------------------------------------- |
-| `vtex-email dev`                                                      | Preview server with watch                                 |
-| `vtex-email build`                                                    | Compiles all emails                                       |
-| `vtex-email build order-confirmed`                                    | Compiles only the selected ID                             |
+| Command                                                               | Result                                                     |
+| --------------------------------------------------------------------- | ---------------------------------------------------------- |
+| `vtex-email dev`                                                      | Preview server with watch                                  |
+| `vtex-email build`                                                    | Compiles all emails                                        |
+| `vtex-email build order-confirmed`                                    | Compiles only the selected ID                              |
 | `vtex-email validate`                                                 | Checks contracts, expressions, translations, CSS, fixtures |
-| `vtex-email validate --format json`                                   | Structured diagnostics for CI                             |
-| `vtex-email preview order-confirmed --fixture default --out preview/` | Exports resolved HTML for a scenario                      |
+| `vtex-email validate --format json`                                   | Structured diagnostics for CI                              |
+| `vtex-email preview order-confirmed --fixture default --out preview/` | Exports resolved HTML for a scenario                       |
 
 Common options: `--config`, `--format`, `--warnings-as-errors`. `build --locale pt-BR` must produce an identified isolated variant, never silently overwrite the combined template.
 
@@ -732,13 +726,13 @@ There are no `send`, `deploy`, or `sync` commands in scope.
 
 ## 18. Artifacts and manifest
 
-| Artifact                                  | Use                                                           |
-| ----------------------------------------- | ------------------------------------------------------------- |
-| `dist/order-confirmed.html`               | Combined HTML + HBS template, when configured                 |
-| `dist/locales/pt-BR/order-confirmed.html` | Language variant                                              |
-| `dist/manifest.json`                      | Build inventory and metadata                                  |
-| `dist/diagnostics.json`                   | Diagnostics, if requested                                     |
-| `preview/order-confirmed.default.html`    | Resolved content; never publish as a dynamic template         |
+| Artifact                                  | Use                                                   |
+| ----------------------------------------- | ----------------------------------------------------- |
+| `dist/order-confirmed.html`               | Combined HTML + HBS template, when configured         |
+| `dist/locales/pt-BR/order-confirmed.html` | Language variant                                      |
+| `dist/manifest.json`                      | Build inventory and metadata                          |
+| `dist/diagnostics.json`                   | Diagnostics, if requested                             |
+| `preview/order-confirmed.default.html`    | Resolved content; never publish as a dynamic template |
 
 Mandatory manifest: format version, compiler/adapters/profile, template/event, locales, output files, SHA-256 hashes, capabilities used, homologation state, and pertinent warnings. Do not include fixture contents, credentials, or absolute machine paths.
 
@@ -776,25 +770,25 @@ Sample fixtures must contain fictional names, emails, phones, documents, address
 
 ## 20. Diagnostics
 
-| Code                | Default severity | Situation                                           |
-| ------------------- | ---------------- | --------------------------------------------------- |
-| `CFG001`            | Error            | Invalid configuration                               |
-| `DSL001`            | Error            | Fixture imported by the template                    |
-| `DSL002`            | Error            | Expression in unsupported context                   |
-| `HBS001`            | Error            | Invalid syntax or blocks                            |
-| `HBS002`            | Error            | Helper/capability not enabled                       |
-| `TOK001`            | Error            | Token lost, corrupted, or not restored              |
-| `DATA001`           | Error            | Fixture does not meet schema                        |
-| `PATH001`           | Error            | Path nonexistent in contract/scope                  |
-| `PATH002`           | Warning          | Optional path without sufficient coverage or guard  |
+| Code                | Default severity | Situation                                               |
+| ------------------- | ---------------- | ------------------------------------------------------- |
+| `CFG001`            | Error            | Invalid configuration                                   |
+| `DSL001`            | Error            | Fixture imported by the template                        |
+| `DSL002`            | Error            | Expression in unsupported context                       |
+| `HBS001`            | Error            | Invalid syntax or blocks                                |
+| `HBS002`            | Error            | Helper/capability not enabled                           |
+| `TOK001`            | Error            | Token lost, corrupted, or not restored                  |
+| `DATA001`           | Error            | Fixture does not meet schema                            |
+| `PATH001`           | Error            | Path nonexistent in contract/scope                      |
+| `PATH002`           | Warning          | Optional path without sufficient coverage or guard      |
 | `PATH_UNANALYZABLE` | Error            | Contract not inspectable without additional description |
-| `I18N001`           | Error            | Missing or inconsistent translation/placeholder     |
-| `CSS001`            | Warning          | Property with limited support in the profile        |
-| `CSS002`            | Error            | Utility not processed by the adapter                |
-| `HTML001`           | Error            | Resolved document structurally invalid              |
-| `ASSET001`          | Error            | Local reference in production output                |
-| `SIZE001`           | Warning/error    | Configured byte limit exceeded                      |
-| `TARGET001`         | Warning/error    | Experimental capability or insufficient evidence    |
+| `I18N001`           | Error            | Missing or inconsistent translation/placeholder         |
+| `CSS001`            | Warning          | Property with limited support in the profile            |
+| `CSS002`            | Error            | Utility not processed by the adapter                    |
+| `HTML001`           | Error            | Resolved document structurally invalid                  |
+| `ASSET001`          | Error            | Local reference in production output                    |
+| `SIZE001`           | Warning/error    | Configured byte limit exceeded                          |
+| `TARGET001`         | Warning/error    | Experimental capability or insufficient evidence        |
 
 Human example:
 
@@ -862,34 +856,34 @@ No command requires a specific shell: Node scripts and filesystem APIs replace P
 
 ## 23. Deliveries by phase
 
-| Phase              | Deliveries                                                                                                        | Exit gate                                                            |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| P0 — Feasibility   | Initial versioning, tokens + Tailwind + tables + attributes proof; merge trial; minimum target catalog            | Do not lose or move operations; record limitations and evidence      |
-| P1 — Core          | IR, `Value/Each/If/Unless/Helper`, attributes, deterministic build, and one language                              | Dynamic confirmation email, without embedded fixture                 |
-| P2 — MVP product   | I18n/merge, schemas/paths, preview, CLI, diagnostics, representative fixtures                                     | Scenario matrix approved; external gates made explicit               |
-| P3 — Homologation  | VTEX tests, required comparison/equality and helpers verified; client tests                                       | MVP fit for use on the homologated target                            |
-| P4 — Expansion     | More events, `With`, rich messages, subjects, autocomplete, and style extensions                                  | Per-feature RFCs/ADRs                                                |
+| Phase             | Deliveries                                                                                             | Exit gate                                                       |
+| ----------------- | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------- |
+| P0 — Feasibility  | Initial versioning, tokens + Tailwind + tables + attributes proof; merge trial; minimum target catalog | Do not lose or move operations; record limitations and evidence |
+| P1 — Core         | IR, `Value/Each/If/Unless/Helper`, attributes, deterministic build, and one language                   | Dynamic confirmation email, without embedded fixture            |
+| P2 — MVP product  | I18n/merge, schemas/paths, preview, CLI, diagnostics, representative fixtures                          | Scenario matrix approved; external gates made explicit          |
+| P3 — Homologation | VTEX tests, required comparison/equality and helpers verified; client tests                            | MVP fit for use on the homologated target                       |
+| P4 — Expansion    | More events, `With`, rich messages, subjects, autocomplete, and style extensions                       | Per-feature RFCs/ADRs                                           |
 
 The usable MVP gathers P0 through P3. Experimental versions may be tested and distributed before P3, identified as such. The initial focus is order confirmation; a second email, such as cancellation, proves reuse and payload differences before API stabilization.
 
 ### 23.1 Implementable backlog
 
-| ID  | Task                                | Expected result                                  | Dependency    |
-| --- | ----------------------------------- | ------------------------------------------------ | ------------- |
-| T01 | Create workspace and version matrix | Packages compile and tests run                   | —             |
-| T02 | Prove token transport               | Technical table/attribute/CSS fixtures approved  | T01           |
-| T03 | Define minimum profile and contract | Helpers and syntax documented, gaps visible      | T01           |
-| T04 | Implement IR and HBS serializer     | Safe emission and diagnostics                    | T02, T03      |
-| T05 | Implement DSL and React adapter     | First template compiles                          | T04           |
-| T06 | Implement styles and CSS policies   | Inline + responsive Tailwind validated           | T05           |
-| T07 | Implement local runtime             | Artifact renders against fixtures                | T04           |
-| T08 | Implement schemas and scopes        | Nested and optional paths analyzed               | T05, T07      |
-| T09 | Implement catalogs and merge        | Selector/fallback executed in the artifact       | T03, T06, T07 |
-| T10 | Implement CLI and atomic outputs    | Build/validate/preview usable in CI              | T08, T09      |
-| T11 | Implement preview UI                | Watch, scenarios, and diagnostics                | T10           |
-| T12 | Create two examples and docs        | Reproducible onboarding                          | T11           |
-| T13 | Homologate target and clients       | Evidence and limitation matrix                   | T12           |
-| T14 | Prepare distribution                | Packages tested in a clean project               | T13           |
+| ID  | Task                                | Expected result                                 | Dependency    |
+| --- | ----------------------------------- | ----------------------------------------------- | ------------- |
+| T01 | Create workspace and version matrix | Packages compile and tests run                  | —             |
+| T02 | Prove token transport               | Technical table/attribute/CSS fixtures approved | T01           |
+| T03 | Define minimum profile and contract | Helpers and syntax documented, gaps visible     | T01           |
+| T04 | Implement IR and HBS serializer     | Safe emission and diagnostics                   | T02, T03      |
+| T05 | Implement DSL and React adapter     | First template compiles                         | T04           |
+| T06 | Implement styles and CSS policies   | Inline + responsive Tailwind validated          | T05           |
+| T07 | Implement local runtime             | Artifact renders against fixtures               | T04           |
+| T08 | Implement schemas and scopes        | Nested and optional paths analyzed              | T05, T07      |
+| T09 | Implement catalogs and merge        | Selector/fallback executed in the artifact      | T03, T06, T07 |
+| T10 | Implement CLI and atomic outputs    | Build/validate/preview usable in CI             | T08, T09      |
+| T11 | Implement preview UI                | Watch, scenarios, and diagnostics               | T10           |
+| T12 | Create two examples and docs        | Reproducible onboarding                         | T11           |
+| T13 | Homologate target and clients       | Evidence and limitation matrix                  | T12           |
+| T14 | Prepare distribution                | Packages tested in a clean project              | T13           |
 
 ## 24. MVP Definition of Done
 
@@ -910,42 +904,42 @@ The usable MVP gathers P0 through P3. Experimental versions may be tested and di
 
 ## 25. Decisions and alternatives
 
-| Topic           | Decision                       | Alternative not adopted now          | Reason                                          |
-| --------------- | ------------------------------ | ------------------------------------ | ----------------------------------------------- |
-| Preview         | Execute final HBS              | Interpret the DSL twice              | Avoid divergent semantics                       |
-| Dynamic data    | Explicit DSL                   | Compile arbitrary JS                 | Scope and predictability                        |
-| Styles          | React Email/Tailwind adapter   | Implement email CSS from scratch     | Concentrate effort on VTEX integration          |
-| Inlining        | Optional                       | Mandatory Juice                      | Avoid redundant transform and block damage      |
-| I18n            | Full variants and branches     | Initial structural deduplication     | Simplify correction                             |
-| Helpers         | Per-target catalog             | Accept any local helper              | Do not emit nonexistent capabilities            |
-| Typing          | Path validation + TS props     | Full inference in the first release  | Avoid blocking the MVP                          |
-| Publishing      | Manual export                  | Deploy integration                   | Keep scope without credentials                  |
+| Topic        | Decision                     | Alternative not adopted now         | Reason                                     |
+| ------------ | ---------------------------- | ----------------------------------- | ------------------------------------------ |
+| Preview      | Execute final HBS            | Interpret the DSL twice             | Avoid divergent semantics                  |
+| Dynamic data | Explicit DSL                 | Compile arbitrary JS                | Scope and predictability                   |
+| Styles       | React Email/Tailwind adapter | Implement email CSS from scratch    | Concentrate effort on VTEX integration     |
+| Inlining     | Optional                     | Mandatory Juice                     | Avoid redundant transform and block damage |
+| I18n         | Full variants and branches   | Initial structural deduplication    | Simplify correction                        |
+| Helpers      | Per-target catalog           | Accept any local helper             | Do not emit nonexistent capabilities       |
+| Typing       | Path validation + TS props   | Full inference in the first release | Avoid blocking the MVP                     |
+| Publishing   | Manual export                | Deploy integration                  | Keep scope without credentials             |
 
 ## 26. Risks and mitigation
 
-| Risk                                                       | Mitigation                                                       | Blocks release?                       |
-| ---------------------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------- |
-| Markers moved by HTML normalization                        | P0; avoid unsafe reparse; structural lowering if needed          | Yes                                   |
-| Incompatible Context/Tailwind or custom components         | Environment outside the wrapper; version tests                   | Yes                                   |
-| Local helper different from the real one                   | Target contracts and evidence classification                     | Yes for used capability               |
-| Event payload different from the fixture                   | Per-event contract and sanitized real examples                   | Yes when it blocks the main case      |
-| Large multilingual source                                  | Measure bytes; separate variants as an explicit mode             | Per configured limit                  |
-| Layout differs in Outlook                                  | Conservative components and real test                            | Per severity on the target client     |
-| Complex schema prevents analysis                           | Explicit path contract; clear error                              | Yes for unverifiable paths            |
-| Excessive lint promise                                     | Report separates heuristic, local test, and homologation         | Yes for compatibility claims          |
+| Risk                                               | Mitigation                                               | Blocks release?                   |
+| -------------------------------------------------- | -------------------------------------------------------- | --------------------------------- |
+| Markers moved by HTML normalization                | P0; avoid unsafe reparse; structural lowering if needed  | Yes                               |
+| Incompatible Context/Tailwind or custom components | Environment outside the wrapper; version tests           | Yes                               |
+| Local helper different from the real one           | Target contracts and evidence classification             | Yes for used capability           |
+| Event payload different from the fixture           | Per-event contract and sanitized real examples           | Yes when it blocks the main case  |
+| Large multilingual source                          | Measure bytes; separate variants as an explicit mode     | Per configured limit              |
+| Layout differs in Outlook                          | Conservative components and real test                    | Per severity on the target client |
+| Complex schema prevents analysis                   | Explicit path contract; clear error                      | Yes for unverifiable paths        |
+| Excessive lint promise                             | Report separates heuristic, local test, and homologation | Yes for compatibility claims      |
 
 ## 27. Pending items with owner and resolution condition
 
-| Pending item                                                 | Functional owner                  | Resolve by                              |
-| ------------------------------------------------------------ | --------------------------------- | --------------------------------------- |
-| Definitive name and package availability                     | Project maintainer                | Before npm publication                  |
-| Exact React/React Email/Tailwind/Node versions               | Adapter owner                     | P0                                      |
-| Stable block transport in tables                             | Compiler owner                    | P0                                      |
-| Merge format accepted on the target                          | VTEX homologation owner           | Technical P0; confirmation by P3        |
-| Operators and helpers required by the first event            | VTEX profile owner                | P1/P3                                   |
-| Date/timezone semantics                                      | VTEX profile owner                | Before releasing each helper            |
-| Envelope and locale of the reference event                   | Template owner                    | P1                                      |
-| Project license and right to reuse external files            | Project maintainer                | Before copying/distributing content     |
+| Pending item                                      | Functional owner        | Resolve by                          |
+| ------------------------------------------------- | ----------------------- | ----------------------------------- |
+| Definitive name and package availability          | Project maintainer      | Before npm publication              |
+| Exact React/React Email/Tailwind/Node versions    | Adapter owner           | P0                                  |
+| Stable block transport in tables                  | Compiler owner          | P0                                  |
+| Merge format accepted on the target               | VTEX homologation owner | Technical P0; confirmation by P3    |
+| Operators and helpers required by the first event | VTEX profile owner      | P1/P3                               |
+| Date/timezone semantics                           | VTEX profile owner      | Before releasing each helper        |
+| Envelope and locale of the reference event        | Template owner          | P1                                  |
+| Project license and right to reuse external files | Project maintainer      | Before copying/distributing content |
 
 Until licenses and rights are confirmed, use the reference repository as inspiration and create own synthetic fixtures. This RFC does not authorize assuming a license from the code being public.
 

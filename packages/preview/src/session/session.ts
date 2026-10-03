@@ -1,10 +1,4 @@
-import type {
-  BuiltEmail,
-  CliDiagnostic,
-  DevIngestPlan,
-  PreviewResult,
-  ProjectResult,
-} from '@vtex-email/cli/project'
+import type { BuiltEmail, CliDiagnostic, DevIngestPlan, PreviewResult, ProjectResult } from '@vtex-email/cli/project'
 
 import path from 'node:path'
 

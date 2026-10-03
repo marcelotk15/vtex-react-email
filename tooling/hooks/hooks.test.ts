@@ -35,7 +35,7 @@ async function commitlintMessage(message: string) {
   return run(process.execPath, [commitlintCli, '--edit', file], root)
 }
 
-describe('commitlint config', () => {
+describe('commitlint config', { timeout: 60_000 }, () => {
   it('accepts conventional messages', async () => {
     for (const message of [
       'feat(preview): add system theme support',

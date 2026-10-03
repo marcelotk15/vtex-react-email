@@ -1,13 +1,7 @@
 import { PassThrough } from 'node:stream'
 import { describe, expect, it } from 'vitest'
 
-import {
-  BANNER_ASCII,
-  BANNER_COMPACT,
-  bannerWidth,
-  createDevPresenter,
-  supportsColor,
-} from './dev-presenter'
+import { BANNER_ASCII, BANNER_COMPACT, bannerWidth, createDevPresenter, supportsColor } from './dev-presenter'
 
 describe('dev presenter', () => {
   it('keeps the banner within 80 columns and switches to the compact line when narrow', async () => {
@@ -71,7 +65,9 @@ describe('dev presenter', () => {
     await presenter.handle({
       kind: 'failed',
       exitCode: 1,
-      diagnostics: [{ code: 'CFG001', severity: 'error', message: 'Preview port 3000 is already in use on 127.0.0.1.' }],
+      diagnostics: [
+        { code: 'CFG001', severity: 'error', message: 'Preview port 3000 is already in use on 127.0.0.1.' },
+      ],
     })
     expect(stderr()).toContain('CFG001 error Preview port 3000 is already in use on 127.0.0.1.')
     expect(stdout().includes('ready in')).toBe(false)

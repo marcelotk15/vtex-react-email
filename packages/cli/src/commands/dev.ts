@@ -2,8 +2,9 @@ import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
 
 import type { DevNoticeHandler } from './dev-notices'
-import { createDevPresenter } from './dev-presenter'
+
 import { exitUsage } from '../project/types'
+import { createDevPresenter } from './dev-presenter'
 import { usageReport } from './project-commands'
 import { emitReport } from './report'
 

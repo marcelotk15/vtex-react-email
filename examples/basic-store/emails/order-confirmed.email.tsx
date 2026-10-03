@@ -1,5 +1,6 @@
-import { Section, Text } from '@react-email/components'
 import type { EmailSettings } from '@vtex-email/core'
+
+import { Section, Text } from '@react-email/components'
 import { Email, expr, Trans, Vtex } from '@vtex-email/react'
 
 export const settings = {

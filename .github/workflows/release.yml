@@ -3,7 +3,7 @@ name: release
 on:
   push:
     branches:
-      - master
+      - main
 
 concurrency:
   group: release
@@ -22,6 +22,8 @@ jobs:
       contents: write
       pull-requests: write
       id-token: write
+      checks: read
+      actions: read
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -42,8 +44,37 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
-      - name: Build
-        run: pnpm build
+      - name: Wait for CI on this SHA
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN || github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          RELEASE_COMMIT_SHA: ${{ github.sha }}
+          REQUIRED_CHECK_NAMES: ci-result,pack-release-artifacts
+        run: node scripts/wait-for-ci.mjs
+
+      - name: Resolve pack artifact run
+        id: pack_run
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN || github.token }}
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          RUN_ID=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs?head_sha=${SHA}&status=completed&per_page=20" \
+            --jq '.workflow_runs[] | select(.name=="ci") | .id' | head -n 1)
+          if [ -z "$RUN_ID" ]; then
+            echo "Could not find completed ci workflow run for ${SHA}"
+            exit 1
+          fi
+          echo "run_id=${RUN_ID}" >> "$GITHUB_OUTPUT"
+
+      - name: Download release artifacts from CI
+        uses: actions/download-artifact@634f93cb2916f4fc07285a3d0d4d969c43e4804c # v4
+        with:
+          name: release-artifacts-${{ github.sha }}
+          path: .release-artifacts
+          github-token: ${{ secrets.RELEASE_GITHUB_TOKEN || github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ steps.pack_run.outputs.run_id }}
 
       - name: Create release PR or publish
         id: changesets
@@ -59,3 +90,6 @@ jobs:
         env:
           # Trusted publishing / OIDC — do not inject NPM_TOKEN here.
           NPM_CONFIG_PROVENANCE: 'true'
+          RELEASE_ARTIFACTS_DIR: ${{ github.workspace }}/.release-artifacts
+          RELEASE_COMMIT_SHA: ${{ github.sha }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN || github.token }}

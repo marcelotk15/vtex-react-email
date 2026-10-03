@@ -10,6 +10,7 @@ import {
   planPublish,
   selectReleaseCohort,
 } from '../tooling/release/publish-plan.mjs'
+import { isReleaseCommitMessage } from '../tooling/release/release-commit.mjs'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const PACKAGE_DIRS = ['core', 'vtex', 'react', 'cli', 'preview']
@@ -20,6 +21,10 @@ function gitShow(ref, file) {
   } catch {
     return null
   }
+}
+
+function git(args) {
+  return execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim()
 }
 
 async function loadPackages() {
@@ -57,7 +62,16 @@ async function resolveBumpedNames(packages) {
     )
   }
 
-  const parent = process.env.RELEASE_PARENT_REF ?? 'HEAD^'
+  const commitSha = process.env.RELEASE_COMMIT_SHA || 'HEAD'
+  const commitMessage = process.env.RELEASE_COMMIT_MESSAGE || git(['log', '-1', '--pretty=%B', commitSha])
+  if (!isReleaseCommitMessage(commitMessage)) {
+    console.log(
+      'HEAD is not an approved release commit (chore(release): version packages). Cohort is empty unless RELEASE_BUMPED_NAMES is set.',
+    )
+    return new Set()
+  }
+
+  const parent = process.env.RELEASE_PARENT_REF ?? `${commitSha}^`
   const before = new Map()
   for (const dirName of PACKAGE_DIRS) {
     const raw = gitShow(parent, `packages/${dirName}/package.json`)
@@ -72,7 +86,6 @@ async function resolveBumpedNames(packages) {
     private: pkg.packageJson.private,
   }))
 
-  // Local dry-run without a release commit: treat no bumps unless forced.
   if (before.size === 0) return new Set()
   return detectBumpedNames(before, after)
 }

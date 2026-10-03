@@ -42,10 +42,50 @@ export function packagesFromChangedFiles(files) {
 }
 
 /**
+ * Version Packages PRs only touch version metadata, changelogs, lockfile, and changesets.
+ *
+ * @param {readonly string[]} files
+ */
+export function isVersionPackagesDiff(files) {
+  if (files.length === 0) return false
+  let hasPackageJson = false
+  for (const file of files) {
+    const normalized = file.replaceAll('\\', '/')
+    if (normalized === 'pnpm-lock.yaml') continue
+    if (normalized.startsWith('.changeset/')) continue
+    if (/^packages\/[^/]+\/package\.json$/.test(normalized)) {
+      hasPackageJson = true
+      continue
+    }
+    if (/^packages\/[^/]+\/CHANGELOG\.md$/.test(normalized)) continue
+    return false
+  }
+  return hasPackageJson
+}
+
+/**
+ * Skip coverage only for a structural Version Packages PR.
+ * Title or author alone is never sufficient.
+ *
+ * @param {{
+ *   prTitle?: string
+ *   headRef?: string
+ *   changedFiles?: readonly string[]
+ * }} options
+ */
+export function isReleasePrContext(options) {
+  const head = options.headRef ?? ''
+  if (!/changeset-release\//i.test(head)) return false
+  if (!options.changedFiles || !isVersionPackagesDiff(options.changedFiles)) return false
+  return true
+}
+
+/**
  * @param {{
  *   changedFiles: readonly string[]
  *   changesetContents: readonly string[]
  *   isReleasePr?: boolean
+ *   plannedDependentBumps?: readonly string[]
  * }} options
  */
 export function checkChangesetCoverage(options) {
@@ -67,6 +107,7 @@ export function checkChangesetCoverage(options) {
   for (const item of parsed) {
     for (const name of Object.keys(item.packages)) covered.add(name)
   }
+  for (const name of options.plannedDependentBumps ?? []) covered.add(name)
 
   const missing = [...touched].filter((name) => !covered.has(name)).sort()
   if (missing.length > 0) {
@@ -78,13 +119,4 @@ export function checkChangesetCoverage(options) {
   }
 
   return { ok: true, reason: 'All touched publishable packages are covered by changesets' }
-}
-
-/** @param {{ prTitle?: string, headRef?: string }} options */
-export function isReleasePrContext(options) {
-  const title = options.prTitle?.trim() ?? ''
-  if (/^chore\(release\):/i.test(title)) return true
-  const head = options.headRef ?? ''
-  if (/changeset-release\//i.test(head)) return true
-  return false
 }

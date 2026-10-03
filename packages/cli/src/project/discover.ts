@@ -1,3 +1,5 @@
+import type { ZodType } from 'zod'
+
 import {
   errorDiagnostic,
   isSafeEmailId,
@@ -10,7 +12,6 @@ import {
 } from '@vtex-email/core'
 import { access, glob } from 'node:fs/promises'
 import path from 'node:path'
-import type { ZodType } from 'zod'
 
 import type { ResolvedConfig } from '../config/config'
 import type { LoadedProfile, ResolvedEmail } from './types'
@@ -30,9 +31,7 @@ export async function discoverEmails(
   for (const file of files) {
     const fileKey = fileKeyFromPath(file)
     if (!fileKey) {
-      diagnostics.push(
-        errorDiagnostic('CFG001', `Email file must end with ${TEMPLATE_SUFFIX}.`, { source: { file } }),
-      )
+      diagnostics.push(errorDiagnostic('CFG001', `Email file must end with ${TEMPLATE_SUFFIX}.`, { source: { file } }))
       continue
     }
     if (!isSafeEmailId(fileKey)) {
@@ -279,11 +278,10 @@ async function resolveSchema(
       return {
         ok: false,
         diagnostics: [
-          errorDiagnostic(
-            'CFG001',
-            `Schema module ${relative} must default-export a Zod schema.`,
-            { source: { file: schemaFile }, templateId },
-          ),
+          errorDiagnostic('CFG001', `Schema module ${relative} must default-export a Zod schema.`, {
+            source: { file: schemaFile },
+            templateId,
+          }),
         ],
       }
     }

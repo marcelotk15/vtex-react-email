@@ -46,11 +46,7 @@ function DiagnosticRow({ item }: { item: PreviewDiagnostic }) {
         ? 'border-border bg-warning-tint'
         : 'border-border bg-info-tint'
   const iconTone =
-    item.severity === 'error'
-      ? 'text-destructive'
-      : item.severity === 'warning'
-        ? 'text-warning'
-        : 'text-info'
+    item.severity === 'error' ? 'text-destructive' : item.severity === 'warning' ? 'text-warning' : 'text-info'
   const origin = [item.templateId, item.locale, item.fixtureId, item.origin].filter(Boolean).join(' / ')
   const place = item.source
     ? `${item.source.file}${item.source.line ? `:${item.source.line}` : ''}${item.source.column ? `:${item.source.column}` : ''}`

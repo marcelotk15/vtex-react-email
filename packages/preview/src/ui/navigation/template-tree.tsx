@@ -152,9 +152,7 @@ function TreeItem({
         onFocus={() => onFocusRow(row.id)}
       >
         {row.kind === 'email' ? (
-          <ChevronRight
-            className={`size-4 shrink-0 text-muted-foreground ${row.expanded ? 'rotate-90' : ''}`}
-          />
+          <ChevronRight className={`size-4 shrink-0 text-muted-foreground ${row.expanded ? 'rotate-90' : ''}`} />
         ) : (
           <span className="w-4 shrink-0" />
         )}

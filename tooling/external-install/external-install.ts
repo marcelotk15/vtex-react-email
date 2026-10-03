@@ -205,17 +205,21 @@ async function writeConsumer(consumer: string, tarballs: Record<(typeof packages
       'react-dom': '19.3.0',
       zod: '4.6.5',
     },
-    pnpm: {
-      overrides: {
-        '@vtex-email/cli': pathToFileUrl(tarballs.cli),
-        '@vtex-email/core': pathToFileUrl(tarballs.core),
-        '@vtex-email/preview': pathToFileUrl(tarballs.preview),
-        '@vtex-email/react': pathToFileUrl(tarballs.react),
-        '@vtex-email/vtex': pathToFileUrl(tarballs.vtex),
-        tailwindcss: '4.1.18',
-      },
-    },
   }
+  // pnpm 12 reads overrides from pnpm-workspace.yaml, not package.json#pnpm.
+  await writeFile(
+    path.join(consumer, 'pnpm-workspace.yaml'),
+    [
+      'overrides:',
+      `  "@vtex-email/cli": "${pathToFileUrl(tarballs.cli)}"`,
+      `  "@vtex-email/core": "${pathToFileUrl(tarballs.core)}"`,
+      `  "@vtex-email/preview": "${pathToFileUrl(tarballs.preview)}"`,
+      `  "@vtex-email/react": "${pathToFileUrl(tarballs.react)}"`,
+      `  "@vtex-email/vtex": "${pathToFileUrl(tarballs.vtex)}"`,
+      '  tailwindcss: 4.1.18',
+      '',
+    ].join('\n'),
+  )
   await writeFile(path.join(consumer, 'package.json'), `${JSON.stringify(packageJson, null, 2)}\n`)
 }
 

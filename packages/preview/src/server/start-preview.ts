@@ -1,6 +1,6 @@
+import type { DevNoticeHandler } from '@vtex-email/cli/project'
 import type { ServerResponse } from 'node:http'
 
-import type { DevNoticeHandler } from '@vtex-email/cli/project'
 import { createHash } from 'node:crypto'
 import { existsSync } from 'node:fs'
 import { mkdir, rm } from 'node:fs/promises'

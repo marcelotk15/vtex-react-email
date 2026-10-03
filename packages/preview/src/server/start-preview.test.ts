@@ -1,10 +1,10 @@
+import type { DevNotice } from '@vtex-email/cli/project'
+
 import { createHash } from 'node:crypto'
 import { access, cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-
-import type { DevNotice } from '@vtex-email/cli/project'
 
 import type { PreviewState } from '../session/session'
 
@@ -135,13 +135,15 @@ describe('preview server', () => {
       expect(failed.diagnostics.some((item) => item.message.includes(String(port)))).toBe(true)
       expect(notices.some((item) => item.kind === 'listening')).toBe(false)
       expect(notices.some((item) => item.kind === 'failed')).toBe(true)
-      await expect(startPreview({ configPath, host: '127.0.0.1', port }).then(async (result) => {
-        if (result.ok) {
-          await result.close()
-          await result.close()
-        }
-        return result.ok
-      })).resolves.toBe(false)
+      await expect(
+        startPreview({ configPath, host: '127.0.0.1', port }).then(async (result) => {
+          if (result.ok) {
+            await result.close()
+            await result.close()
+          }
+          return result.ok
+        }),
+      ).resolves.toBe(false)
     } finally {
       await new Promise<void>((resolve) => blocker.close(() => resolve()))
       await rm(root, { recursive: true, force: true })

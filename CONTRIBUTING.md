@@ -53,7 +53,7 @@ Conventional Commits organize history. They do **not** bump versions by themselv
 
 ## Changesets
 
-Publishable packages: `@vtex-email/core`, `vtex`, `react`, `cli`, `preview`.
+Publishable packages: `@vtex-email/core`, `@vtex-email/vtex`, `@vtex-email/react`, `@vtex-email/cli`, `@vtex-email/preview`.
 
 ```bash
 pnpm changeset          # select packages + bump + summary
@@ -62,16 +62,18 @@ pnpm changeset --empty  # auditable no-release (docs/tests/examples)
 
 Create a changeset when a publishable package’s distributed behavior, public API, types, embedded bundle code, or Preview assets change. Use an empty changeset when you intentionally ship no release.
 
+Breaking public API while versions are `0.x` → changeset bump type **`minor`**.
+
 Details, dependency graph, release PR, bootstrap, and retries: [docs/release.md](docs/release.md).
 
 ## Local vs CI
 
-| Check                                                  | Local hooks          | CI                                              |
-| ------------------------------------------------------ | -------------------- | ----------------------------------------------- |
-| Format / lint on staged files                          | pre-commit           | full tree `format:check` + `lint`               |
-| Commit message                                         | commit-msg           | all new PR commits + PR title                   |
-| Typecheck / tests / build / example / external-install | manual / `pnpm test` | required on every PR                            |
-| Changeset coverage                                     | optional             | required on PRs                                 |
-| Publish                                                | never from hooks     | only `release.yml` on `master` after Version PR |
+| Check                                                  | Local hooks          | CI                                            |
+| ------------------------------------------------------ | -------------------- | --------------------------------------------- |
+| Format / lint on staged files                          | pre-commit           | full tree `format:check` + `lint`             |
+| Commit message                                         | commit-msg           | all new PR commits + PR title                 |
+| Typecheck / tests / build / example / external-install | manual / `pnpm test` | required on every PR                          |
+| Changeset coverage                                     | optional             | required on PRs                               |
+| Publish                                                | never from hooks     | only `release.yml` on `main` after Version PR |
 
 Consumer installs of published tarballs do not run monorepo `prepare` hooks (`files: ["dist"]`; no husky in package runtime deps).

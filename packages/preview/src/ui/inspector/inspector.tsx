@@ -27,7 +27,10 @@ export function Inspector({
       }}
     >
       <div className="flex h-8 shrink-0 items-center border-b border-border pr-2">
-        <TabsList className="h-7 min-w-0 flex-1 justify-start rounded-none border-0 bg-transparent p-0" variant="default">
+        <TabsList
+          className="h-7 min-w-0 flex-1 justify-start rounded-none border-0 bg-transparent p-0"
+          variant="default"
+        >
           <TabsTrigger className="h-7 flex-none rounded-sm px-2.5" value="data">
             Data
           </TabsTrigger>

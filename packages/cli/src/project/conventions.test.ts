@@ -59,10 +59,7 @@ describe('fixture loading', () => {
     const root = await mkdtemp(path.join(tmpdir(), 'vtex-fixtures-'))
     const directory = path.join(root, 'fixtures', 'demo')
     await mkdir(directory, { recursive: true })
-    await writeFile(
-      path.join(directory, 'valid.jsonc'),
-      `// comment\n{\n  "locale": "pt-BR",\n  "code": "1",\n}\n`,
-    )
+    await writeFile(path.join(directory, 'valid.jsonc'), `// comment\n{\n  "locale": "pt-BR",\n  "code": "1",\n}\n`)
     await writeFile(
       path.join(directory, 'valid.meta.json'),
       JSON.stringify({
@@ -158,23 +155,19 @@ describe('schema conventions', () => {
     expect(parsed.settings.schema).toBe(schema)
   })
 
-  it(
-    'loads the conventional default-export schema for basic-store emails',
-    async () => {
-      const { discoverEmails } = await import('./discover')
-      const { loadProjectConfig } = await import('../config/load-config')
-      const loaded = await loadProjectConfig(path.resolve('examples/basic-store/vtex-email.config.ts'))
-      expect(loaded.ok).toBe(true)
-      if (!loaded.ok) return
-      const discovered = await discoverEmails(loaded.config)
-      expect(discovered.ok).toBe(true)
-      if (!discovered.ok) return
-      const auth = discovered.emails.find((email) => email.fileKey === 'auth-code')
-      const order = discovered.emails.find((email) => email.fileKey === 'order-confirmed')
-      expect(auth?.definition.schema).toBeTruthy()
-      expect(order?.definition.schema).toBeTruthy()
-      expect(auth?.definition.id).toBe('auth-code')
-    },
-    30_000,
-  )
+  it('loads the conventional default-export schema for basic-store emails', async () => {
+    const { discoverEmails } = await import('./discover')
+    const { loadProjectConfig } = await import('../config/load-config')
+    const loaded = await loadProjectConfig(path.resolve('examples/basic-store/vtex-email.config.ts'))
+    expect(loaded.ok).toBe(true)
+    if (!loaded.ok) return
+    const discovered = await discoverEmails(loaded.config)
+    expect(discovered.ok).toBe(true)
+    if (!discovered.ok) return
+    const auth = discovered.emails.find((email) => email.fileKey === 'auth-code')
+    const order = discovered.emails.find((email) => email.fileKey === 'order-confirmed')
+    expect(auth?.definition.schema).toBeTruthy()
+    expect(order?.definition.schema).toBeTruthy()
+    expect(auth?.definition.id).toBe('auth-code')
+  }, 30_000)
 })

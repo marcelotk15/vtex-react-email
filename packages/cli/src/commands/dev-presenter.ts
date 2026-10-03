@@ -1,6 +1,7 @@
 import type { Diagnostic } from '@vtex-email/core'
 
 import type { DevNotice } from './dev-notices'
+
 import { reportText, writeStream, type CliReport } from './report'
 
 /** Classic ASCII block for “VTEX”; “email React” sits under it. Max line width is 30. */

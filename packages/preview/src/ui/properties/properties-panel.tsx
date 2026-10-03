@@ -1,16 +1,16 @@
 import { ImageOff, Monitor, RectangleHorizontal, Smartphone, UnfoldHorizontal } from 'lucide-react'
 
+import { Kbd } from '@/components/ui/kbd'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Toggle } from '@/components/ui/toggle'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { Kbd } from '@/components/ui/kbd'
-import { ScrollArea } from '@/components/ui/scroll-area'
 
 import type { PreviewEmail, PreviewState } from '../../shared/contract'
-import type { PropertiesTab } from '../prefs/prefs'
 import type { ViewportPreset } from '../model/viewport'
+import type { PropertiesTab } from '../prefs/prefs'
 
 import { DiagnosticsList, sortDiagnostics } from '../inspector/diagnostics-list'
 import { viewportChoices } from '../model/viewport'
@@ -64,7 +64,10 @@ export function PropertiesPanel({
       }}
     >
       <div className="flex h-8 shrink-0 items-center border-b border-border px-1">
-        <TabsList className="h-7 min-w-0 flex-1 justify-start rounded-none border-0 bg-transparent p-0" variant="default">
+        <TabsList
+          className="h-7 min-w-0 flex-1 justify-start rounded-none border-0 bg-transparent p-0"
+          variant="default"
+        >
           <TabsTrigger className="h-7 flex-none rounded-sm px-2.5" value="properties">
             Properties
           </TabsTrigger>
@@ -128,11 +131,7 @@ export function PropertiesPanel({
                   aria-label="Locale"
                   className={`h-8 w-full min-w-0 ${forced ? 'border-primary bg-accent text-foreground' : ''}`}
                   id="locale-select"
-                  title={
-                    forced && email
-                      ? `${email.localePath} changed only on the evaluated copy`
-                      : 'Fixture locale'
-                  }
+                  title={forced && email ? `${email.localePath} changed only on the evaluated copy` : 'Fixture locale'}
                 >
                   <SelectValue />
                 </SelectTrigger>

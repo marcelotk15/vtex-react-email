@@ -29,11 +29,7 @@ export function Toolbar({
   return (
     <header className="flex h-10 shrink-0 items-center gap-2 border-b border-border bg-panel px-1.5">
       <div className="flex min-w-0 flex-1 items-center gap-1.5">
-        <IconButton
-          label={navOpen ? 'Collapse navigation' : 'Open navigation'}
-          shortcut="Alt+S"
-          onClick={onToggleNav}
-        >
+        <IconButton label={navOpen ? 'Collapse navigation' : 'Open navigation'} shortcut="Alt+S" onClick={onToggleNav}>
           <PanelLeft className="size-4" />
         </IconButton>
         <div className="min-w-0 flex-1">

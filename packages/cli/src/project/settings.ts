@@ -1,5 +1,6 @@
-import { errorDiagnostic, type Diagnostic, type EmailSettings } from '@vtex-email/core'
 import type { ZodType } from 'zod'
+
+import { errorDiagnostic, type Diagnostic, type EmailSettings } from '@vtex-email/core'
 
 const OUTPUTS = new Set(['per-locale', 'merged'])
 const UNKNOWN_PATH = new Set(['error', 'warning'])
@@ -12,9 +13,7 @@ export function parseEmailSettings(
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     return {
       ok: false,
-      diagnostics: [
-        errorDiagnostic('CFG001', 'export const settings must be an object.', { source: { file } }),
-      ],
+      diagnostics: [errorDiagnostic('CFG001', 'export const settings must be an object.', { source: { file } })],
     }
   }
   const record = value as Record<string, unknown>
@@ -22,9 +21,7 @@ export function parseEmailSettings(
   const diagnostics: Diagnostic[] = []
   for (const key of Object.keys(record)) {
     if (!allowed.has(key)) {
-      diagnostics.push(
-        errorDiagnostic('CFG001', `Unknown settings field: ${key}`, { source: { file }, path: key }),
-      )
+      diagnostics.push(errorDiagnostic('CFG001', `Unknown settings field: ${key}`, { source: { file }, path: key }))
     }
   }
   if (record.id !== undefined && typeof record.id !== 'string') {
@@ -60,16 +57,10 @@ export function parseEmailSettings(
   return { ok: true, settings }
 }
 
-function parseI18n(
-  value: unknown,
-  file: string,
-  diagnostics: Diagnostic[],
-): EmailSettings['i18n'] | undefined {
+function parseI18n(value: unknown, file: string, diagnostics: Diagnostic[]): EmailSettings['i18n'] | undefined {
   if (value === undefined) return undefined
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    diagnostics.push(
-      errorDiagnostic('CFG001', 'settings.i18n must be an object.', { source: { file }, path: 'i18n' }),
-    )
+    diagnostics.push(errorDiagnostic('CFG001', 'settings.i18n must be an object.', { source: { file }, path: 'i18n' }))
     return undefined
   }
   const record = value as Record<string, unknown>
@@ -85,7 +76,11 @@ function parseI18n(
     }
   }
   if (record.locales !== undefined) {
-    if (!Array.isArray(record.locales) || record.locales.length === 0 || record.locales.some((item) => typeof item !== 'string')) {
+    if (
+      !Array.isArray(record.locales) ||
+      record.locales.length === 0 ||
+      record.locales.some((item) => typeof item !== 'string')
+    ) {
       diagnostics.push(
         errorDiagnostic('CFG001', 'settings.i18n.locales must be a non-empty string array.', {
           source: { file },
