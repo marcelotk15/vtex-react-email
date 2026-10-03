@@ -12,6 +12,14 @@ interface RunResult {
   stderr: string
 }
 
+async function expectedCliVersion(): Promise<string> {
+  const manifest = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8')) as {
+    version: string
+  }
+
+  return manifest.version
+}
+
 describe('vtex-email executable', () => {
   it('answers help, version, and invalid arguments', async () => {
     const script = await binScript()
@@ -23,7 +31,7 @@ describe('vtex-email executable', () => {
 
     const version = await runNode(script, ['--version'], root)
     expect(version.code).toBe(0)
-    expect(version.stdout.trim()).toBe('0.0.0')
+    expect(version.stdout.trim()).toBe(await expectedCliVersion())
 
     const unknown = await runNode(script, ['deploy'], root)
     expect(unknown.code).toBe(2)
@@ -45,7 +53,7 @@ describe('vtex-email executable', () => {
   it('exposes the workspace bin through pnpm exec', async () => {
     const result = await runShell('pnpm exec vtex-email --version', root)
     expect(result).toMatchObject({ code: 0 })
-    expect(result.stdout).toContain('0.0.0')
+    expect(result.stdout.trim()).toBe(await expectedCliVersion())
   })
 
   it('builds the copied store from another directory when the path contains spaces', async () => {
