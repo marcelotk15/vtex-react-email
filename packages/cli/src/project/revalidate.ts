@@ -34,7 +34,7 @@ async function loadSchema(
   config: ResolvedConfig,
   fileKey: string,
   templateId: string,
-  emailFile: string,
+  _emailFile: string,
 ): Promise<{ ok: true; schema: ZodType } | { ok: false; diagnostics: Diagnostic[] }> {
   const schemaFile = path.resolve(config.configDir, config.schemasDir, `${fileKey}.ts`)
   const relative = toPosix(path.relative(config.configDir, schemaFile))

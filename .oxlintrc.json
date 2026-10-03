@@ -156,6 +156,12 @@
           }
         ]
       }
+    },
+    {
+      "files": ["scripts/**/*.{js,mjs}", "tooling/release/**/*.{js,mjs,ts}"],
+      "rules": {
+        "import/extensions": "off"
+      }
     }
   ]
 }

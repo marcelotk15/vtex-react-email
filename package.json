@@ -9,19 +9,39 @@
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p packages/preview/src/ui/tsconfig.json",
-    "test": "vitest run"
+    "test": "vitest run",
+    "changeset": "changeset",
+    "version": "changeset version && pnpm install --lockfile-only",
+    "release": "node scripts/release.mjs",
+    "release:plan": "node scripts/release-plan.mjs",
+    "changeset:check": "node scripts/check-changeset-coverage.mjs",
+    "prepare": "node scripts/prepare-husky.mjs"
   },
   "devDependencies": {
+    "@changesets/cli": "3.0.3",
+    "@commitlint/cli": "19.8.1",
+    "@commitlint/config-conventional": "19.8.1",
     "@types/node": "24.13.3",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "esbuild": "0.28.2",
+    "husky": "9.1.7",
+    "lint-staged": "16.4.0",
     "oxfmt": "0.71.0",
     "oxlint": "1.86.0",
     "parse5": "7.3.0",
     "typescript": "5.9.3",
     "vite": "7.3.1",
     "vitest": "5.0.3"
+  },
+  "lint-staged": {
+    "*.{js,jsx,mjs,cjs,ts,tsx}": [
+      "oxfmt",
+      "oxlint --fix"
+    ],
+    "*.{json,md,yml,yaml,css,html}": [
+      "oxfmt"
+    ]
   },
   "engines": {
     "node": "24.21.0"

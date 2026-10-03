@@ -165,7 +165,7 @@ async function parseFixtureFile(
     return {
       ok: false,
       diagnostic: errorDiagnostic('CFG001', message, {
-        source: { file, ...(position ?? {}) },
+        source: { file, ...position },
       }),
     }
   }

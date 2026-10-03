@@ -21,6 +21,7 @@
     "packages/preview/src/ui.sidebar-toggle.test.ts",
     "packages/preview/vite.config.ts",
     "packages/react/load-fixtures/broken.tsx",
+    "tooling/release/**/*.test.ts",
     "vitest.config.ts"
   ]
 }
