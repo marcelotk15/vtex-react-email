@@ -1,4 +1,7 @@
-import { describe, expect, it, vi } from 'vitest'
+import { mkdtemp, readFile, rm } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import path from 'node:path'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import {
   classifyPublishResult,
@@ -6,11 +9,21 @@ import {
   ensureGitTag,
   ensureGithubRelease,
   shouldUpdateDistTag,
+  writeChangesetsOutput,
 } from './resume-metadata.mjs'
+
+const tempDirs: string[] = []
+afterEach(async () => {
+  await Promise.all(tempDirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true })))
+})
 
 describe('classifyPublishResult', () => {
   it('detects success', () => {
     expect(classifyPublishResult({ exitCode: 0, stdout: 'ok', stderr: '' }).kind).toBe('published')
+  })
+
+  it('ignores legacy code field without exitCode', () => {
+    expect(classifyPublishResult({ code: 0, stdout: 'ok', stderr: '' } as { exitCode?: number }).kind).toBe('failed')
   })
 
   it('detects already-exists after lost response', () => {
@@ -31,6 +44,21 @@ describe('classifyPublishResult', () => {
         stderr: 'npm error code ENEEDAUTH\nnpm error Unable to authenticate',
       }).kind,
     ).toBe('auth_error')
+  })
+})
+
+describe('writeChangesetsOutput', () => {
+  it('writes NDJSON git-tag events for confirmed packages only', async () => {
+    const dir = await mkdtemp(path.join(tmpdir(), 'vtex-cs-out-'))
+    tempDirs.push(dir)
+    const outputPath = path.join(dir, 'events.ndjson')
+    writeChangesetsOutput({
+      outputPath,
+      packages: [{ name: '@vtex-email/core', version: '0.1.0' }],
+    })
+    expect(await readFile(outputPath, 'utf8')).toBe(
+      '{"type":"git-tag","tag":"@vtex-email/core@0.1.0","packageName":"@vtex-email/core"}\n',
+    )
   })
 })
 
@@ -92,7 +120,7 @@ describe('ensureGitTag / ensureGithubRelease / completeReleaseMetadata', () => {
 
   it('completes metadata even when publish cohort was already on the registry', () => {
     const results = completeReleaseMetadata({
-      cohort: [{ name: '@vtex-email/preview', version: '0.1.0' }],
+      packages: [{ name: '@vtex-email/preview', version: '0.1.0' }],
       commitSha: 'deadbeef',
       adapters: {
         git: () => 'deadbeef',

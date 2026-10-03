@@ -142,19 +142,34 @@ export async function readPackageJsonFromTarball(tarballPath) {
  *   manifestPath: string
  *   artifactsDir: string
  *   expectedCommit?: string | null
+ *   verifyTarballPackageJson?: boolean
  * }} options
  */
 export async function loadAndVerifyManifest(options) {
   const manifest = JSON.parse(await readFile(options.manifestPath, 'utf8'))
-  if (options.expectedCommit && manifest.commit && manifest.commit !== options.expectedCommit) {
-    throw new Error(`Artifact manifest commit ${manifest.commit} does not match expected ${options.expectedCommit}`)
+  if (options.expectedCommit) {
+    if (!manifest.commit) {
+      throw new Error(`Artifact manifest missing required commit SHA (expected ${options.expectedCommit})`)
+    }
+    if (manifest.commit !== options.expectedCommit) {
+      throw new Error(`Artifact manifest commit ${manifest.commit} does not match expected ${options.expectedCommit}`)
+    }
   }
+  const verifyTarballPackageJson = options.verifyTarballPackageJson !== false
   const verified = []
   for (const entry of manifest.packages) {
     const filePath = path.join(options.artifactsDir, entry.file)
     const digest = await sha256File(filePath)
     if (digest !== entry.sha256) {
       throw new Error(`Hash mismatch for ${entry.file}: expected ${entry.sha256}, got ${digest}`)
+    }
+    if (verifyTarballPackageJson) {
+      const pkgJson = await readPackageJsonFromTarball(filePath)
+      if (pkgJson.name !== entry.name || pkgJson.version !== entry.version) {
+        throw new Error(
+          `Tarball package.json mismatch for ${entry.file}: manifest ${entry.name}@${entry.version}, tarball ${pkgJson.name}@${pkgJson.version}`,
+        )
+      }
     }
     verified.push({ ...entry, tarball: filePath })
   }

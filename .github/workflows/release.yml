@@ -4,6 +4,17 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      release_sha:
+        description: Full commit SHA of the release to recover
+        required: true
+        type: string
+      dry_run:
+        description: Validate plan and artifacts without publishing
+        required: false
+        type: boolean
+        default: true
 
 concurrency:
   group: release
@@ -50,7 +61,18 @@ jobs:
           pnpm -v
           npm -v
 
+      - name: Guard recovery runs from main
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          if [ "${GITHUB_REF}" != "refs/heads/main" ]; then
+            echo "Recovery must be started from main (got ${GITHUB_REF})"
+            exit 1
+          fi
+          echo "execution_sha=${GITHUB_SHA}"
+          echo "release_sha=${{ inputs.release_sha }}"
+
       - name: Wait for CI on this SHA
+        if: github.event_name == 'push'
         id: wait_ci
         env:
           GH_TOKEN: ${{ github.token }}
@@ -61,6 +83,7 @@ jobs:
         run: node scripts/wait-for-ci.mjs
 
       - name: Download release artifacts from CI
+        if: github.event_name == 'push'
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: release-artifacts-${{ github.sha }}
@@ -70,6 +93,7 @@ jobs:
           run-id: ${{ steps.wait_ci.outputs.run_id }}
 
       - name: Create release PR or publish
+        if: github.event_name == 'push'
         id: changesets
         uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
         with:
@@ -86,3 +110,39 @@ jobs:
           RELEASE_ARTIFACTS_DIR: ${{ github.workspace }}/.release-artifacts
           RELEASE_COMMIT_SHA: ${{ github.sha }}
           GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN || github.token }}
+
+      - name: Resolve original CI artifacts for recovery
+        if: github.event_name == 'workflow_dispatch'
+        id: recovery_ci
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          RELEASE_SHA: ${{ inputs.release_sha }}
+          REQUIRED_CHECK_NAMES: ci-result,pack-release-artifacts
+          PACK_ARTIFACT_CHECK_NAME: pack-release-artifacts
+        run: node scripts/resolve-recovery-ci.mjs
+
+      - name: Download original release artifacts
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: release-artifacts-${{ inputs.release_sha }}
+          path: .release-artifacts
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ steps.recovery_ci.outputs.run_id }}
+
+      - name: Recover partial release
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          NPM_CONFIG_PROVENANCE: 'true'
+          RELEASE_RECOVERY: '1'
+          RELEASE_SHA: ${{ inputs.release_sha }}
+          RELEASE_ARTIFACTS_DIR: ${{ github.workspace }}/.release-artifacts
+          GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN || github.token }}
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            pnpm run release -- --dry-run
+          else
+            pnpm run release
+          fi

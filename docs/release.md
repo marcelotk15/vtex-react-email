@@ -125,14 +125,56 @@ Until the first versions exist on npm, the external-install proof continues to p
 
 Publication is not atomic across registry + git tag + GitHub Release.
 
-Re-run the release workflow on the **same commit**:
+After a normal push publish, re-running `release.yml` on the **same commit** resumes:
 
-1. Registry: skip versions that already exist (including 409 / “already published” after a lost success response).
-2. Git tags: create if missing; if present, require they point at the release SHA; fail on conflict.
-3. GitHub Releases: create if missing.
-4. Do not move `latest` to an older version while finishing metadata for a resumed older release.
+1. Registry: skip versions that already exist (including 409 after confirming the version is on the registry).
+2. Git tags / GitHub Releases: create or complete **only** for packages confirmed on the registry. Failed/skipped packages get no metadata.
+3. Existing tags must already point at the release SHA; wrong SHA fails with diagnostics (tags are never deleted or moved automatically).
+4. Dist-tag `latest` is not moved backwards.
 
 Do not cancel an in-flight publish with a new overlapping run (`cancel-in-progress: false`).
+
+### Manual recovery (`workflow_dispatch`)
+
+Use this when a release commit already left tags/releases (or a partial npm publish) and `main` may have moved on. Recovery publishes the **original CI tarballs** with the **fixed publisher code** from the workflow run on `main`.
+
+| Concept                           | Meaning                                                                      |
+| --------------------------------- | ---------------------------------------------------------------------------- |
+| Execution SHA (`GITHUB_SHA`)      | Commit checked out for the recovery run (fixed publisher). Do not overwrite. |
+| Release SHA (`release_sha` input) | Original Version Packages commit whose cohort and artifacts are recovered.   |
+
+npm Trusted Publishing / OIDC provenance binds to the **execution SHA**. Artifact integrity still requires the **release SHA** (manifest commit + tarball hashes).
+
+Operational steps (from `main`, after this automation fix is merged):
+
+1. Dry-run (default) — validates SHA, approved release commit, historical cohort, original CI run, and artifacts; does not publish or create tags/releases:
+
+```bash
+gh workflow run release.yml \
+  --ref main \
+  -f release_sha=e0dcfa43434fc2b469d2e41656ecdcde6bfad69d \
+  -f dry_run=true
+```
+
+2. Inspect the run logs for the publish plan (already published vs pending) and artifact checks.
+
+3. Publish for real:
+
+```bash
+gh workflow run release.yml \
+  --ref main \
+  -f release_sha=e0dcfa43434fc2b469d2e41656ecdcde6bfad69d \
+  -f dry_run=false
+```
+
+Recovery rules:
+
+- Must be dispatched from `main` (uses current main code; does not check out `release_sha` as the working tree for publishing).
+- Skips the Changesets Version PR step; runs the publisher directly.
+- Locates the successful **push** CI run on `main` for that exact SHA (not tag-triggered runs) and downloads `release-artifacts-<release_sha>`.
+- Artifacts are mandatory: no rebuild, re-pack, or publish from current `packages/` folders.
+- Cohort = package.json bumps between `release_sha` and its first parent. `RELEASE_BUMPED_NAMES` cannot bypass validation in recovery.
+- Already-published matching versions are skipped; auth/network errors are not treated as “missing”.
 
 ## External configuration checklist
 
