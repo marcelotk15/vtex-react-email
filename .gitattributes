@@ -1,1 +1,20 @@
-.husky/* text eol=lf
+# Keep text checkouts as LF on every OS (Windows CI runners default to autocrlf=true).
+* text=auto eol=lf
+
+# Explicit binaries — never subject to EOL conversion.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.tgz binary
+*.7z binary
+*.wasm binary
