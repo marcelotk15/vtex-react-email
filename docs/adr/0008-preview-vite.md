@@ -1,25 +1,25 @@
-# ADR 0008 — Preview com Vite e distribuição empacotada
+# ADR 0008 — Preview with Vite and packaged distribution
 
-Consulta em 2026-10-02. Complementa os ADR 0004, 0005 e 0006 e as seções 6 e 16 da RFC-001.
+Consulted on 2026-10-02. Complements ADRs 0004, 0005, and 0006 and sections 6 and 16 of RFC-001.
 
-## Decisão
+## Decision
 
-`vtex-email dev` inicia o Vite 7 (`7.3.1`) programaticamente, com `configFile: false`, `appType: 'custom'`, `strictPort: true` e host padrão `127.0.0.1`. O consumidor não cria `vite.config.ts`, não instala plugins e não copia a UI. Um `vite.config.ts` vizinho no projeto do usuário não é carregado.
+`vtex-email dev` starts Vite 7 (`7.3.1`) programmatically, with `configFile: false`, `appType: 'custom'`, `strictPort: true`, and default host `127.0.0.1`. The consumer does not create `vite.config.ts`, install plugins, or copy the UI. A neighboring `vite.config.ts` in the user project is not loaded.
 
-A interface React é entregue como assets pré-compilados em `@vtex-email/preview/dist/client`. O `vite build` do monorepo usa `@vitejs/plugin-react@5.1.3` e `@tailwindcss/vite@4.1.18` só na construção do pacote. No consumidor, o HMR da bancada fica desligado. Mudar um email não recompila a UI.
+The React interface is delivered as prebuilt assets in `@vtex-email/preview/dist/client`. The monorepo `vite build` uses `@vitejs/plugin-react@5.1.3` and `@tailwindcss/vite@4.1.18` only when building the package. In the consumer, workbench HMR is off. Changing an email does not rebuild the UI.
 
-O transporte de domínio permanece o SSE em `GET /api/events` com o `PreviewState` inteiro. O WebSocket do Vite não carrega estado de email. O HTML Handlebars permanece só no `srcdoc` do iframe.
+Domain transport remains SSE on `GET /api/events` with the full `PreviewState`. Vite's WebSocket does not carry email state. Handlebars HTML remains only in the iframe `srcdoc`.
 
-O plugin Vite é interno ao Preview. Não há plugin público para aplicações Vite de terceiros nesta fase.
+The Vite plugin is internal to Preview. There is no public plugin for third-party Vite apps in this phase.
 
-Caches do Vite ficam em `os.tmpdir()` com hash do projeto e do pid, fora do diretório observado e fora do pacote instalado. O loader de templates continua com esbuild `0.28.2` e caches temporários próprios.
+Vite caches live under `os.tmpdir()` with a project and pid hash, outside the watched directory and outside the installed package. The template loader still uses esbuild `0.28.2` and its own temporary caches.
 
-Vite 8 e Tailwind acima de `4.1.18` ficam de fora: o pin do ADR 0001 e o peer de `@tailwindcss/vite@4.1.18` cobrem a linha 7. O hook `closeServer` do Vite também fica de fora do contrato; o dispose é `server.close()` chamado por `startPreview().close()`.
+Vite 8 and Tailwind above `4.1.18` stay out: the ADR 0001 pin and the `@tailwindcss/vite@4.1.18` peer cover the 7 line. Vite's `closeServer` hook is also outside the contract; dispose is `server.close()` called by `startPreview().close()`.
 
-## Distribuição
+## Distribution
 
-Os pacotes emitem `dist/` com esbuild na publicação. A CLI expõe `@vtex-email/cli` (`defineConfig`) e `@vtex-email/cli/project` (orquestração). O bin é `dist/bin.js`. A prova `proof/external-install.ts` empacota tarballs, instala fora do workspace e executa `validate`, `build` e `dev`.
+Packages emit `dist/` with esbuild on publish. The CLI exposes `@vtex-email/cli` (`defineConfig`) and `@vtex-email/cli/project` (orchestration). The bin is `dist/bin.js`. The `tooling/external-install/external-install.ts` proof packs tarballs, installs outside the workspace, and runs `validate`, `build`, and `dev`.
 
-## O que permanece fora
+## What remains out of scope
 
-Plugin Vite público, Turborepo, Vite 8, subida de React/React Email/Tailwind e qualquer capacidade VTEX `verified`.
+Public Vite plugin, Turborepo, Vite 8, bumps of React/React Email/Tailwind, and any VTEX `verified` capability.

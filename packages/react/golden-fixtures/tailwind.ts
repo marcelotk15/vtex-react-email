@@ -1,6 +1,6 @@
 import { pixelBasedPreset, type TailwindConfig } from '@react-email/components'
 
-export const proofTailwind: TailwindConfig = {
+export const goldenTailwind: TailwindConfig = {
   presets: [pixelBasedPreset],
   theme: {
     extend: {

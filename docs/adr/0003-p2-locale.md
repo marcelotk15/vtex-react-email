@@ -1,23 +1,23 @@
-# ADR 0003 — Locale da P2A
+# ADR 0003 — P2A locale
 
-Consulta em 2026-10-02. Complementa o ADR 0002 e as seções 8, 13, 15 e 23 da RFC-001. A forma de autoria (`defineEmail`) foi substituída pelo ADR 0007; o contrato de locale/compile permanece.
+Consulted on 2026-10-02. Complements ADR 0002 and sections 8, 13, 15, and 23 of RFC-001. The authoring shape (`defineEmail`) was replaced by ADR 0007; the locale/compile contract remains.
 
-## Decisão
+## Decision
 
-A definição de email descreve um email para todos os idiomas. O campo `locale` sai da definição e entra em `compileEmail` como o idioma daquela compilação. A mesma definição é compilada uma vez por locale. `compileEmail` continua sem receber fixture, schema ou validação de payload. A orquestração em `@vtex-email/cli` associa schema, fixtures e catálogos, combina as variantes e grava o resultado.
+The email definition describes one email for all languages. The `locale` field leaves the definition and enters `compileEmail` as the language for that compilation. The same definition is compiled once per locale. `compileEmail` still does not receive a fixture, schema, or payload validation. Orchestration in `@vtex-email/cli` associates schema, fixtures, and catalogs, merges the variants, and writes the result.
 
-`i18n.localePath`, `output` e `aliases` ficam na definição. Locales e o idioma padrão vêm do email quando declarados e, caso contrário, do projeto. Um alias vira um ramo explícito no artefato combinado. O `else` final é o `defaultLocale`.
+`i18n.localePath`, `output`, and `aliases` live on the definition. Locales and the default language come from the email when declared, otherwise from the project. An alias becomes an explicit branch in the combined artifact. The final `else` is `defaultLocale`.
 
-O seletor usa o bloco `eq` do perfil. Essa capacidade continua `experimental` e fora da DSL. Saída `merged` sem ela é `HBS002`, sem cair em silêncio para arquivos separados. `per-locale` não emite `eq`. O manifesto do projeto permanece `homologation: experimental`.
+The selector uses the profile's `eq` block. That capability remains `experimental` and outside the DSL. `merged` output without it is `HBS002`, with no silent fallthrough to separate files. `per-locale` does not emit `eq`. The project manifest remains `homologation: experimental`.
 
-`validateHandlebarsSyntax` usa `precompile` e descarta o JavaScript. O arquivo gravado continua sendo HTML com Handlebars.
+`validateHandlebarsSyntax` uses `precompile` and discards the JavaScript. The written file remains HTML with Handlebars.
 
-A validação de fixture rejeita schema com coerção, default, prefault, catch ou pipe, e também `def.coerce`. A avaliação recebe o objeto original.
+Fixture validation rejects a schema with coerce, default, prefault, catch, or pipe, and also `def.coerce`. Evaluation receives the original object.
 
-O analisador de paths lê o `.def` público do Zod 4. Tipos fora do subconjunto geram `PATH_UNANALYZABLE`.
+The path analyzer reads Zod 4's public `.def`. Types outside the subset produce `PATH_UNANALYZABLE`.
 
-O exemplo `basic-store` deixa `unverifiedCapability` em `warning`. O padrão da configuração, quando o campo é omitido, continua `error`, como na RFC. O perfil atual não tem capacidade `verified`, então um build de produção com o padrão recusa o manifesto experimental só quando essa opção está em `error`. `unverifiedCapability` avalia a capacidade emitida no artefato. Uma capacidade experimental presente no perfil e ausente do artefato não bloqueia o build sozinha.
+The `basic-store` example leaves `unverifiedCapability` as `warning`. The config default, when the field is omitted, remains `error`, as in the RFC. The current profile has no `verified` capability, so a production build with the default refuses the experimental manifest only when that option is `error`. `unverifiedCapability` evaluates the capability emitted in the artifact. An experimental capability present in the profile and absent from the artifact does not block the build by itself.
 
-## O que permanece fora
+## What remains out of scope
 
-Preview visual, Message Center, clientes de email e qualquer Node que não seja o pin do ADR 0001. Linux e macOS continuam sem execução.
+Visual preview, Message Center, email clients, and any Node other than the pin in ADR 0001. Linux and macOS remain unexecuted.

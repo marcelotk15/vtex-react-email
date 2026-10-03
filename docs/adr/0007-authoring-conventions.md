@@ -1,31 +1,31 @@
-# ADR 0007 — Autoria por convenções e settings
+# ADR 0007 — Authoring by conventions and settings
 
-Consulta em 2026-10-02. Complementa os ADR 0002, 0003 e 0006. Atualizado para `schemasDir`.
+Consulted on 2026-10-02. Complements ADRs 0002, 0003, and 0006. Updated for `schemasDir`.
 
-## Contexto
+## Context
 
-A API `export default defineEmail({ id, event, template, schema, fixtures, i18n })` forçava repetição em todo template. Schema e fixtures já eram responsabilidade da orquestração (CLI), não do compilador.
+The API `export default defineEmail({ id, event, template, schema, fixtures, i18n })` forced repetition in every template. Schema and fixtures were already the orchestration's responsibility (CLI), not the compiler's.
 
-## Decisão
+## Decision
 
-1. O módulo de email **default-exporta o componente React**. Overrides opcionais ficam em `export const settings` tipado com `EmailSettings` (`satisfies`) em `@vtex-email/core`.
-2. A chave do arquivo (`fileKey`) é o basename sem o sufixo `.email.tsx`. Ela determina, por convenção, `id`, `event`, a pasta de fixtures e o arquivo de schema — mesmo se `settings.id` ou `settings.event` forem sobrescritos.
-3. O projeto declara em `defineConfig`:
+1. The email module **default-exports the React component**. Optional overrides live in `export const settings` typed with `EmailSettings` (`satisfies`) from `@vtex-email/core`.
+2. The file key (`fileKey`) is the basename without the `.email.tsx` suffix. By convention it determines `id`, `event`, the fixtures folder, and the schema file — even if `settings.id` or `settings.event` are overridden.
+3. The project declares in `defineConfig`:
    - `fixturesDir` (default `fixtures`)
-   - `schemasDir` (default `schemas`); schema em `{schemasDir}/{fileKey}.ts` com `export default` Zod
-   - `i18n.localePath` (default de projeto; opcional)
-4. Precedência por campo: `settings` → config/defaults do projeto → convenção do arquivo. Merge de `i18n` é shallow; arrays e `aliases` substituem. Valor inválido gera diagnóstico; não há fallback silencioso.
-5. Fixtures: listagem não recursiva de `.json` e `.jsonc` na pasta resolvida; sidecar obrigatório `{id}.meta.json` (JSON estrito) para ambos; colisão `.json`/`.jsonc` com o mesmo id → erro. Pasta ausente → erro; pasta vazia → zero fixtures.
-6. `defineEmail` é removido. A forma normalizada interna (`EmailDefinition`) permanece na CLI após a resolução.
-7. O compilador continua recebendo só `{ id, event, template }`. Não lê fixtures, diretórios nem settings.
+   - `schemasDir` (default `schemas`); schema at `{schemasDir}/{fileKey}.ts` with Zod `export default`
+   - `i18n.localePath` (project default; optional)
+4. Precedence per field: `settings` → project config/defaults → file convention. `i18n` merge is shallow; arrays and `aliases` replace. An invalid value produces a diagnostic; there is no silent fallback.
+5. Fixtures: non-recursive listing of `.json` and `.jsonc` in the resolved folder; mandatory sidecar `{id}.meta.json` (strict JSON) for both; `.json`/`.jsonc` collision with the same id → error. Missing folder → error; empty folder → zero fixtures.
+6. `defineEmail` is removed. The internal normalized shape (`EmailDefinition`) remains in the CLI after resolution.
+7. The compiler still receives only `{ id, event, template }`. It does not read fixtures, directories, or settings.
 
-## Parsing JSONC
+## JSONC parsing
 
-A CLI usa `jsonc-parser` (ESM). Comentários e trailing commas são aceitos. Erros de parse reportam arquivo, linha e coluna; valor parcial é recusado. O arquivo original no disco não é reescrito.
+The CLI uses `jsonc-parser` (ESM). Comments and trailing commas are accepted. Parse errors report file, line, and column; a partial value is refused. The original file on disk is not rewritten.
 
-## Consequências
+## Consequences
 
-- Autoria mínima: componente + `localePath` no projeto + `{schemasDir}/{fileKey}.ts` + pasta de fixtures.
-- Autocomplete via `satisfies EmailSettings` (sem plugin de linguagem).
-- Watch de `.jsonc` revalida fixtures sem recompilar o template; mudança em `{schemasDir}/{fileKey}.ts` revalida schema, paths e fixtures sem chamar `compileEmail`.
-- Exemplos, proof e docs migram para a nova API; sem camada de compatibilidade.
+- Minimal authoring: component + project `localePath` + `{schemasDir}/{fileKey}.ts` + fixtures folder.
+- Autocomplete via `satisfies EmailSettings` (no language plugin).
+- Watching `.jsonc` revalidates fixtures without recompiling the template; a change in `{schemasDir}/{fileKey}.ts` revalidates schema, paths, and fixtures without calling `compileEmail`.
+- Examples, test fixtures, and docs migrate to the new API; no compatibility layer.

@@ -20,6 +20,7 @@
     "react-dom": "19.3.0"
   },
   "devDependencies": {
-    "@vtex-email/vtex": "workspace:*"
+    "@vtex-email/vtex": "workspace:*",
+    "zod": "4.6.5"
   }
 }

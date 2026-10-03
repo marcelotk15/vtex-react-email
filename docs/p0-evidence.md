@@ -1,107 +1,106 @@
-# Evidência da prova P0
+# P0 proof evidence
 
-Fechamento local em 2026-10-01. `process.version` `v24.21.0`, plataforma `win32` `x64`. A prova mede o compilador nessa execução. Não homologa Message Center, Gmail, Outlook, Linux nem macOS.
+Local close-out on 2026-10-01. `process.version` `v24.21.0`, platform `win32` `x64`. The proof measures the compiler in that run. It does not homologate Message Center, Gmail, Outlook, Linux, or macOS.
 
-Comandos que passaram nesta máquina:
+Commands that passed on this machine:
 
 ```text
 pnpm install --frozen-lockfile
 pnpm typecheck
 pnpm test
-pnpm proof
 ```
 
-`pnpm proof` compila o template de confirmação e avalia as duas fixtures pela API Node. Não sobe servidor e não é a CLI da seção 17 da RFC.
+The golden path in `packages/react/src/golden-path.test.tsx` (fixtures in `packages/react/golden-fixtures/`) compiles the confirmation template and evaluates both fixtures through the Node API. It does not start a server and is not the CLI from RFC section 17.
 
-## O que o fonte do React Email comprova
+## What the React Email source proves
 
-Lido em `@react-email/tailwind@2.0.7` e `@react-email/button@0.2.1`:
+Read in `@react-email/tailwind@2.0.7` and `@react-email/button@0.2.1`:
 
-- `mapReactTree` chama componente personalizado como função. Isso quebra hooks. A P0 registra a compilação em `AsyncLocalStorage`, sem Context React.
-- `Body`, `Button`, `Img`, `Link` e `Text` entram na lista de elementos nativos. `Head` e `Row` são expandidos.
-- Há duas passagens, de coleta e de inline. Classe simples vira `style`. Classe de media query permanece no elemento com nome sanitizado (`sm:p-4` vira `sm_p-4`) e a regra vai para `<style>` dentro de `<head>`.
-- O inline faz `{ ...estilosTailwind, ...styleExistente }`. O `style` anterior ganha.
-- O filho do `Button` aparece uma vez. Os comentários `<!--[if mso]>` inserem espaçadores, sem copiar o filho.
-- `setupTailwind` guarda um `Map` global `promiseStates` pela chave da config. Compilações com a mesma config compartilham o setup.
+- `mapReactTree` calls a custom component as a function. That breaks hooks. P0 registers compilation in `AsyncLocalStorage`, without React Context.
+- `Body`, `Button`, `Img`, `Link`, and `Text` enter the native-element list. `Head` and `Row` are expanded.
+- There are two passes, collect and inline. A simple class becomes `style`. A media-query class stays on the element with a sanitized name (`sm:p-4` becomes `sm_p-4`) and the rule goes into `<style>` inside `<head>`.
+- Inlining does `{ ...tailwindStyles, ...existingStyle }`. The prior `style` wins.
+- The `Button` child appears once. The `<!--[if mso]>` comments insert spacers without copying the child.
+- `setupTailwind` keeps a global `Map` `promiseStates` keyed by config. Compilations with the same config share setup.
 
-## O que a sondagem local mediu
+## What the local probe measured
 
-Arquivo: `packages/react/src/render-probe.test.tsx`. `pretty: false`.
+File: `packages/react/src/render-probe.test.tsx`. `pretty: false`.
 
-| Caso                                                  | Medição                                                                                                                                                     |
-| ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Componente com classe interna                         | Chamado uma vez. `text-sm` aparece como `14px`.                                                                                                             |
-| Tokens em `td`, `href`, `src`, `alt` e filho do botão | Permanecem inteiros na string renderizada.                                                                                                                  |
-| Texto dentro de `Text`                                | O pai imediato no parse5 é `p`, porque `Text` renderiza um parágrafo.                                                                                       |
-| Texto irmão de `<tr>`                                 | Continua na string, mas o parse5 o coloca em `td`. O pai deixa de ser `tbody`.                                                                              |
-| Filho do `Button`                                     | Uma cópia. O espaçador MSO não corta o token.                                                                                                               |
-| Classe `sm:p-4`                                       | A `<style>` contém `@media` e o elemento conserva `sm_p-4`.                                                                                                 |
-| Sentinela de fixture                                  | Ausente do HTML compilado.                                                                                                                                  |
-| Duas renders concorrentes com a mesma config Tailwind | O `AsyncLocalStorage` de cada chamada permanece isolado. As cores `17,34,51` e `68,85,102` não se misturam. O cache global do setup é compartilhado e puro. |
-| Offsets do parse5                                     | O recorte `startOffset`/`endOffset` reproduz o elemento original, inclusive o atributo de âncora. O recorte do `href` contém o token.                       |
+| Case                                                   | Measurement                                                                                                                               |
+| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Component with internal class                          | Called once. `text-sm` appears as `14px`.                                                                                                 |
+| Tokens in `td`, `href`, `src`, `alt`, and button child | Remain intact in the rendered string.                                                                                                     |
+| Text inside `Text`                                     | The immediate parent in parse5 is `p`, because `Text` renders a paragraph.                                                                |
+| Text sibling of `<tr>`                                 | Remains in the string, but parse5 places it in `td`. The parent is no longer `tbody`.                                                     |
+| `Button` child                                         | One copy. The MSO spacer does not cut the token.                                                                                          |
+| Class `sm:p-4`                                         | `<style>` contains `@media` and the element keeps `sm_p-4`.                                                                               |
+| Fixture sentinel                                       | Absent from the compiled HTML.                                                                                                            |
+| Two concurrent renders with the same Tailwind config   | Each call's `AsyncLocalStorage` stays isolated. Colors `17,34,51` and `68,85,102` do not mix. The global setup cache is shared and pure.  |
+| parse5 offsets                                         | The `startOffset`/`endOffset` slice reproduces the original element, including the anchor attribute. The `href` slice contains the token. |
 
-## Transporte adotado
+## Adopted transport
 
-O gate da seção 11.3 falhou no texto entre linhas: o pai HTML5 medido pelo parse5 difere do pai escrito pelo React. A P0 usa splice estrutural.
+The section 11.3 gate failed for inter-row text: the HTML5 parent measured by parse5 differs from the parent written by React. P0 uses structural splice.
 
-- Cada sítio dinâmico recebe um token opaco `vtx` mais 20 caracteres hexadecimais. A identidade é tipo, índice, path e detalhe. Locale e fixture não entram no id.
-- A âncora de bloco continua `data-anchor`. O lexer só reconhece `vtx` mais 20 hexadecimais com vizinhos que não sejam hex. `data-vtx`, a palavra `vtx` e `vtx-logo` não são marcadores. Token completo desconhecido, truncado, partido, escapado, colado a hex ou com contagem errada emite `TOK001`.
-- O parse5 informa início e fim na string original. O compilador insere os delimitadores nesses offsets e remove a âncora. Texto, abertura e alternativa exigem tag de fechamento explícita (`endTag`). Sem ela, `TOK001`. Um fragmento ou mais de um filho na região emite `DSL002`.
-- O documento não é serializado de novo depois do parse.
-- O React 19 copia o `src` de `<img>` para `<link rel="preload" as="image">` no `<head>`, fora de `each` e `if`. O splice apaga esse elemento. A `<img>` conserva `src`, `alt`, `width` e `height`. Outra cópia do mesmo token emite `TOK001`. Restaurar o token no `<head>` não preserva o contexto Handlebars.
-- HTML anterior à restauração que já contenha `{{` emite `HBS001`. O par `}}` de uma media query aninhada é CSS, não delimitador, e permanece.
-- Falha de marcador ou de catálogo não promove arquivo.
+- Each dynamic site gets an opaque `vtx` token plus 20 hexadecimal characters. Identity is type, index, path, and detail. Locale and fixture are not part of the id.
+- The block anchor remains `data-anchor`. The lexer only recognizes `vtx` plus 20 hex digits with non-hex neighbors. `data-vtx`, the word `vtx`, and `vtx-logo` are not markers. An unknown, truncated, split, escaped, hex-adjacent, or wrong-length complete token emits `TOK001`.
+- parse5 reports start and end in the original string. The compiler inserts delimiters at those offsets and removes the anchor. Text, open, and alternative require an explicit closing tag (`endTag`). Without it, `TOK001`. A fragment or more than one child in the region emits `DSL002`.
+- The document is not re-serialized after parse.
+- React 19 copies the `src` of `<img>` into `<link rel="preload" as="image">` in `<head>`, outside `each` and `if`. The splice deletes that element. The `<img>` keeps `src`, `alt`, `width`, and `height`. Another copy of the same token emits `TOK001`. Restoring the token in `<head>` does not preserve Handlebars context.
+- Pre-restoration HTML that already contains `{{` emits `HBS001`. The nested media-query `}}` pair is CSS, not a delimiter, and remains.
+- Marker or catalog failure does not promote a file.
 
-## O que a prova de ponta a ponta mediu
+## What the end-to-end proof measured
 
-Template `proof/emails/order-confirmed.email.tsx`, fixtures sintéticas de entrega (`en-US`) e retirada (sem locale), catálogos `pt-BR` e `en-US`.
+Template `packages/react/golden-fixtures/emails/order-confirmed.email.tsx`, synthetic delivery (`en-US`) and pickup (no locale) fixtures, catalogs `pt-BR` and `en-US`.
 
-- A compilação não recebe a fixture. A ausência de `ORD-A`, nomes, ruas, `20000` e `200,00` no artefato é o que mostra que o build não congela a fixture. Comparar o hash de duas compilações sem passar a fixture adiantada não mede isso.
-- As duas fixtures produzem previews diferentes. O preview avalia a mesma string gravada em disco.
-- Depois da restauração não resta token opaco completo. Texto comum com `vtx` não é, por si, marcador. O artefato não contém `rel="preload"`. As URLs de item ficam no `src` do loop.
-- O artefato contém `{{#each orders}}`, `{{#each items}}`, `{{#if shippingData.address}}`, `{{else}}`, `{{../orderId}}`, `{{formatCurrency sellingPrice}}` e `{{replace shippingEstimate "bd" " business days"}}`, balanceados.
-- Cada item do pedido `ORD-A` mostra o `orderId` do pai. O mesmo vale para o único item de `ORD-B`.
-- Endereço presente mostra a rua. Ausência mostra a alternativa traduzida.
-- Texto dinâmico escapa `&`, aspas e `<`. Unicode permanece legível. Em atributo, o Handlebars 4.7 também escapa `=` como `&#x3D;`.
-- `@media`, `sm_p-4` e `<!--[if mso]>` permanecem no artefato.
-- A fonte combinada tem dois documentos. Cada preview tem um `doctype`, um `html`, um `head` e um `body`, contados na string resolvida. Um segundo `<html>` nessa string emite `HTML001`. A contagem não passa por parser.
-- Locale ausente e locale `fr-FR` caem em `pt-BR`.
-- Chave de catálogo ausente emite `I18N001` e não cria arquivo. Token truncado emite `TOK001` e também não cria arquivo.
-- Duas compilações simultâneas com catálogos `TITLE-AAA` e `TITLE-BBB` não trocam título. Duas outras, com `orderId` e `orderUrl`, não trocam a expressão. A sondagem de cores usa outro `AsyncLocalStorage`, não a sessão do compilador.
-- A saída usa LF. O artefato é gravado em `proof/out/with space/order-confirmed.html` só depois do sucesso.
+- Compilation does not receive the fixture. Absence of `ORD-A`, names, streets, `20000`, and `200,00` in the artifact is what shows the build does not freeze the fixture. Comparing the hash of two compilations without passing the fixture ahead of time does not measure that.
+- The two fixtures produce different previews. Preview evaluates the same string written to disk.
+- After restoration, no complete opaque token remains. Ordinary text with `vtx` is not, by itself, a marker. The artifact does not contain `rel="preload"`. Item URLs stay in the loop `src`.
+- The artifact contains `{{#each orders}}`, `{{#each items}}`, `{{#if shippingData.address}}`, `{{else}}`, `{{../orderId}}`, `{{formatCurrency sellingPrice}}`, and `{{replace shippingEstimate "bd" " business days"}}`, balanced.
+- Each item of order `ORD-A` shows the parent `orderId`. The same holds for the single item of `ORD-B`.
+- Present address shows the street. Absence shows the translated alternative.
+- Dynamic text escapes `&`, quotes, and `<`. Unicode remains readable. In attributes, Handlebars 4.7 also escapes `=` as `&#x3D;`.
+- `@media`, `sm_p-4`, and `<!--[if mso]>` remain in the artifact.
+- The combined source has two documents. Each preview has one `doctype`, one `html`, one `head`, and one `body`, counted in the resolved string. A second `<html>` in that string emits `HTML001`. The count does not go through a parser.
+- Missing locale and locale `fr-FR` fall back to `pt-BR`.
+- A missing catalog key emits `I18N001` and does not create a file. A truncated token emits `TOK001` and also does not create a file.
+- Two simultaneous compilations with catalogs `TITLE-AAA` and `TITLE-BBB` do not swap titles. Two others, with `orderId` and `orderUrl`, do not swap the expression. The color probe uses another `AsyncLocalStorage`, not the compiler session.
+- Output uses LF. The artifact is written under a temporary directory with a space in the name only after success.
 
-## Estado de evidência dos helpers
+## Helper evidence state
 
-| Capacidade       | Estado                                           | Limite                                                                                                                 |
-| ---------------- | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
-| `each`           | documentado                                      | Helper nativo do Handlebars. Não foi executado no Message Center.                                                      |
-| `if`             | documentado                                      | Truthiness do Handlebars.                                                                                              |
-| `../`            | documentado                                      | Path pai do Handlebars. O envelope real do evento VTEX continua na P1.                                                 |
-| `formatCurrency` | documentado para `20000` → `200,00`, sem símbolo | Os demais inteiros seguem o mesmo simulador local de centavos. Isso não é paridade VTEX.                               |
-| `replace`        | documentado para uma ocorrência                  | Path mais dois literais, como o exemplo `8bd`.                                                                         |
-| `eq` com literal | experimental                                     | O exemplo oficial compara dois paths. A prova usa o literal só para selecionar `en-US` na raiz do documento combinado. |
+| Capability        | State                                             | Limit                                                                                                                            |
+| ----------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `each`            | documented                                        | Native Handlebars helper. Not executed in Message Center.                                                                        |
+| `if`              | documented                                        | Handlebars truthiness.                                                                                                           |
+| `../`             | documented                                        | Handlebars parent path. The real VTEX event envelope remains in P1.                                                              |
+| `formatCurrency`  | documented for `20000` → `200,00`, without symbol | Other integers follow the same local cents simulator. That is not VTEX parity.                                                   |
+| `replace`         | documented for one occurrence                     | Path plus two literals, as in the `8bd` example.                                                                                 |
+| `eq` with literal | experimental                                      | The official example compares two paths. The proof uses the literal only to select `en-US` at the root of the combined document. |
 
-O manifesto marca `homologation: experimental`.
+The manifest marks `homologation: experimental`.
 
-## Classificação
+## Classification
 
-- Comprovada pelo teste e pelo código: remoção do preload de imagem dinâmica, preservação do `src` original, duas URLs de item sem `imageUrl` na raiz, imagem de condição falsa ausente do documento resolvido, fechamento explícito, vizinhos estáticos fora do bloco, `DSL002` para fragmento e raiz múltipla, lexer que ignora `vtx` solto e rejeita token corrompido, isolamento de catálogo e de paths distintos, contagem textual de um único `html`/`head`/`body` na string resolvida, pins do lockfile, Node `24.21.0` nesta execução Windows.
-- Parcialmente comprovada: a fixture não entra no artefato, pela ausência dos sentinelas e porque `compileEmail` não lê a fixture. O hash de duas compilações idênticas não demonstra isso.
-- Hipótese que o código rejeita: reescrever o preload no `<head>` seria equivalente ao `src` dentro do `each` ou do `if`.
-- Pendência externa: Message Center, clientes de email, Linux, macOS e qualquer Node que não seja `24.21.0`.
+- Proven by test and code: removal of dynamic-image preload, preservation of the original `src`, two item URLs without `imageUrl` at the root, false-condition image absent from the resolved document, explicit close, static neighbors outside the block, `DSL002` for fragment and multiple roots, lexer that ignores loose `vtx` and rejects a corrupted token, catalog isolation and distinct paths, textual count of a single `html`/`head`/`body` in the resolved string, lockfile pins, Node `24.21.0` in this Windows run.
+- Partially proven: the fixture does not enter the artifact, by absence of sentinels and because `compileEmail` does not read the fixture. The hash of two identical compilations does not demonstrate that.
+- Hypothesis the code rejects: rewriting the preload in `<head>` would be equivalent to `src` inside `each` or `if`.
+- External pending: Message Center, email clients, Linux, macOS, and any Node other than `24.21.0`.
 
-## Gates externos pendentes
+## Pending external gates
 
-Estes itens não bloqueiam a prova local e não estão verificados:
+These items do not block the local proof and are not verified:
 
-- Message Center aceitar o HTML combinado, o `eq` com literal, `formatCurrency`, `replace`, o escaping e o contexto `../`.
-- Clientes reais de email, inclusive Outlook clássico, para layout, media query e comentários MSO.
-- Linux e macOS. Esta execução cobre Windows. O script em Node não depende de Bash nem de PowerShell; a execução nos outros dois sistemas fica para a CI.
+- Message Center accepting the combined HTML, `eq` with literal, `formatCurrency`, `replace`, escaping, and `../` context.
+- Real email clients, including classic Outlook, for layout, media query, and MSO comments.
+- Linux and macOS. This run covers Windows. The Node script does not depend on Bash or PowerShell; runs on the other two systems remain for CI.
 
-## Limitações que a P1 herda
+## Limitations P1 inherits
 
-- Juice, minificação e `pretty: true` continuam desligados.
-- Cada região de bloco da DSL tem um único elemento raiz, para existir uma âncora.
-- `Trans` lê só string estática do catálogo. Sem placeholder, plural ou HTML na mensagem.
-- URLs estáticas aceitam `https`, `mailto` e `tel`. URL dinâmica não é conferida quanto ao esquema.
-- O path de locale da prova é a fixture sintética `orders.0.clientPreferencesData.locale`.
+- Juice, minification, and `pretty: true` remain off.
+- Each DSL block region has a single root element, so an anchor can exist.
+- `Trans` reads only a static catalog string. No placeholder, plural, or HTML in the message.
+- Static URLs accept `https`, `mailto`, and `tel`. Dynamic URL scheme is not checked.
+- The proof locale path is the synthetic fixture `orders.0.clientPreferencesData.locale`.

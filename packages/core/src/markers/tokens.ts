@@ -99,7 +99,7 @@ export function scanTokens(html: string, markers: ReadonlyMap<string, Marker>): 
       return {
         ok: false,
         index: html.indexOf(id),
-        message: `Marker ${id} appears ${seen} time(s); the proof allows one occurrence.`,
+        message: `Marker ${id} appears ${seen} time(s); the compiler allows one occurrence.`,
       }
     }
   }

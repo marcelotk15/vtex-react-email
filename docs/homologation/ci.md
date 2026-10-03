@@ -1,16 +1,16 @@
-# CI preparada e ainda não executada
+# CI prepared and not yet executed
 
-O arquivo [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) descreve a matriz que pode, no futuro, verificar a portabilidade declarada. Criar o arquivo não é evidência de execução. Este workspace não é um repositório git e não tem remoto, então o workflow ainda não rodou.
+The file [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) describes the matrix that may, in the future, verify declared portability. Creating the file is not execution evidence. This workspace is not a git repository and has no remote, so the workflow has not run yet.
 
-## O que a matriz contém
+## What the matrix contains
 
-- Sistemas: `ubuntu-latest`, `windows-latest`, `macos-latest`.
-- Node: somente `24.21.0`, o pin do ADR 0001. Outras versões ficam de fora de propósito e continuam pendentes.
-- pnpm `12.8.1`, instalação com `--frozen-lockfile`.
-- Em cada sistema: `pnpm typecheck`, `pnpm test`, `pnpm proof` e o build de `@vtex-email/example`.
+- Systems: `ubuntu-latest`, `windows-latest`, `macos-latest`.
+- Node: only `24.21.0`, the ADR 0001 pin. Other versions are intentionally out and remain pending.
+- pnpm `12.8.1`, install with `--frozen-lockfile`.
+- On each system: `pnpm typecheck`, `pnpm test`, and the `@vtex-email/example` build.
 
-## O que um log futuro pode promover
+## What a future log can promote
 
-Um job verde promove somente aquele sistema, naquele Node, na data do log. Windows no Node `24.21.0` já tem execução local em 2026-10-02 (`win32` `x64`); um job futuro repete essa linha, não os outros sistemas. Linux e macOS permanecem pendentes até o log correspondente. Outros majors e patches de Node permanecem pendentes, porque a matriz não os executa.
+A green job promotes only that system, on that Node, on the log date. Windows on Node `24.21.0` already has a local run on 2026-10-02 (`win32` `x64`); a future job repeats that line, not the other systems. Linux and macOS remain pending until the matching log. Other Node majors and patches remain pending, because the matrix does not run them.
 
-A matriz não executa Message Center nem clientes de email.
+The matrix does not run Message Center or email clients.

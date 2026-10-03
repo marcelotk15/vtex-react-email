@@ -1,11 +1,11 @@
 import { evaluateArtifact } from '@vtex-email/core'
-import { compileEmail } from '@vtex-email/react'
 import { p0Profile } from '@vtex-email/vtex'
 import { describe, expect, it } from 'vitest'
 
-import { AuthCode } from './emails/auth-code.email'
-import { OrderConfirmed } from './emails/order-confirmed.email'
-import { proofTailwind } from './tailwind'
+import { AuthCode } from '../golden-fixtures/emails/auth-code.email'
+import { OrderConfirmed } from '../golden-fixtures/emails/order-confirmed.email'
+import { goldenTailwind } from '../golden-fixtures/tailwind'
+import { compileEmail } from './compile/compile-email'
 
 const catalog = {
   'auth.title': 'Your code',
@@ -31,12 +31,12 @@ function authInput() {
     locale: 'pt-BR',
     catalog,
     profile: p0Profile,
-    tailwind: proofTailwind,
-    file: 'proof/emails/auth-code.email.tsx',
+    tailwind: goldenTailwind,
+    file: 'packages/react/golden-fixtures/emails/auth-code.email.tsx',
   }
 }
 
-describe('P1 reuse', () => {
+describe('template reuse', () => {
   it('compiles a second template with the same API and stable bytes', async () => {
     const first = await compileEmail(authInput())
     const order = await compileEmail({
@@ -48,7 +48,7 @@ describe('P1 reuse', () => {
       locale: 'en-US',
       catalog: orderCatalog,
       profile: p0Profile,
-      tailwind: proofTailwind,
+      tailwind: goldenTailwind,
     })
     const second = await compileEmail(authInput())
     const [left, right] = await Promise.all([compileEmail(authInput()), compileEmail(authInput())])

@@ -6,10 +6,11 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
+const here = path.dirname(fileURLToPath(import.meta.url))
+const root = path.resolve(here, '../..')
 const packages = ['core', 'vtex', 'react', 'cli', 'preview'] as const
 
-export async function runExternalInstallProof(): Promise<{
+export async function runExternalInstall(): Promise<{
   ok: true
   hashes: Record<string, string>
 }> {
@@ -32,7 +33,7 @@ export async function runExternalInstallProof(): Promise<{
     if (built.code !== 0) throw new Error(`build failed:\n${built.stderr}\n${built.stdout}`)
 
     const hashes = await hashTree(path.join(consumer, 'dist'))
-    const baseline = JSON.parse(await readFile(path.join(root, 'proof/baseline-hashes.json'), 'utf8')) as {
+    const baseline = JSON.parse(await readFile(path.join(here, 'baseline-hashes.json'), 'utf8')) as {
       files: Record<string, string>
     }
     for (const [file, expected] of Object.entries(baseline.files)) {

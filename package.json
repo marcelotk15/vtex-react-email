@@ -9,8 +9,7 @@
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p packages/preview/src/ui/tsconfig.json",
-    "test": "vitest run",
-    "proof": "node proof/run.mjs"
+    "test": "vitest run"
   },
   "devDependencies": {
     "@types/node": "24.13.3",

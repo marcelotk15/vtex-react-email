@@ -1,29 +1,29 @@
-# ADR 0006 — Mapa interno da toolchain
+# ADR 0006 — Internal toolchain module map
 
-Consulta em 2026-10-02. Complementa os ADR 0001 a 0005 e 0008. Não cria pacote novo. O preview continua dependendo da CLI (ADR 0004).
+Consulted on 2026-10-02. Complements ADRs 0001 through 0005 and 0008. Does not create a new package. Preview continues to depend on the CLI (ADR 0004).
 
-## Decisão
+## Decision
 
-Cada pasta tem uma responsabilidade. Não há barrel por pasta. Os únicos `index.ts` são os dos pacotes.
+Each folder has one responsibility. There is no barrel per folder. The only `index.ts` files are the package ones.
 
-- `@vtex-email/core` guarda contratos (`define-email` / `EmailSettings`, `diagnostics`, `profile`), `expression/`, `hbs/`, `markers/`, `schema/`, `scope/`, `compile/`, `i18n/`, `fixture/`, `runtime/` e `output/`. A compilação não lê fixtures, não avalia e não grava arquivo. `runtime/` não importa `compile/` nem `output/`. `node:fs` fica em `output/`.
-- `@vtex-email/react` tem `dsl/`, `compile/` (sessão e `compileEmail`) e `adapter/`. Não usa esbuild, CLI nem preview.
-- `@vtex-email/vtex` separa `capabilities.ts` de `simulator.ts`. `index.ts` só compõe `p0Profile`. O id continua `p0-message-center-experimental`.
-- `@vtex-email/cli` separa `commands/` (processo e saída), `config/` e `project/` (esbuild só em `project/module-loader.ts`). `project/` não usa `process` nem stdout. A publicação emite `dist/index.js` (`defineConfig`) e `dist/project.js` (orquestração).
-- `@vtex-email/preview` separa `shared/` (sem Node e sem DOM), `server/` (inclui `vite-plugin.ts`), `session/`, `assets/` e `ui/`. Só `server/project-services.ts` importa valores de `@vtex-email/cli/project`. `session/` importa só tipos. A UI importa a UI e `shared/`. O runtime publicado é `dist/index.js` com a UI em `dist/client`.
+- `@vtex-email/core` holds contracts (`define-email` / `EmailSettings`, `diagnostics`, `profile`), `expression/`, `hbs/`, `markers/`, `schema/`, `scope/`, `compile/`, `i18n/`, `fixture/`, `runtime/`, and `output/`. Compilation does not read fixtures, evaluate, or write files. `runtime/` does not import `compile/` or `output/`. `node:fs` lives in `output/`.
+- `@vtex-email/react` has `dsl/`, `compile/` (session and `compileEmail`), and `adapter/`. It does not use esbuild, CLI, or preview.
+- `@vtex-email/vtex` separates `capabilities.ts` from `simulator.ts`. `index.ts` only composes `p0Profile`. The id remains `p0-message-center-experimental`.
+- `@vtex-email/cli` separates `commands/` (process and output), `config/`, and `project/` (esbuild only in `project/module-loader.ts`). `project/` does not use `process` or stdout. Publication emits `dist/index.js` (`defineConfig`) and `dist/project.js` (orchestration).
+- `@vtex-email/preview` separates `shared/` (no Node and no DOM), `server/` (includes `vite-plugin.ts`), `session/`, `assets/`, and `ui/`. Only `server/project-services.ts` imports values from `@vtex-email/cli/project`. `session/` imports types only. The UI imports UI and `shared/`. The published runtime is `dist/index.js` with the UI in `dist/client`.
 
-A ordem entre pacotes é `vtex → core`, `react → core`, `cli → react` e `core`, `preview → cli`.
+Package order is `vtex → core`, `react → core`, `cli → react` and `core`, `preview → cli`.
 
-## Contrato
+## Contract
 
-- O core deixa de exportar `assertPinnedNode`. O pin de Node fica em `tooling/node-pin.ts`, usado pela configuração do Vitest e por `proof/run-proof.ts`.
-- O react deixa de exportar `loadEmailEntry` e `LoadEmailResult`, e deixa de depender do esbuild. O carregamento passa para `cli/project/module-loader.ts`.
-- O core passa a exportar `assembleDocument`, `findCapability`, `unverifiedCapabilityDiagnostic`, `readPathValue`, `Failure` e os tipos `BuildManifest`, `CompiledArtifact` e `CompileEmailResult`.
-- A CLI publica `defineConfig` em `@vtex-email/cli` e a orquestração em `@vtex-email/cli/project`.
-- `Diagnostic` pode trazer `capability: { name, evidence }` nos `TARGET001`, para o relatório não depender do texto da mensagem.
+- Core no longer exports `assertPinnedNode`. The Node pin lives in `tooling/node-pin.ts`, used by the Vitest config.
+- React no longer exports `loadEmailEntry` and `LoadEmailResult`, and no longer depends on esbuild. Loading moves to `cli/project/module-loader.ts`.
+- Core now exports `assembleDocument`, `findCapability`, `unverifiedCapabilityDiagnostic`, `readPathValue`, `Failure`, and the types `BuildManifest`, `CompiledArtifact`, and `CompileEmailResult`.
+- The CLI publishes `defineConfig` at `@vtex-email/cli` and orchestration at `@vtex-email/cli/project`.
+- `Diagnostic` may carry `capability: { name, evidence }` on `TARGET001`, so the report does not depend on message text.
 
-`importBundled` continua público e delega ao mesmo carregador. `PreviewServices` permanece e inclui `revalidateSchema`.
+`importBundled` remains public and delegates to the same loader. `PreviewServices` remains and includes `revalidateSchema`.
 
-## Cache de módulos
+## Module cache
 
-O carregador da CLI (`project/module-loader.ts`) grava o bundle em um diretório temporário por processo e tenta apagar esse diretório depois da importação. No Windows o arquivo importado pode permanecer bloqueado até o processo encerrar; a limpeza residual ocorre no `exit`. O módulo importado permanece no cache ESM do Node até o processo encerrar; isso limita o crescimento em disco no `dev`, mas a memória do processo ainda cresce com cada URL importada.
+The CLI loader (`project/module-loader.ts`) writes the bundle to a per-process temporary directory and tries to delete that directory after import. On Windows the imported file may stay locked until the process exits; residual cleanup runs on `exit`. The imported module remains in Node's ESM cache until the process exits; that limits disk growth in `dev`, but process memory still grows with each imported URL.

@@ -1,25 +1,25 @@
-# ADR 0005 — Bancada de preview
+# ADR 0005 — Preview workbench
 
-Consulta em 2026-10-02. Complementa o ADR 0004. Atualizado pelo ADR 0008.
+Consulted on 2026-10-02. Complements ADR 0004. Updated by ADR 0008.
 
-## Decisão
+## Decision
 
-A interface de `vtex-email dev` é um aplicativo React, no navegador, servido pelo mesmo processo do preview. O contrato é `PreviewState` com `formatVersion` 1. O servidor envia o estado inteiro por `GET /api/events` e recebe a seleção em `POST /api/selection`. O snapshot acrescenta o nome do projeto, `localePath`, o arquivo e os metadados da fixture, e `data` como clone do JSON original. Forçar locale continua alterando só a cópia avaliada.
+The `vtex-email dev` interface is a React app in the browser, served by the same preview process. The contract is `PreviewState` with `formatVersion` 1. The server sends the full state via `GET /api/events` and receives selection via `POST /api/selection`. The snapshot adds the project name, `localePath`, the fixture file and metadata, and `data` as a clone of the original JSON. Forcing locale still alters only the evaluated copy.
 
-A UI é pré-compilada no monorepo com Vite 7 e publicada em `dist/client` (ADR 0008). O CSS da interface usa Tailwind `4.1.18` com `source(none)` e `@source` restrito a `src/ui`. Isso separa o Tailwind da interface do Tailwind do email. O `dev` do consumidor serve esses assets e não remonta o bundle da UI. `GET /` entrega o shell, sem CSP, porque o `srcdoc` do iframe herda a política da página. `GET /assets/*` entrega o JavaScript, o CSS e as fontes. O `dev` não grava `dist` do projeto de emails.
+The UI is prebuilt in the monorepo with Vite 7 and published under `dist/client` (ADR 0008). Interface CSS uses Tailwind `4.1.18` with `source(none)` and `@source` restricted to `src/ui`. That separates interface Tailwind from email Tailwind. Consumer `dev` serves those assets and does not rebuild the UI bundle. `GET /` delivers the shell, without CSP, because the iframe `srcdoc` inherits the page policy. `GET /assets/*` delivers JavaScript, CSS, and fonts. `dev` does not write the email project's `dist`.
 
-O build da UI rejeita `node:`, os built-ins, `@vtex-email/cli`, `@vtex-email/core`, `@vtex-email/react`, `@react-email/*` e `react-dom/server`. Tipos do contrato podem ser importados: o arquivo não tem import de runtime.
+The UI build rejects `node:`, built-ins, `@vtex-email/cli`, `@vtex-email/core`, `@vtex-email/react`, `@react-email/*`, and `react-dom/server`. Contract types may be imported: the file has no runtime import.
 
-A interface usa `@base-ui/react` `1.8.0`, `react-resizable-panels` `4.14.1` e Public Sans e JetBrains Mono empacotados por `@fontsource`. Não há fonte por CDN. React da interface e React do compilador são instâncias distintas: a primeira entra no bundle do navegador; a segunda permanece externa no runtime Node.
+The interface uses `@base-ui/react` `1.8.0`, `react-resizable-panels` `4.14.1`, and Public Sans and JetBrains Mono packaged by `@fontsource`. There is no CDN font. Interface React and compiler React are distinct instances: the first enters the browser bundle; the second stays external in the Node runtime.
 
-A seleção vem do servidor. Um clique só destaca a fixture até o snapshot confirmar. Tamanhos de painel, recolha, aba, viewport e emails expandidos ficam em `localStorage` na chave `vtex-email.preview.ui.v2`. A preferência de tema da interface (`white` | `dark` | `system`) fica em `vtex-email.preview.theme.v1`, separada do tema resolvido aplicado em `document.documentElement[data-theme]`. O padrão é `system`. O shell injeta um script inline mínimo antes do CSS para aplicar o tema antes da primeira pintura; a página continua sem CSP. O tema pertence só à bancada: não altera HTML resolvido, Handlebars, fixtures, `dist`, nem o `srcdoc` do email. O iframe declara `color-scheme: only light` no CSS da interface. Fixture, payload, HTML e fonte não são persistidos. O bloqueio de imagens nasce desligado a cada carga. Gerações antigas são ignoradas. Um `POST` superado é abortado. O `srcdoc` só muda quando o documento exibido muda.
+Selection comes from the server. A click only highlights the fixture until the snapshot confirms. Panel sizes, collapse, tab, viewport, and expanded emails live in `localStorage` under key `vtex-email.preview.ui.v2`. The interface theme preference (`white` | `dark` | `system`) lives in `vtex-email.preview.theme.v1`, separate from the resolved theme applied on `document.documentElement[data-theme]`. The default is `system`. The shell injects a minimal inline script before CSS to apply the theme before first paint; the page still has no CSP. Theme belongs only to the workbench: it does not alter resolved HTML, Handlebars, fixtures, `dist`, or the email `srcdoc`. The iframe declares `color-scheme: only light` in the interface CSS. Fixture, payload, HTML, and source are not persisted. Image blocking starts off on every load. Stale generations are ignored. A superseded `POST` is aborted. `srcdoc` changes only when the displayed document changes.
 
-O cliente de rede escuta `offline` e `online`. O `EventSource` pode continuar aberto sem emitir erro quando o contexto fica offline; o estado visível segue o navegador.
+The network client listens for `offline` and `online`. `EventSource` may stay open without emitting an error when the context goes offline; the visible state follows the browser.
 
-## Medição de imagens
+## Image measurement
 
-O bloqueio continua o do ADR 0004: a meta `img-src 'none'` entra só na cópia do `srcdoc`. Em 2026-10-02, no Edge dirigido por `playwright-core` `1.63.0`, um HTML do React Email com `<link rel="preload" as="image">` e `<img>` para `https://cdn.example/...` ainda gerou pedidos dessa URL com a meta já no `srcdoc`. A bancada não reescreve esses endereços. A prova observa a meta, os atributos originais e a ausência da meta nos arquivos do projeto.
+Blocking remains as in ADR 0004: the `img-src 'none'` meta enters only the `srcdoc` copy. On 2026-10-02, in Edge driven by `playwright-core` `1.63.0`, React Email HTML with `<link rel="preload" as="image">` and `<img>` to `https://cdn.example/...` still issued requests for that URL with the meta already in `srcdoc`. The workbench does not rewrite those addresses. The proof observes the meta, the original attributes, and the absence of the meta in project files.
 
-## O que permanece fora
+## What remains out of scope
 
-Clientes de email, Message Center, Linux, macOS e qualquer Node que não seja o pin do ADR 0001. `playwright-core` `1.63.0` é dependência de desenvolvimento do preview e não altera os pinos do compilador.
+Email clients, Message Center, Linux, macOS, and any Node other than the pin in ADR 0001. `playwright-core` `1.63.0` is a preview development dependency and does not change the compiler pins.

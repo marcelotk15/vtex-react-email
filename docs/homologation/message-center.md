@@ -1,20 +1,20 @@
-# Procedimento manual no Message Center
+# Manual Message Center procedure
 
-Esta verificação é manual. Não há script de envio, nem leitura de credencial, nem gravação automática na conta.
+This check is manual. There is no send script, no credential read, and no automatic write to the account.
 
-O artefato a colar é o HTML com Handlebars produzido por `vtex-email build`. Não colar o preview resolvido (`vtex-email preview` grava HTML já avaliado e não serve como template). Não colar fixture dentro do template.
+The artifact to paste is the HTML with Handlebars produced by `vtex-email build`. Do not paste the resolved preview (`vtex-email preview` writes already evaluated HTML and is not a template). Do not paste a fixture into the template.
 
-## Passos
+## Steps
 
-1. Compilar o email na máquina local, no Node `24.21.0`, com `pnpm typecheck`, `pnpm test` e `pnpm proof` verdes, ou com `vtex-email build` no projeto consumidor.
-2. Abrir o arquivo de artefato, por exemplo `dist/order-confirmed.html` ou `proof/out/with space/order-confirmed.html`. Confirmar que os dados da fixture (`ORD-A`, `200,00`, nomes) não estão congelados no arquivo.
-3. No Message Center da conta de teste, abrir o template transacional correspondente e colar o conteúdo no campo de template. Não publicar e não criar campanha.
-4. No painel de teste da própria conta, usar o JSON do caso. O JSON é sintético. Ele não é o envelope confirmado do evento VTEX.
-5. Ler o HTML e o texto resolvidos. Comparar com o resultado local esperado do caso, no trecho indicado.
-6. Se a conta oferecer salvar rascunho, isso não entra neste procedimento. Encerrar sem enviar mensagem a destinatário.
+1. Compile the email on the local machine, on Node `24.21.0`, with green `pnpm typecheck` and `pnpm test`, or with `vtex-email build` in the consumer project.
+2. Open the artifact file, for example `dist/order-confirmed.html`. Confirm that fixture data (`ORD-A`, `200,00`, names) is not frozen in the file.
+3. In the test account Message Center, open the matching transactional template and paste the content into the template field. Do not publish and do not create a campaign.
+4. In the account's own test panel, use the case JSON. The JSON is synthetic. It is not the confirmed VTEX event envelope.
+5. Read the resolved HTML and text. Compare with the case's expected local result, in the indicated excerpt.
+6. If the account offers saving a draft, that is outside this procedure. Stop without sending a message to any recipient.
 
-## O que esta etapa prova
+## What this step proves
 
-Somente a avaliação daquele template com aquele JSON naquela conta, na data registrada. Não prova o cliente de email, nem a visualização do `vtex-email dev`, nem as demais capacidades do perfil.
+Only evaluation of that template with that JSON in that account, on the recorded date. It does not prove the email client, the `vtex-email dev` view, or the other profile capabilities.
 
-Uma divergência fica no registro do caso. A capacidade permanece no estado atual (`documented` ou `experimental`) até o registro de aprovação específico. Um caso positivo não homologa o perfil inteiro.
+A divergence goes in the case record. The capability stays at its current state (`documented` or `experimental`) until the specific approval record. A positive case does not homologate the whole profile.

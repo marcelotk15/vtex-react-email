@@ -1,21 +1,21 @@
-# ADR 0004 — Preview da P2C
+# ADR 0004 — P2C preview
 
-Consulta em 2026-10-02. Complementa o ADR 0003 e as seções 6, 13 e 16 da RFC-001. Atualizado pelo ADR 0008.
+Consulted on 2026-10-02. Complements ADR 0003 and sections 6, 13, and 16 of RFC-001. Updated by ADR 0008.
 
-## Decisão
+## Decision
 
-`@vtex-email/preview` depende de `@vtex-email/cli` (via `@vtex-email/cli/project`) e não é dependência da CLI. O comando `vtex-email dev` resolve o pacote a partir do projeto consumidor e chama `startDev` no mesmo processo. O runtime Node do Preview é o `dist/index.js` publicado; não há mais empacotamento de `entry.mjs` na importação.
+`@vtex-email/preview` depends on `@vtex-email/cli` (via `@vtex-email/cli/project`) and is not a CLI dependency. The `vtex-email dev` command resolves the package from the consumer project and calls `startDev` in the same process. The Preview Node runtime is the published `dist/index.js`; there is no longer an `entry.mjs` packaging step on import.
 
-O servidor de desenvolvimento é o Vite 7, iniciado programaticamente (ADR 0008). Ele chama `buildProject({ write: false })`, `refreshEmailFixtures`, `revalidateEmail` e `previewBuiltEmail` no mesmo processo.
+The development server is Vite 7, started programmatically (ADR 0008). It calls `buildProject({ write: false })`, `refreshEmailFixtures`, `revalidateEmail`, and `previewBuiltEmail` in the same process.
 
-O watch não grava `dist`. Uma mudança só de fixture revalida e reavalia o artefato já compilado. Forçar locale altera a cópia da fixture, não o arquivo. O iframe usa `sandbox` vazio. O endereço padrão continua `127.0.0.1:3000`. Ao encerrar, o processo fecha o servidor Vite, as conexões SSE e a sessão.
+Watch does not write `dist`. A fixture-only change revalidates and re-evaluates the already compiled artifact. Forcing locale alters the fixture copy, not the file. The iframe uses an empty `sandbox`. The default address remains `127.0.0.1:3000`. On shutdown, the process closes the Vite server, SSE connections, and the session.
 
-O controle “Bloquear imagens remotas” nasce desligado. Ligado, só a cópia colocada no `srcdoc` recebe `<meta http-equiv="Content-Security-Policy" content="img-src 'none'">`. A meta cobre `<img>`, `srcset` e `url()` de CSS. Os atributos originais permanecem nessa cópia, para inspeção. O HTML resolvido, a fonte Handlebars, as fixtures e `dist` não recebem a meta. Desligar o controle volta a usar o HTML resolvido, e a visualização volta a requisitar as imagens. O `sandbox` vazio não impede essas requisições; a meta existe por isso, e só na cópia exibida. Em 2026-10-02, Node `24.21.0`, `win32` `x64`, o Edge 154 headless viu a meta imediatamente depois de `<head>` só no `srcdoc`. Um servidor local, com `Cache-Control: no-store` e URLs dessa execução, recebeu zero pedidos de `img`, `srcset` e `url()` no iframe que nasceu bloqueado; desligar pediu os três; ligar de novo não acrescentou pedido; desligar outra vez voltou a pedir. Isso não observa o cliente de email.
+The “Block remote images” control starts off. When on, only the copy placed in `srcdoc` receives `<meta http-equiv="Content-Security-Policy" content="img-src 'none'">`. The meta covers `<img>`, `srcset`, and CSS `url()`. Original attributes remain in that copy for inspection. Resolved HTML, Handlebars source, fixtures, and `dist` do not receive the meta. Turning the control off returns to the resolved HTML, and the view requests images again. The empty `sandbox` does not block those requests; that is why the meta exists, and only on the displayed copy. On 2026-10-02, Node `24.21.0`, `win32` `x64`, headless Edge 154 saw the meta immediately after `<head>` only in `srcdoc`. A local server with `Cache-Control: no-store` and URLs from that run received zero `img`, `srcset`, and `url()` requests in the iframe that started blocked; turning it off requested all three; turning it on again added no request; turning it off again requested again. That does not observe the email client.
 
-A bancada que mostra esse documento é a do ADR 0005. O bloqueio continua só na cópia do `srcdoc` e continua desligado a cada carga.
+The workbench that shows this document is ADR 0005. Blocking remains only on the `srcdoc` copy and remains off on every load.
 
-O consumidor instala `@vtex-email/preview` no próprio projeto. A prova `proof/external-install.ts` empacota tarballs e instala fora do workspace, sem junction para `packages/*/src`.
+The consumer installs `@vtex-email/preview` in its own project. The `tooling/external-install/external-install.ts` proof packs tarballs and installs outside the workspace, without a junction to `packages/*/src`.
 
-## O que permanece fora
+## What remains out of scope
 
-Message Center, clientes de email, Linux, macOS e qualquer Node que não seja o pin do ADR 0001. A observação no Edge não preenche essas camadas.
+Message Center, email clients, Linux, macOS, and any Node other than the pin in ADR 0001. The Edge observation does not fill those layers.

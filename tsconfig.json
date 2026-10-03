@@ -3,20 +3,19 @@
   "include": [
     "packages/*/src/**/*.ts",
     "packages/*/src/**/*.tsx",
-    "proof/**/*.ts",
-    "proof/**/*.tsx",
     "examples/**/*.ts",
     "examples/**/*.tsx",
     "tooling/**/*.ts",
+    "tooling/**/*.tsx",
     "packages/react/load-fixtures/**/*.ts",
     "packages/react/load-fixtures/**/*.tsx",
+    "packages/react/golden-fixtures/**/*.ts",
+    "packages/react/golden-fixtures/**/*.tsx",
     "vitest.setup.ts"
   ],
   "exclude": [
     "**/node_modules/**",
     "**/dist/**",
-    "proof/out/**",
-    "proof/out-external/**",
     "packages/preview/src/ui/**",
     "packages/preview/src/ui.browser.test.ts",
     "packages/preview/src/ui.sidebar-toggle.test.ts",

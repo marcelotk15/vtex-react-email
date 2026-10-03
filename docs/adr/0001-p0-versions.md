@@ -1,32 +1,32 @@
-# ADR 0001 — Versões pinadas da prova P0
+# ADR 0001 — Pinned versions for the P0 proof
 
-Consulta em 2026-10-01. As versões exatas também ficam no `pnpm-lock.yaml`.
+Consulted on 2026-10-01. Exact versions also live in `pnpm-lock.yaml`.
 
-## Decisão
+## Decision
 
-A prova local fixa o conjunto abaixo. Subir qualquer um desses pacotes exige nova medição de tabela, atributo, botão, media query e de preservação dos delimitadores Handlebars.
+The local proof pins the set below. Bumping any of these packages requires a new measurement of table, attribute, button, media query, and Handlebars delimiter preservation.
 
-| Pacote                    | Versão                                                                                                                      | Motivo                                                                                                                                                                                                     |
+| Package                   | Version                                                                                                                     | Reason                                                                                                                                                                                                     |
 | ------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Node.js                   | Versão executada `24.21.0` (`process.version` `v24.21.0`, win32 x64, 2026-10-01). `engines` e `.nvmrc` repetem essa versão. | Intervalo suportado por esta prova: somente Node `24.21.0` em Windows. React Email declara `node >= 20`. Isso não é evidência de suporte. Linux, macOS e outros majors continuam sem execução.             |
-| pnpm                      | `12.8.1` no campo `packageManager`                                                                                          | Exige Node `>= 18`. `allowBuilds.esbuild` habilita o postinstall do esbuild, que o pnpm 12 ignora até a aprovação.                                                                                         |
-| TypeScript                | `5.9.3`                                                                                                                     | Os pacotes do React Email são desenvolvidos com `5.9.3`. O `7.0.2` publicado como `latest` fica fora da P0.                                                                                                |
-| React e React DOM         | `19.3.0`                                                                                                                    | Peer do React Email: `^18 \|\| ^19`. O par é o mesmo. O servidor do React 19 copia `src` de `<img>` para `<link rel="preload" as="image">` no `<head>`. A prova remove esse link e não reescreve a imagem. |
-| `@react-email/components` | `1.0.12`                                                                                                                    | Traz `@react-email/render@2.0.6`, `@react-email/tailwind@2.0.7` e `@react-email/button@0.2.1`. `render` devolve `Promise<string>`. A prova chama `render(node, { pretty: false })`.                        |
-| `tailwindcss`             | `4.1.18`                                                                                                                    | `@react-email/tailwind@2.0.7` declara `tailwindcss: ^4.1.18`. Sem override, o intervalo resolve para `4.3.3`. A documentação do componente ainda cita `4.1.12`. O override do pnpm impede essa subida.     |
-| Handlebars                | `4.7.9`                                                                                                                     | Cada avaliação usa `Handlebars.create()`, com `noEscape: false` e `knownHelpersOnly: true`. Acesso a protótipo permanece no padrão desligado.                                                              |
-| Zod                       | `4.6.5`                                                                                                                     | Schema da fixture com `z.looseObject()`. `safeParse` lê um clone; o preview recebe o JSON original. Sem coerce, default ou transform.                                                                      |
-| Vitest                    | `5.0.3`                                                                                                                     | Único runner. JSX via oxc com runtime automático.                                                                                                                                                          |
-| esbuild                   | `0.28.2`                                                                                                                    | Carrega o TSX do template. `react`, `react-dom` e `@react-email/*` ficam externos para a identidade de `Button` não ser duplicada.                                                                         |
-| parse5                    | `7.3.0`                                                                                                                     | Parser HTML5 do splice e oráculo da sondagem. Entra no compilador porque o gate de texto entre linhas de tabela falhou.                                                                                    |
+| Node.js                   | Executed version `24.21.0` (`process.version` `v24.21.0`, win32 x64, 2026-10-01). `engines` and `.nvmrc` repeat that version. | Supported interval for this proof: only Node `24.21.0` on Windows. React Email declares `node >= 20`. That is not support evidence. Linux, macOS, and other majors remain unexecuted.                       |
+| pnpm                      | `12.8.1` in the `packageManager` field                                                                                      | Requires Node `>= 18`. `allowBuilds.esbuild` enables the esbuild postinstall, which pnpm 12 ignores until approval.                                                                                        |
+| TypeScript                | `5.9.3`                                                                                                                     | React Email packages are developed with `5.9.3`. The `7.0.2` published as `latest` stays out of P0.                                                                                                        |
+| React and React DOM       | `19.3.0`                                                                                                                    | React Email peer: `^18 \|\| ^19`. The pair matches. React 19's server copies `src` from `<img>` to `<link rel="preload" as="image">` in `<head>`. The proof removes that link and does not rewrite the image. |
+| `@react-email/components` | `1.0.12`                                                                                                                    | Brings `@react-email/render@2.0.6`, `@react-email/tailwind@2.0.7`, and `@react-email/button@0.2.1`. `render` returns `Promise<string>`. The proof calls `render(node, { pretty: false })`.                 |
+| `tailwindcss`             | `4.1.18`                                                                                                                    | `@react-email/tailwind@2.0.7` declares `tailwindcss: ^4.1.18`. Without override, the range resolves to `4.3.3`. Component docs still cite `4.1.12`. The pnpm override prevents that bump.                  |
+| Handlebars                | `4.7.9`                                                                                                                     | Each evaluation uses `Handlebars.create()`, with `noEscape: false` and `knownHelpersOnly: true`. Prototype access remains off by default.                                                                  |
+| Zod                       | `4.6.5`                                                                                                                     | Fixture schema with `z.looseObject()`. `safeParse` reads a clone; preview receives the original JSON. No coerce, default, or transform.                                                                    |
+| Vitest                    | `5.0.3`                                                                                                                     | Sole runner. JSX via oxc with automatic runtime.                                                                                                                                                           |
+| esbuild                   | `0.28.2`                                                                                                                    | Loads the template TSX. `react`, `react-dom`, and `@react-email/*` stay external so `Button` identity is not duplicated.                                                                                    |
+| parse5                    | `7.3.0`                                                                                                                     | HTML5 parser for splice and the probe oracle. Enters the compiler because the inter-row table text gate failed.                                                                                            |
 
-## Fontes
+## Sources
 
-- [nodejs/Release](https://github.com/nodejs/release) e [dist/latest-v24.x](https://nodejs.org/dist/latest-v24.x/) para o LTS.
-- Registro npm de cada pacote, lido na data da consulta.
-- Tipos e preset publicados em `@react-email/tailwind@2.0.7` (`dist/index.d.mts` e `dist/index.mjs`): `pixelBasedPreset` converte `fontSize` e `spacing` para px.
-- [Opções de runtime do Handlebars](https://handlebarsjs.com/api-reference/runtime-options.html) e [compilação](https://handlebarsjs.com/api-reference/compilation.html).
+- [nodejs/Release](https://github.com/nodejs/release) and [dist/latest-v24.x](https://nodejs.org/dist/latest-v24.x/) for LTS.
+- npm registry for each package, read on the consult date.
+- Types and preset published in `@react-email/tailwind@2.0.7` (`dist/index.d.mts` and `dist/index.mjs`): `pixelBasedPreset` converts `fontSize` and `spacing` to px.
+- [Handlebars runtime options](https://handlebarsjs.com/api-reference/runtime-options.html) and [compilation](https://handlebarsjs.com/api-reference/compilation.html).
 
-## Fora desta decisão
+## Outside this decision
 
-TypeScript 7, Tailwind `4.3.3`, `pretty: true`, Juice, minificação, Playwright e o cliente da VTEX não entram na P0.
+TypeScript 7, Tailwind `4.3.3`, `pretty: true`, Juice, minification, Playwright, and the VTEX client are not in P0.

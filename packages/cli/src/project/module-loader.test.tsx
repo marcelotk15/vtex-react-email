@@ -36,7 +36,7 @@ describe('template loader', () => {
     if (forbidden.ok) return
     expect(forbidden.diagnostics[0]?.code).toBe('DSL001')
 
-    const email = await loadEmailEntry(path.resolve('proof/emails/order-confirmed.email.tsx'))
+    const email = await loadEmailEntry(path.resolve('packages/react/golden-fixtures/emails/order-confirmed.email.tsx'))
     expect(email.ok).toBe(true)
 
     const preview = await loadEmailEntry(path.resolve('packages/react/load-fixtures/preview-import.tsx'))
@@ -58,7 +58,9 @@ describe('template loader', () => {
     expect(loaded.ok).toBe(true)
     if (!loaded.ok) return
     const normalized = loaded.dependencies.map((file) => path.normalize(file))
-    expect(normalized).toEqual(expect.arrayContaining([path.normalize(entry), path.normalize(middle), path.normalize(leaf)]))
+    expect(normalized).toEqual(
+      expect.arrayContaining([path.normalize(entry), path.normalize(middle), path.normalize(leaf)]),
+    )
   })
 
   it('keeps bundle files out of the package cache directory', async () => {
