@@ -69,12 +69,12 @@ Details, dependency graph, release PR, bootstrap, and retries: [docs/release.md]
 
 ## Local vs CI
 
-| Check                                                  | Local hooks          | CI                                            |
-| ------------------------------------------------------ | -------------------- | --------------------------------------------- |
-| Format / lint on staged files                          | pre-commit           | full tree `format:check` + `lint`             |
-| Commit message                                         | commit-msg           | all new PR commits + PR title                 |
+| Check                                                     | Local hooks                                      | CI                                                |
+| --------------------------------------------------------- | ------------------------------------------------ | ------------------------------------------------- |
+| Format / lint on staged files                             | pre-commit                                       | full tree `format:check` + `lint`                 |
+| Commit message                                            | commit-msg                                       | all new PR commits + PR title                     |
 | Build then typecheck / tests / example / external-install | `pnpm build` then `pnpm typecheck` / `pnpm test` | required on every PR (`build` before `typecheck`) |
-| Changeset coverage                                     | optional             | required on PRs                               |
-| Publish                                                | never from hooks     | only `release.yml` on `main` after Version PR |
+| Changeset coverage                                        | optional                                         | required on PRs                                   |
+| Publish                                                   | never from hooks                                 | only `release.yml` on `main` after Version PR     |
 
 Consumer installs of published tarballs do not run monorepo `prepare` hooks (`files: ["dist"]`; no husky in package runtime deps).
