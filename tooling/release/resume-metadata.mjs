@@ -1,12 +1,14 @@
 import { execFileSync } from 'node:child_process'
+import { appendFileSync } from 'node:fs'
 
 /**
  * Distinguish "version already on registry" from a real publish failure.
  *
- * @param {{ exitCode: number, stdout?: string, stderr?: string }} result
+ * @param {{ exitCode?: number, code?: number, stdout?: string, stderr?: string }} result
  */
 export function classifyPublishResult(result) {
   const output = `${result.stderr ?? ''}\n${result.stdout ?? ''}`
+  // Only `exitCode` is authoritative. Legacy `{ code }` must not count as success.
   if (result.exitCode === 0) return { kind: 'published' }
   if (
     /\bEPUBLISHCONFLICT\b|\bE409\b|cannot publish over the previously published versions|You cannot publish over the previously published/i.test(
@@ -175,10 +177,11 @@ export function createMetadataAdapters(options) {
 }
 
 /**
- * Complete tags/releases for every package in the cohort (including already-published).
+ * Complete tags/releases for packages confirmed on the registry (published or already present).
+ * Do not call this for failed/skipped packages.
  *
  * @param {{
- *   cohort: ReadonlyArray<{ name: string, version: string }>
+ *   packages: ReadonlyArray<{ name: string, version: string }>
  *   commitSha: string
  *   adapters: ReturnType<typeof createMetadataAdapters>
  * }} options
@@ -186,7 +189,7 @@ export function createMetadataAdapters(options) {
 export function completeReleaseMetadata(options) {
   /** @type {Array<{ tag: string, tagStatus: string, releaseStatus: string }>} */
   const results = []
-  for (const pkg of options.cohort) {
+  for (const pkg of options.packages) {
     const tag = `${pkg.name}@${pkg.version}`
     const tagStatus = ensureGitTag({
       tag,
@@ -206,4 +209,26 @@ export function completeReleaseMetadata(options) {
     results.push({ tag, tagStatus, releaseStatus })
   }
   return results
+}
+
+/**
+ * NDJSON events for changesets/action@v2.1.2 (`CHANGESETS_OUTPUT`).
+ * Only emit for packages confirmed published / already on the registry.
+ *
+ * @param {{
+ *   outputPath: string
+ *   packages: ReadonlyArray<{ name: string, version: string }>
+ * }} options
+ */
+export function writeChangesetsOutput(options) {
+  if (!options.outputPath) return
+  const lines = options.packages.map((pkg) =>
+    JSON.stringify({
+      type: 'git-tag',
+      tag: `${pkg.name}@${pkg.version}`,
+      packageName: pkg.name,
+    }),
+  )
+  if (lines.length === 0) return
+  appendFileSync(options.outputPath, `${lines.join('\n')}\n`, 'utf8')
 }
