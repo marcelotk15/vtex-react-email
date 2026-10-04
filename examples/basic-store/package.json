@@ -4,8 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node ./run.mjs build",
-    "validate": "node ./run.mjs validate"
+    "build": "vtex-email build",
+    "validate": "vtex-email validate",
+    "dev": "vtex-email dev"
   },
   "dependencies": {
     "@react-email/components": "1.0.12",
@@ -14,7 +15,6 @@
     "@vtex-email/preview": "workspace:*",
     "@vtex-email/react": "workspace:*",
     "@vtex-email/vtex": "workspace:*",
-    "esbuild": "0.28.2",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "zod": "4.6.5"
