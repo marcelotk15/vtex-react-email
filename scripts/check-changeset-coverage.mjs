@@ -30,24 +30,31 @@ function resolveBaseRef() {
 }
 
 async function readNewChangesetContents(baseRef) {
+  // Union commit-range changesets with every local .changeset/*.md so untracked
+  // files still count before they are committed (CI already has them in HEAD).
+  const names = new Set()
   let diffNames = ''
   try {
     diffNames = git(['diff', '--name-only', `${baseRef}...HEAD`, '--', '.changeset'])
   } catch {
-    diffNames = git(['diff', '--name-only', 'HEAD', '--', '.changeset'])
+    try {
+      diffNames = git(['diff', '--name-only', 'HEAD', '--', '.changeset'])
+    } catch {
+      diffNames = ''
+    }
   }
-  const files = diffNames
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter((line) => line.endsWith('.md') && !line.toLowerCase().endsWith('readme.md'))
-
-  if (files.length > 0) {
-    return Promise.all(files.map(async (file) => readFile(path.join(root, file), 'utf8')))
+  for (const line of diffNames.split(/\r?\n/)) {
+    const trimmed = line.trim().replaceAll('\\', '/')
+    if (!trimmed.endsWith('.md') || trimmed.toLowerCase().endsWith('readme.md')) continue
+    names.add(path.basename(trimmed))
   }
 
   const entries = await readdir(path.join(root, '.changeset'))
-  const local = entries.filter((name) => name.endsWith('.md') && name.toLowerCase() !== 'readme.md')
-  return Promise.all(local.map(async (name) => readFile(path.join(root, '.changeset', name), 'utf8')))
+  for (const name of entries) {
+    if (name.endsWith('.md') && name.toLowerCase() !== 'readme.md') names.add(name)
+  }
+
+  return Promise.all([...names].sort().map(async (name) => readFile(path.join(root, '.changeset', name), 'utf8')))
 }
 
 async function main() {
