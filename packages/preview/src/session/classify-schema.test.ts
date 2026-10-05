@@ -17,8 +17,8 @@ describe('schema change plan', () => {
     }
     const email = {
       id: 'custom-id',
-      file: path.join(root, 'emails', 'auth-code.email.tsx'),
-      fixturesPattern: 'fixtures/auth-code',
+      file: path.join(root, 'emails', 'payment-approved.email.tsx'),
+      fixturesPattern: 'fixtures/payment-approved',
       dependencies: [],
       locales: ['pt-BR'],
     } as unknown as BuiltEmail
@@ -26,7 +26,7 @@ describe('schema change plan', () => {
     const plan = classifyChange({
       paths,
       emails: [email],
-      files: [path.join(root, 'schemas', 'auth-code.ts')],
+      files: [path.join(root, 'schemas', 'payment-approved.ts')],
     })
     expect(plan).toEqual({ kind: 'partial', compile: [], fixtures: [], schemas: ['custom-id'] })
   })

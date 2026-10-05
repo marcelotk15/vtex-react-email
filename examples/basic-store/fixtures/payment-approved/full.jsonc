@@ -1,0 +1,97 @@
+{
+  "$schema": "../../node_modules/@vtex-email/core/dist/fixture.schema.json",
+  "meta": {
+    "description": "Approved payment with packages and attachments",
+    "origin": "synthetic",
+    "event": "payment-approved",
+    "purpose": "preview",
+    "expectedLocale": "pt-BR",
+    "expect": "valid"
+  },
+  "data": {
+    "orderId": "ORD-1001",
+    "value": 860000,
+    "clientProfileData": {
+      "firstName": "Alex",
+      "lastName": "Rivera"
+    },
+    "clientPreferencesData": {
+      "locale": "pt-BR"
+    },
+    "paymentData": {
+      "transactions": [
+        {
+          "payments": [
+            {
+              "paymentSystemName": "Promissory",
+              "value": 560000,
+              "installments": 1,
+              "dueDate": "2026-04-10T12:00:00.000Z"
+            },
+            {
+              "paymentSystemName": "Visa",
+              "value": 300000,
+              "installments": 3
+            }
+          ]
+        }
+      ]
+    },
+    "items": [
+      {
+        "name": "Workshop Example",
+        "imageUrl": "https://example.com/item.png",
+        "refId": "EVT-100",
+        "quantity": 1,
+        "sellingPrice": 560000,
+        "uniqueId": "UID-1",
+        "packageId": "pkg-a",
+        "additionalInfo": {
+          "categoriesIds": "/1/9293/2/"
+        },
+        "attachments": [
+          {
+            "name": "Recipient",
+            "content": {
+              "firstName": "Alex",
+              "lastName": "Rivera",
+              "documentType": "DOC-C",
+              "documentNumber": "123456",
+              "dateRange": "2026-04-01,2026-04-02,extra,01/04/2026,02/04/2026"
+            }
+          },
+          {
+            "name": "ItemDiscounts",
+            "content": {
+              "priceTable": "tariff-b",
+              "businessAgreement": "plan|1500|Partner plan"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Seminar Example",
+        "imageUrl": "https://example.com/item-2.png",
+        "refId": "EVT-200",
+        "quantity": 2,
+        "sellingPrice": 150000,
+        "uniqueId": "UID-2",
+        "packageId": "pkg-b",
+        "additionalInfo": {
+          "categoriesIds": "/1/100/"
+        },
+        "attachments": []
+      }
+    ],
+    "totals": [
+      {
+        "id": "Items",
+        "value": 860000
+      },
+      {
+        "id": "Shipping",
+        "value": 0
+      }
+    ]
+  }
+}

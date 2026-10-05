@@ -1,0 +1,21 @@
+{
+  "$schema": "../../node_modules/@vtex-email/core/dist/fixture.schema.json",
+  "meta": {
+    "description": "Empty abandoned cart",
+    "origin": "synthetic",
+    "event": "abandoned-cart",
+    "purpose": "preview",
+    "expectedLocale": "en-US",
+    "expect": "valid"
+  },
+  "data": {
+    "orderId": "CART-2",
+    "clientProfileData": {
+      "firstName": "isAnonymous"
+    },
+    "clientPreferencesData": {
+      "locale": "en-US"
+    },
+    "items": []
+  }
+}

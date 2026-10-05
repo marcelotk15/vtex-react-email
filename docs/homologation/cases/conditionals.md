@@ -21,7 +21,7 @@ Address, in [packages/react/golden-fixtures/emails/order-confirmed.email.tsx](..
 </Vtex.If>
 ```
 
-Code, in [examples/basic-store/emails/auth-code.email.tsx](../../../examples/basic-store/emails/auth-code.email.tsx):
+Code, in [packages/react/golden-fixtures/emails/auth-code.email.tsx](../../../packages/react/golden-fixtures/emails/auth-code.email.tsx):
 
 ```tsx
 <Vtex.Unless path="expired">
@@ -37,7 +37,7 @@ The order artifact contains `{{#if shippingData.address}}` and `{{else}}`. The a
 
 - Delivery: [packages/react/golden-fixtures/fixtures/order-confirmed/delivery.json](../../../packages/react/golden-fixtures/fixtures/order-confirmed/delivery.json), with street.
 - Pickup: [packages/react/golden-fixtures/fixtures/order-confirmed/pickup.json](../../../packages/react/golden-fixtures/fixtures/order-confirmed/pickup.json), without `shippingData`.
-- Auth: [examples/basic-store/fixtures/auth-code/default.json](../../../examples/basic-store/fixtures/auth-code/default.json), `"expired": false`, code `AUTH-KEEP`. The code must not appear frozen in the artifact.
+- Auth: synthetic payload in `packages/react/src/template-reuse.test.tsx`, `"expired": false`, code `SECRET-CODE`. The code must not appear frozen in the artifact.
 
 ## Expected local result
 

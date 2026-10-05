@@ -1,0 +1,69 @@
+{
+  "$schema": "../../node_modules/@vtex-email/core/dist/fixture.schema.json",
+  "meta": {
+    "description": "Tickets ready with two packages",
+    "origin": "synthetic",
+    "event": "tickets-ready",
+    "purpose": "preview",
+    "expectedLocale": "pt-BR",
+    "expect": "valid"
+  },
+  "data": {
+    "orderId": "ORD-1001",
+    "value": 860000,
+    "clientProfileData": {
+      "firstName": "Alex",
+      "lastName": "Rivera"
+    },
+    "clientPreferencesData": {
+      "locale": "pt-BR"
+    },
+    "paymentData": {
+      "transactions": [
+        {
+          "payments": [
+            {
+              "paymentSystemName": "Promissory",
+              "value": 560000,
+              "installments": 1,
+              "dueDate": "2026-04-10T12:00:00.000Z"
+            },
+            {
+              "paymentSystemName": "Visa",
+              "value": 300000,
+              "installments": 3
+            }
+          ]
+        }
+      ]
+    },
+    "items": [
+      {
+        "name": "Concert Example",
+        "quantity": 1,
+        "sellingPrice": 20000,
+        "packageId": "pkg-a",
+        "ticketUrl": "/tickets/1",
+        "imageUrl": "https://example.com/t.png"
+      },
+      {
+        "name": "Show Example",
+        "quantity": 2,
+        "sellingPrice": 15000,
+        "packageId": "pkg-b",
+        "ticketUrl": "/tickets/2",
+        "imageUrl": "https://example.com/t2.png"
+      }
+    ],
+    "totals": [
+      {
+        "id": "Items",
+        "value": 860000
+      },
+      {
+        "id": "Shipping",
+        "value": 0
+      }
+    ]
+  }
+}

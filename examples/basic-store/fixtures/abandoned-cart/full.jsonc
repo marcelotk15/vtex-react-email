@@ -1,0 +1,37 @@
+{
+  "$schema": "../../node_modules/@vtex-email/core/dist/fixture.schema.json",
+  "meta": {
+    "description": "Abandoned cart with two items",
+    "origin": "synthetic",
+    "event": "abandoned-cart",
+    "purpose": "preview",
+    "expectedLocale": "pt-BR",
+    "expect": "valid"
+  },
+  "data": {
+    "orderId": "CART-1",
+    "clientProfileData": {
+      "firstName": "Sam",
+      "lastName": "Lee"
+    },
+    "clientPreferencesData": {
+      "locale": "pt-BR"
+    },
+    "items": [
+      {
+        "productName": "Notebook Example",
+        "quantity": 1,
+        "sellingPrice": 20000,
+        "packageId": "pkg-a",
+        "image": "https://example.com/cart.png"
+      },
+      {
+        "productName": "Pen Example",
+        "quantity": 2,
+        "sellingPrice": 1500,
+        "packageId": "pkg-a",
+        "image": "https://example.com/cart-2.png"
+      }
+    ]
+  }
+}

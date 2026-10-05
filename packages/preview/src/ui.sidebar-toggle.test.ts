@@ -40,7 +40,7 @@ describe('sidebar toggle', () => {
 
 async function copyStore(destination: string): Promise<string> {
   await mkdir(destination, { recursive: true })
-  for (const name of ['emails', 'schemas', 'locales', 'fixtures']) {
+  for (const name of ['emails', 'schemas', 'locales', 'fixtures', 'components']) {
     await cp(path.join(example, name), path.join(destination, name), { recursive: true })
   }
   await cp(path.join(example, 'vtex-email.config.ts'), path.join(destination, 'vtex-email.config.ts'))

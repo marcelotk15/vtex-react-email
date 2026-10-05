@@ -90,16 +90,15 @@ export async function runExternalInstall(): Promise<{
       }
       void fontHref
 
-      await writeFile(
-        path.join(consumer, 'components', 'shared.tsx'),
-        `export function Shared() { return <span>shared-updated</span> }\n`,
-      )
+      const shell = path.join(consumer, 'components', 'store', 'shell.tsx')
+      const shellSource = await readFile(shell, 'utf8')
+      await writeFile(shell, `${shellSource}\n`)
       await sleep(1_000)
-      const fixture = path.join(consumer, 'fixtures', 'auth-code', 'default.jsonc')
+      const fixture = path.join(consumer, 'fixtures', 'payment-approved', 'full.jsonc')
       const before = await readFile(fixture, 'utf8')
-      await writeFile(fixture, before.replace('AUTH-KEEP', 'AUTH-WATCH'))
+      await writeFile(fixture, before.replace('ORD-1001', 'ORD-WATCH'))
       await sleep(1_000)
-      await rm(path.join(consumer, 'emails', 'auth-code.email.tsx'))
+      await rm(path.join(consumer, 'emails', 'payment-approved.email.tsx'))
       await sleep(1_000)
     } finally {
       await stopProcess(dev, port)
@@ -182,11 +181,7 @@ async function writeConsumer(consumer: string, tarballs: Record<(typeof packages
   await cp(path.join(root, 'examples/basic-store/schemas'), path.join(consumer, 'schemas'), { recursive: true })
   await cp(path.join(root, 'examples/basic-store/locales'), path.join(consumer, 'locales'), { recursive: true })
   await cp(path.join(root, 'examples/basic-store/fixtures'), path.join(consumer, 'fixtures'), { recursive: true })
-  await mkdir(path.join(consumer, 'components'), { recursive: true })
-  await writeFile(
-    path.join(consumer, 'components', 'shared.tsx'),
-    `export function Shared() { return <span>shared</span> }\n`,
-  )
+  await cp(path.join(root, 'examples/basic-store/components'), path.join(consumer, 'components'), { recursive: true })
   await cp(path.join(root, 'examples/basic-store/vtex-email.config.ts'), path.join(consumer, 'vtex-email.config.ts'))
 
   const packageJson = {

@@ -1,0 +1,16 @@
+{
+  "$schema": "../../node_modules/@vtex-email/core/dist/fixture.schema.json",
+  "meta": {
+    "description": "Back in stock without recipient name",
+    "origin": "synthetic",
+    "event": "back-in-stock",
+    "purpose": "preview",
+    "expectedLocale": "en-US",
+    "expect": "valid"
+  },
+  "data": {
+    "locale": "en-US",
+    "addressee": {},
+    "productName": "Ceramic Mug Example"
+  }
+}
