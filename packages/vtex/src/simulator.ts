@@ -41,6 +41,27 @@ function readProperty(obj: unknown, prop: string): unknown {
   return current
 }
 
+function compareValues(left: unknown, operator: unknown, right: unknown): boolean | null {
+  switch (operator) {
+    case '==':
+      return left == right
+    case '===':
+      return left === right
+    case '!=':
+      return left != right
+    case '<':
+      return (left as never) < (right as never)
+    case '<=':
+      return (left as never) <= (right as never)
+    case '>':
+      return (left as never) > (right as never)
+    case '>=':
+      return (left as never) >= (right as never)
+    default:
+      return null
+  }
+}
+
 export const messageCenterSimulator: LocalSimulator = {
   helpers: [
     {
@@ -61,14 +82,14 @@ export const messageCenterSimulator: LocalSimulator = {
       name: 'replace',
       kind: 'inline',
       evidence: 'documented',
-      note: 'One occurrence. A path and two literals.',
+      note: 'One occurrence. A path and two expressions that resolve to strings.',
       apply: replaceOnce,
     },
     {
       name: 'eq',
       kind: 'block',
       evidence: 'experimental',
-      note: 'Local strict equality. Not verified on VTEX.',
+      note: 'Local strict equality. Path versus path or literal. Not verified on VTEX.',
       apply: (context, values, options) => {
         const [left, right] = values
         return left === right ? options.fn(context) : options.inverse(context)
@@ -78,14 +99,11 @@ export const messageCenterSimulator: LocalSimulator = {
       name: 'ifCond',
       kind: 'block',
       evidence: 'experimental',
-      note: 'Local ==, ===, and !=. Not verified on VTEX.',
+      note: 'Local ==, ===, !=, <, <=, >, and >=. Not verified on VTEX.',
       apply: (context, values, options) => {
         const [left, operator, right] = values
-        let pass = false
-        if (operator === '==') pass = left == right
-        else if (operator === '===') pass = left === right
-        else if (operator === '!=') pass = left != right
-        else return options.inverse(context)
+        const pass = compareValues(left, operator, right)
+        if (pass === null) return options.inverse(context)
         return pass ? options.fn(context) : options.inverse(context)
       },
     },
@@ -93,7 +111,7 @@ export const messageCenterSimulator: LocalSimulator = {
       name: 'hasSubStr',
       kind: 'block',
       evidence: 'experimental',
-      note: 'Local substring check. Not verified on VTEX.',
+      note: 'Local substring check. Search may be a path or literal. Not verified on VTEX.',
       apply: (context, values, options) => {
         const [value, search] = values
         if (value != null && String(value).includes(String(search))) return options.fn(context)

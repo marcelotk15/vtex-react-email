@@ -1,7 +1,7 @@
 import type { Failure } from '../diagnostics'
-import type { EmissionCapability, EmissionProfile } from '../profile'
+import type { ArgKind, EmissionCapability, EmissionProfile } from '../profile'
 import type { ScopeNode } from '../scope/structure'
-import type { ResolvedPath, SiteRecord } from './sites'
+import type { ResolvedPath, SiteArgument, SiteRecord } from './sites'
 import type { Marker } from './tokens'
 
 import { errorDiagnostic, type Diagnostic } from '../diagnostics'
@@ -101,13 +101,27 @@ function checkArguments(capability: EmissionCapability, site: SiteRecord): Diagn
   const diagnostics: Diagnostic[] = []
   capability.args.forEach((expected, index) => {
     const actual = args[index]
-    if (actual && actual.kind !== expected) {
+    if (!actual) return
+    if (expected === 'expression') {
+      if (actual.kind !== 'path' && actual.kind !== 'literal') {
+        diagnostics.push(
+          errorDiagnostic('HBS002', `Helper ${capability.name} argument ${index + 1} must be a path or literal.`),
+        )
+      }
+      return
+    }
+    if (actual.kind !== expected) {
       diagnostics.push(
         errorDiagnostic('HBS002', `Helper ${capability.name} argument ${index + 1} must be a ${expected}.`),
       )
     }
   })
   return diagnostics
+}
+
+function checkHashKind(expected: ArgKind, actual: SiteArgument): boolean {
+  if (expected === 'expression') return actual.kind === 'path' || actual.kind === 'literal'
+  return actual.kind === expected
 }
 
 function checkHash(capability: EmissionCapability, site: SiteRecord): Diagnostic[] {
@@ -125,11 +139,13 @@ function checkHash(capability: EmissionCapability, site: SiteRecord): Diagnostic
       diagnostics.push(errorDiagnostic('HBS002', `Helper ${capability.name} requires named argument ${expected.name}.`))
       continue
     }
-    if (actual.kind !== expected.kind) {
+    if (!checkHashKind(expected.kind, actual)) {
       diagnostics.push(
         errorDiagnostic(
           'HBS002',
-          `Helper ${capability.name} named argument ${expected.name} must be a ${expected.kind}.`,
+          `Helper ${capability.name} named argument ${expected.name} must be a ${
+            expected.kind === 'expression' ? 'path or literal' : expected.kind
+          }.`,
         ),
       )
     }

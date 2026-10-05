@@ -62,22 +62,13 @@ Evidence: documented.
 </details>
 
 <details>
-<summary><code>ifCond</code> — compare a path to a literal</summary>
+<summary><code>ifCond</code> — compare expressions</summary>
 
-`Vtex.IfCond`. Emits `{{#ifCond paymentSystemName "==" "Promissory"}}…{{/ifCond}}`. Operators accepted at compile time: `==`, `===`, and `!=`. An unknown operator fails the build. Both branches keep context.
+`Vtex.IfCond`. Emits `{{#ifCond items.length ">" 1}}…{{/ifCond}}`. Operators: `==`, `===`, `!=`, `<`, `<=`, `>`, `>=`. Right operand is an expression (`expr.path` / `expr.literal`); string `value` remains literal sugar. Both branches keep context.
 
 ```tsx
-<Vtex.IfCond
-  fallback={
-    <Text>
-      <Vtex.Value path="paymentSystemName" />
-    </Text>
-  }
-  operator="=="
-  path="paymentSystemName"
-  value="Promissory"
->
-  <Text>cash</Text>
+<Vtex.IfCond fallback={<Text>one</Text>} operator=">" path="items.length" right={1}>
+  <Text>many</Text>
 </Vtex.IfCond>
 ```
 
@@ -86,12 +77,12 @@ Evidence: experimental.
 </details>
 
 <details>
-<summary><code>hasSubStr</code> — substring in the path value</summary>
+<summary><code>hasSubStr</code> — substring search</summary>
 
-`Vtex.HasSubStr`. Emits `{{#hasSubStr categoriesIds "/9293/"}}…{{/hasSubStr}}`. True when the value is not null and `String(value)` contains the literal. Both branches keep context.
+`Vtex.HasSubStr`. Emits `{{#hasSubStr categoriesIds "/9293/"}}…{{/hasSubStr}}`. Search is an expression. True when the value is not null and `String(value)` contains the search string. Both branches keep context.
 
 ```tsx
-<Vtex.HasSubStr path="additionalInfo.categoriesIds" value="/9293/">
+<Vtex.HasSubStr path="additionalInfo.categoriesIds" search={expr.literal('/9293/')}>
   <Text>ticket</Text>
 </Vtex.HasSubStr>
 ```
@@ -101,14 +92,14 @@ Evidence: experimental.
 </details>
 
 <details>
-<summary><code>eq</code> — strict equality with a literal</summary>
+<summary><code>eq</code> — strict equality</summary>
 
-`Vtex.Eq`. Emits `{{#eq id "Items"}}…{{/eq}}`. Compares the path to a literal. Path versus path is out of scope. Both branches keep context.
+`Vtex.Eq`. Emits `{{#eq id "Items"}}…{{/eq}}` or path versus path via `right={expr.path(...)}`. Both branches keep context. Locale merge also emits `eq` with a literal selector.
 
 ```tsx
-<Vtex.Eq path="id" value="Items">
+<Vtex.Eq path="@index" right={expr.path('../itemIndex')}>
   <Text>
-    <Vtex.Helper args={[expr.path('value')]} name="formatCurrency" />
+    <Vtex.Value path="name" />
   </Text>
 </Vtex.Eq>
 ```
@@ -167,13 +158,10 @@ Evidence: experimental.
 <details>
 <summary><code>replace</code> — replace the first occurrence</summary>
 
-`Vtex.Helper` with one path and two literals. Emits `{{replace shippingEstimate "bd" " business days"}}`. Replaces only the first match of the search string.
+`Vtex.Helper` with one path and two expressions. Emits `{{replace url "{Installment}" installments}}`. Replaces only the first match.
 
 ```tsx
-<Vtex.Helper
-  args={[expr.path('shippingEstimate'), expr.literal('bd'), expr.literal(' business days')]}
-  name="replace"
-/>
+<Vtex.Helper args={[expr.path('url'), expr.literal('{Installment}'), expr.path('installments')]} name="replace" />
 ```
 
 Evidence: documented.

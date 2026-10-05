@@ -37,6 +37,11 @@ function walk(nodes: readonly ScopeNode[], stack: Frame[], guards: readonly stri
       diagnostics.push(...inspectRef(node, stack, guards))
       continue
     }
+    if (node.path === '@index') {
+      diagnostics.push(...walk(node.children, stack, guards))
+      diagnostics.push(...walk(node.fallback, stack, guards))
+      continue
+    }
     const absolute = absoluteSegments(node.path, node.parentHops, stack)
     const missing = absolute ? null : contractDiagnostic(node.path, 'missing')
     if (!absolute || missing) {
@@ -178,6 +183,12 @@ function resolve(schema: ZodNode, segments: readonly string[]): Lookup {
     return { status: 'found', optional: peeled.optional || next.optional, schema: next.schema }
   }
   if (current?.type === 'array' && current.element) {
+    if (segments[0] === 'length') {
+      if (segments.length === 1) {
+        return { status: 'found', optional: peeled.optional, schema: { def: { type: 'number' } } }
+      }
+      return { status: 'missing' }
+    }
     if (!/^[0-9]+$/.test(segments[0] ?? '')) return { status: 'missing' }
     const next = resolve(current.element, segments.slice(1))
     if (next.status !== 'found') return next

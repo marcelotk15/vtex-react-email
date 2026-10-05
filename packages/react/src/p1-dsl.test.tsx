@@ -238,6 +238,49 @@ describe('P1 DSL', () => {
     expect(html.includes('20000')).toBe(false)
   })
 
+  it('emits path-versus-path eq, ifCond inequalities, and dynamic replace', async () => {
+    function View() {
+      return (
+        <Email>
+          <Section>
+            <Each path="items">
+              <Section>
+                <Eq path="@index" right={expr.path('../itemIndex')}>
+                  <Text>
+                    <Vtex.Value path="name" />
+                  </Text>
+                </Eq>
+              </Section>
+            </Each>
+            <IfCond fallback={<Text>one</Text>} operator=">" path="items.length" right={expr.literal(1)}>
+              <Text>many</Text>
+            </IfCond>
+            <HasSubStr path="selectedSla" search={expr.path('addressId')}>
+              <Text>pickup</Text>
+            </HasSubStr>
+            <Text>
+              <Vtex.Helper
+                args={[expr.path('url'), expr.literal('{Installment}'), expr.path('installments')]}
+                name="replace"
+              />
+            </Text>
+          </Section>
+        </Email>
+      )
+    }
+    const compiled = await compile(View)
+    if (!compiled.ok) {
+      // oxlint-disable-next-line vitest/no-conditional-expect
+      expect.fail(compiled.diagnostics.map((d) => `${d.code}: ${d.message}`).join('\n'))
+    }
+    const html = compiled.artifacts[0]?.content ?? ''
+    expect(html).toContain('{{#eq @index ../itemIndex}}')
+    expect(html).toContain('{{#ifCond items.length ">" 1}}')
+    expect(html).toContain('{{#hasSubStr selectedSla addressId}}')
+    expect(html).toContain('{{replace url "{Installment}" installments}}')
+  })
+
+
   it('rejects an invalid ifCond operator, @index outside each, and a bad group by', async () => {
     function BadOperator() {
       return (
@@ -364,6 +407,31 @@ describe('P1 DSL', () => {
     expect(html).toContain('{{name}}')
     expect(html.includes('data-anchor')).toBe(false)
     expect(html.includes('vtx-anchor')).toBe(false)
+  })
+
+  it('nests IfCond over Each without an intermediate Section', async () => {
+    function View() {
+      return (
+        <Email>
+          <IfCond operator=">" path="items.length" right={0}>
+            <Each path="items">
+              <Text>
+                <Vtex.Value path="name" />
+              </Text>
+            </Each>
+          </IfCond>
+        </Email>
+      )
+    }
+
+    const compiled = await compile(View)
+    expect(compiled).toMatchObject({ ok: true })
+    if (!compiled.ok) return
+    const html = compiled.artifacts[0]?.content ?? ''
+    expect(html).toContain('{{#ifCond items.length ">" 0}}')
+    expect(html).toContain('{{#each items}}')
+    expect(html.includes('data-anchor')).toBe(false)
+    expect(compiled.diagnostics.some((item) => item.code === 'TOK001')).toBe(false)
   })
 
   it('keeps inline Eq inside Text balanced after restore', async () => {

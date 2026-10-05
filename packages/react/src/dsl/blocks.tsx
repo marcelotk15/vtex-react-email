@@ -5,7 +5,6 @@ import { createElement, type ReactElement, type ReactNode } from 'react'
 import { addMarker, addSite, getSession } from '../compile/session'
 import { expr, type Expression } from './expr'
 import { dslFailure, readArgument, resolvePath } from './resolve'
-
 /** Compiler-owned host for block regions. Authors never see or forward this. */
 export const BLOCK_HOST = 'vtx-anchor'
 
@@ -78,56 +77,76 @@ export function Unless({ path, children, fallback }: { path: string; children: R
   return blockRegion(path, 'unless', children, fallback)
 }
 
+type ComparisonOperator = '==' | '===' | '!=' | '<' | '<=' | '>' | '>='
+
+function asExpression(
+  value: Expression | string | number | boolean | null | undefined,
+  session: ReturnType<typeof getSession>,
+): Expression {
+  if (value === undefined) dslFailure(session, 'HBS002', 'A comparison operand is required.')
+  if (typeof value === 'object' && value !== null && 'kind' in value) return value
+  return expr.literal(value)
+}
+
 export function IfCond({
   path,
   operator,
   value,
+  right,
   children,
   fallback,
 }: {
   path: string
-  operator: '==' | '===' | '!='
-  value: string | number | boolean | null
+  operator: ComparisonOperator
+  value?: string | number | boolean | null
+  right?: Expression | string | number | boolean | null
   children: ReactNode
   fallback?: ReactNode
 }) {
   const session = getSession()
+  const operand = right !== undefined ? asExpression(right, session) : asExpression(value, session)
   return blockRegion(path, 'ifCond', children, fallback, {
-    args: [readArgument(expr.literal(operator), session), readArgument(expr.literal(value), session)],
+    args: [readArgument(expr.literal(operator), session), readArgument(operand, session)],
   })
 }
 
 export function HasSubStr({
   path,
   value,
+  search,
   children,
   fallback,
 }: {
   path: string
-  value: string
+  value?: string
+  search?: Expression | string
   children: ReactNode
   fallback?: ReactNode
 }) {
   const session = getSession()
+  const operand = search !== undefined ? asExpression(search, session) : asExpression(value, session)
   return blockRegion(path, 'hasSubStr', children, fallback, {
-    args: [readArgument(expr.literal(value), session)],
+    args: [readArgument(operand, session)],
   })
 }
 
 export function Eq({
   path,
   value,
+  right,
   children,
   fallback,
 }: {
   path: string
-  value: string | number | boolean | null
+  value?: string | number | boolean | null
+  right?: Expression | string | number | boolean | null
   children: ReactNode
   fallback?: ReactNode
 }) {
   const session = getSession()
+  const operand = right !== undefined ? asExpression(right, session) : asExpression(value, session)
   return blockRegion(path, 'eq', children, fallback, {
-    args: [readArgument(expr.literal(value), session)],
+    args: [readArgument(operand, session)],
   })
 }
 
