@@ -1,0 +1,172 @@
+{
+  "meta": {
+    "description": "08-shipping-update full synthetic payload",
+    "origin": "synthetic",
+    "event": "08-shipping-update",
+    "purpose": "preview",
+    "expectedLocale": "pt-BR",
+    "expect": "valid"
+  },
+  "data": {
+    "locale": "pt-BR",
+    "split": false,
+    "ordersUrl": "https://example.com/orders",
+    "_accountInfo": {
+      "TradingName": "Loja Exemplo",
+      "HostName": "loja-exemplo",
+      "Id": "example-account",
+      "StoreUrl": "https://example.com",
+      "LogoUrl": "https://example.com/logo.png"
+    },
+    "orders": [
+      {
+        "orderId": "v75036027bot-01",
+        "value": 10980,
+        "clientProfileData": {
+          "firstName": "Maria",
+          "lastName": "Silva"
+        },
+        "clientPreferencesData": {
+          "locale": "pt-BR"
+        },
+        "sellers": [
+          {
+            "name": "Boticario"
+          }
+        ],
+        "items": [
+          {
+            "id": "2004169",
+            "name": "Kit Presente Portinari",
+            "imageUrl": "https://example.com/images/product.png",
+            "quantity": 1,
+            "sellingPrice": 10980,
+            "itemIndex": 0,
+            "bundleItems": [],
+            "additionalInfo": {
+              "categoriesIds": "/1000048/1000033/1000069/"
+            }
+          }
+        ],
+        "totals": [
+          {
+            "id": "Items",
+            "value": 11830
+          },
+          {
+            "id": "Discounts",
+            "value": 0
+          },
+          {
+            "id": "Shipping",
+            "value": 0
+          },
+          {
+            "id": "Tax",
+            "value": 0
+          },
+          {
+            "id": "Discounts_boticario",
+            "value": -850
+          }
+        ],
+        "paymentData": {
+          "transactions": [
+            {
+              "payments": [
+                {
+                  "paymentSystemName": "Mastercard",
+                  "lastDigits": "0869",
+                  "value": 10980,
+                  "installments": 5,
+                  "url": "https://example.com/boleto/{Installment}"
+                }
+              ]
+            }
+          ]
+        },
+        "shippingData": {
+          "addressId": "-1477568377563",
+          "logisticsInfo": [
+            {
+              "itemIndex": 0,
+              "itemId": "2004169",
+              "selectedSla": "Normal",
+              "selectedDeliveryChannel": "delivery",
+              "addressId": "-1477568377563",
+              "deliveryChannel": "delivery",
+              "slas": [
+                {
+                  "id": "Normal",
+                  "shippingEstimate": "16bd",
+                  "shippingEstimateDate": "2017-12-04T12:09:48.1337615Z",
+                  "deliveryWindow": null,
+                  "availableDeliveryWindows": [],
+                  "pickupStoreInfo": {
+                    "isPickupStore": false,
+                    "friendlyName": null,
+                    "address": null,
+                    "additionalInfo": null,
+                    "dockId": null
+                  }
+                }
+              ]
+            }
+          ],
+          "availableAddresses": [
+            {
+              "addressId": "-1477568377563",
+              "AddressId": "-1477568377563",
+              "street": "Rua Getúlio Vargas",
+              "number": "64",
+              "complement": "",
+              "neighborhood": "Centro",
+              "postalCode": "75280-000",
+              "city": "Orizona",
+              "state": "GO"
+            }
+          ],
+          "selectedAddresses": [
+            {
+              "addressType": "residential",
+              "receiverName": "Gabriela Marques",
+              "addressId": "-1477568377563",
+              "postalCode": "75280-000",
+              "city": "Orizona",
+              "state": "GO",
+              "country": "BRA",
+              "street": "Rua Getúlio Vargas",
+              "number": "64",
+              "neighborhood": "Centro",
+              "complement": null,
+              "reference": null,
+              "geoCoordinates": []
+            }
+          ],
+          "pickupPoints": []
+        },
+        "package": {
+          "courier": "Transportadora Exemplo",
+          "trackingNumber": "BR123",
+          "courierStatus": {
+            "data": [
+              {
+                "lastChange": "2026-03-15T14:05:09.000Z",
+                "description": "Objeto postado",
+                "city": "São Paulo",
+                "state": "SP"
+              },
+              {
+                "lastChange": "2026-03-16T09:00:00.000Z",
+                "description": "Em trânsito",
+                "city": "Campinas",
+                "state": "SP"
+              }
+            ]
+          }
+        },
+        "giftRegistryData": null
+      }
+    ]
+  }
+}

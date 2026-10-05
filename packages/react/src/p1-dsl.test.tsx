@@ -1,14 +1,13 @@
 import type { ReactNode } from 'react'
 
 import { pixelBasedPreset, Section, Text } from '@react-email/components'
-import { type EmissionProfile } from '@vtex-email/core'
-import { evaluateArtifact } from '@vtex-email/core'
+import { evaluateArtifact, type EmissionProfile } from '@vtex-email/core'
 import { p0Profile } from '@vtex-email/vtex'
 import { describe, expect, it } from 'vitest'
 
 import { Email } from './adapter/email'
 import { compileEmail } from './compile/compile-email'
-import { Each, Eq, expr, Group, HasSubStr, If, IfCond, Unless, Vtex } from './dsl/vtex'
+import { Each, Eq, expr, Group, HasSubStr, If, IfCond, Math, RichShippingData, Unless, Vtex, With } from './dsl/vtex'
 
 function compile(component: () => ReactNode, profile: EmissionProfile = p0Profile) {
   return compileEmail({
@@ -238,11 +237,131 @@ describe('P1 DSL', () => {
     expect(html.includes('20000')).toBe(false)
   })
 
+  it('emits path-versus-path eq, ifCond inequalities, and dynamic replace', async () => {
+    function View() {
+      return (
+        <Email>
+          <Section>
+            <Each path="items">
+              <Section>
+                <Eq path="@index" right={expr.path('../itemIndex')}>
+                  <Text>
+                    <Vtex.Value path="name" />
+                  </Text>
+                </Eq>
+              </Section>
+            </Each>
+            <IfCond fallback={<Text>one</Text>} operator=">" path="items.length" right={expr.literal(1)}>
+              <Text>many</Text>
+            </IfCond>
+            <HasSubStr path="selectedSla" search={expr.path('addressId')}>
+              <Text>pickup</Text>
+            </HasSubStr>
+            <Text>
+              <Vtex.Helper
+                args={[expr.path('url'), expr.literal('{Installment}'), expr.path('installments')]}
+                name="replace"
+              />
+            </Text>
+          </Section>
+        </Email>
+      )
+    }
+    const compiled = await compile(View)
+    if (!compiled.ok) {
+      // oxlint-disable-next-line vitest/no-conditional-expect
+      expect.fail(compiled.diagnostics.map((d) => `${d.code}: ${d.message}`).join('\n'))
+    }
+    const html = compiled.artifacts[0]?.content ?? ''
+    expect(html).toContain('{{#eq @index ../itemIndex}}')
+    expect(html).toContain('{{#ifCond items.length ">" 1}}')
+    expect(html).toContain('{{#hasSubStr selectedSla addressId}}')
+    expect(html).toContain('{{replace url "{Installment}" installments}}')
+  })
+
+  it('emits with, math, formatTime, formatDateTime, and richShippingData', async () => {
+    function View() {
+      return (
+        <Email>
+          <Section>
+            <With fallback={<Text>missing</Text>} path="pickupStoreInfo.address">
+              <Text>
+                <Vtex.Value path="street" />
+              </Text>
+            </With>
+            <Math form="block" operator="+" path="index" right={expr.literal(1)} />
+            <Text>
+              <Vtex.Helper args={[expr.path('dueDate')]} name="formatTime" />
+              <Vtex.Helper args={[expr.path('dueDate')]} name="formatDateTime" />
+              <Math left={expr.path('index')} operator="+" right={1} />
+            </Text>
+            <RichShippingData path="shippingData">
+              <Section>
+                <Group by="packageId" path="logisticsInfo">
+                  <Text>
+                    <Vtex.Value path="value" />
+                  </Text>
+                </Group>
+              </Section>
+            </RichShippingData>
+          </Section>
+        </Email>
+      )
+    }
+    const compiled = await compile(View)
+    if (!compiled.ok) {
+      // oxlint-disable-next-line vitest/no-conditional-expect
+      expect.fail(compiled.diagnostics.map((d) => `${d.code}: ${d.message}`).join('\n'))
+    }
+    const html = compiled.artifacts[0]?.content ?? ''
+    expect(html).toContain('{{#with pickupStoreInfo.address}}')
+    expect(html).toContain('{{#math index "+" 1}}')
+    expect(html).toContain('{{math index "+" 1}}')
+    expect(html).toContain('{{formatTime dueDate}}')
+    expect(html).toContain('{{formatDateTime dueDate}}')
+    expect(html).toContain('{{#richShippingData shippingData}}')
+    expect(html).toContain('{{#group logisticsInfo by="packageId"}}')
+  })
+
+  it('emits composite href and src attributes', async () => {
+    function View() {
+      return (
+        <Email>
+          <Section>
+            <Vtex.Link href={['http://', expr.path('_accountInfo.HostName'), '.com.br']}>store</Vtex.Link>
+            <Vtex.Img
+              alt={expr.path('_accountInfo.TradingName')}
+              height={80}
+              src={[
+                'http://licensemanager.vtex.com.br/api/site/pub/accounts/',
+                expr.path('_accountInfo.Id'),
+                '/logos/show',
+              ]}
+              style={{ maxHeight: 80 }}
+              width={160}
+            />
+          </Section>
+        </Email>
+      )
+    }
+    const compiled = await compile(View)
+    if (!compiled.ok) {
+      // oxlint-disable-next-line vitest/no-conditional-expect
+      expect.fail(compiled.diagnostics.map((d) => `${d.code}: ${d.message}`).join('\n'))
+    }
+    const html = compiled.artifacts[0]?.content ?? ''
+    expect(html).toContain('href="http://{{_accountInfo.HostName}}.com.br"')
+    expect(html).toContain(
+      'src="http://licensemanager.vtex.com.br/api/site/pub/accounts/{{_accountInfo.Id}}/logos/show"',
+    )
+    expect(html).toContain('alt="{{_accountInfo.TradingName}}"')
+  })
+
   it('rejects an invalid ifCond operator, @index outside each, and a bad group by', async () => {
     function BadOperator() {
       return (
         <Email>
-          <IfCond operator={'>' as '=='} path="a" value="1">
+          <IfCond operator={'&&' as '=='} path="a" value="1">
             <Text>x</Text>
           </IfCond>
         </Email>
@@ -336,5 +455,83 @@ describe('P1 DSL', () => {
     expect(compiled.ok).toBe(false)
     if (compiled.ok) return
     expect(compiled.diagnostics[0]?.source?.file).toBe('emails/sample.email.tsx')
+  })
+
+  it('wraps author components without data-anchor and strips the host from the artifact', async () => {
+    function Line() {
+      return (
+        <Text>
+          <Vtex.Value path="name" />
+        </Text>
+      )
+    }
+    function View() {
+      return (
+        <Email>
+          <Each path="items">
+            <Line />
+          </Each>
+        </Email>
+      )
+    }
+
+    const compiled = await compile(View)
+    expect(compiled).toMatchObject({ ok: true })
+    if (!compiled.ok) return
+    const html = compiled.artifacts[0]?.content ?? ''
+    expect(html).toContain('{{#each items}}')
+    expect(html).toContain('{{name}}')
+    expect(html.includes('data-anchor')).toBe(false)
+    expect(html.includes('vtx-anchor')).toBe(false)
+  })
+
+  it('nests IfCond over Each without an intermediate Section', async () => {
+    function View() {
+      return (
+        <Email>
+          <IfCond operator=">" path="items.length" right={0}>
+            <Each path="items">
+              <Text>
+                <Vtex.Value path="name" />
+              </Text>
+            </Each>
+          </IfCond>
+        </Email>
+      )
+    }
+
+    const compiled = await compile(View)
+    expect(compiled).toMatchObject({ ok: true })
+    if (!compiled.ok) return
+    const html = compiled.artifacts[0]?.content ?? ''
+    expect(html).toContain('{{#ifCond items.length ">" 0}}')
+    expect(html).toContain('{{#each items}}')
+    expect(html.includes('data-anchor')).toBe(false)
+    expect(compiled.diagnostics.some((item) => item.code === 'TOK001')).toBe(false)
+  })
+
+  it('keeps inline Eq inside Text balanced after restore', async () => {
+    function View() {
+      return (
+        <Email>
+          <Text>
+            before
+            <Eq path="kind" value="a">
+              <span>A</span>
+            </Eq>
+            after
+          </Text>
+        </Email>
+      )
+    }
+
+    const compiled = await compile(View)
+    expect(compiled).toMatchObject({ ok: true })
+    if (!compiled.ok) return
+    const html = compiled.artifacts[0]?.content ?? ''
+    expect(html).toContain('{{#eq kind "a"}}')
+    expect(html).toContain('<span>A</span>')
+    expect(html).toContain('{{/eq}}')
+    expect(html.includes('vtx-anchor')).toBe(false)
   })
 })

@@ -1,0 +1,325 @@
+{
+  "meta": {
+    "description": "06-shipped full synthetic payload",
+    "origin": "synthetic",
+    "event": "06-shipped",
+    "purpose": "preview",
+    "expectedLocale": "pt-BR",
+    "expect": "valid"
+  },
+  "data": {
+    "locale": "pt-BR",
+    "split": false,
+    "ordersUrl": "https://example.com/orders",
+    "_accountInfo": {
+      "TradingName": "Loja Exemplo",
+      "HostName": "loja-exemplo",
+      "Id": "example-account",
+      "StoreUrl": "https://example.com",
+      "LogoUrl": "https://example.com/logo.png"
+    },
+    "orders": [
+      {
+        "orderId": "1026601659302-01",
+        "value": 62440,
+        "clientProfileData": {
+          "firstName": "Maria",
+          "lastName": "Silva"
+        },
+        "clientPreferencesData": {
+          "locale": "pt-BR"
+        },
+        "sellers": [
+          {
+            "name": "Shoulder eCommerce"
+          }
+        ],
+        "items": [
+          {
+            "id": "2053271",
+            "name": "LENCO VISCOSE XADREZ-ESTAMPADO-UN",
+            "imageUrl": "https://example.com/images/product.png",
+            "quantity": 1,
+            "sellingPrice": 8330,
+            "itemIndex": 0,
+            "bundleItems": [],
+            "additionalInfo": {
+              "categoriesIds": "/17/23/"
+            }
+          },
+          {
+            "id": "2052895",
+            "name": "LENCO VISCOSE BORDEAUX-VERMELHO-UN",
+            "imageUrl": "https://example.com/images/product.png",
+            "quantity": 1,
+            "sellingPrice": 6930,
+            "itemIndex": 1,
+            "bundleItems": [],
+            "additionalInfo": {
+              "categoriesIds": "/17/23/"
+            }
+          },
+          {
+            "id": "2051591",
+            "name": "COLAR LONGO RESINA MANCHADA-ESTAMPADO-UN",
+            "imageUrl": "https://example.com/images/product.png",
+            "quantity": 1,
+            "sellingPrice": 11130,
+            "itemIndex": 2,
+            "bundleItems": [],
+            "additionalInfo": {
+              "categoriesIds": "/17/18/"
+            }
+          }
+        ],
+        "totals": [
+          {
+            "id": "Items",
+            "value": 89200
+          },
+          {
+            "id": "Discounts",
+            "value": -26760
+          },
+          {
+            "id": "Shipping",
+            "value": 0
+          },
+          {
+            "id": "Tax",
+            "value": 0
+          }
+        ],
+        "paymentData": {
+          "transactions": [
+            {
+              "payments": [
+                {
+                  "paymentSystemName": "Visa",
+                  "lastDigits": "3787",
+                  "value": 62440,
+                  "installments": 1,
+                  "url": "https://example.com/boleto/{Installment}"
+                }
+              ]
+            }
+          ]
+        },
+        "shippingData": {
+          "addressId": "1463046240",
+          "logisticsInfo": [
+            {
+              "itemIndex": 0,
+              "itemId": "2053271",
+              "selectedSla": "Normal",
+              "selectedDeliveryChannel": "delivery",
+              "addressId": "1463046240",
+              "deliveryChannel": "delivery",
+              "slas": [
+                {
+                  "id": "Econômica",
+                  "shippingEstimate": "9bd",
+                  "shippingEstimateDate": null,
+                  "deliveryWindow": null,
+                  "availableDeliveryWindows": [],
+                  "pickupStoreInfo": {
+                    "isPickupStore": false,
+                    "friendlyName": null,
+                    "address": null,
+                    "additionalInfo": null,
+                    "dockId": null
+                  }
+                },
+                {
+                  "id": "Normal",
+                  "shippingEstimate": "9bd",
+                  "shippingEstimateDate": "2020-05-04T18:00:00Z",
+                  "deliveryWindow": null,
+                  "availableDeliveryWindows": [],
+                  "pickupStoreInfo": {
+                    "isPickupStore": false,
+                    "friendlyName": null,
+                    "address": null,
+                    "additionalInfo": null,
+                    "dockId": null
+                  }
+                }
+              ]
+            },
+            {
+              "itemIndex": 1,
+              "itemId": "2052895",
+              "selectedSla": "Normal",
+              "selectedDeliveryChannel": "delivery",
+              "addressId": "1463046240",
+              "deliveryChannel": "delivery",
+              "slas": [
+                {
+                  "id": "Normal",
+                  "shippingEstimate": "9bd",
+                  "shippingEstimateDate": "2020-05-04T18:00:00Z",
+                  "deliveryWindow": null,
+                  "availableDeliveryWindows": [],
+                  "pickupStoreInfo": {
+                    "isPickupStore": false,
+                    "friendlyName": null,
+                    "address": null,
+                    "additionalInfo": null,
+                    "dockId": null
+                  }
+                },
+                {
+                  "id": "Expressa",
+                  "shippingEstimate": "5bd",
+                  "shippingEstimateDate": null,
+                  "deliveryWindow": null,
+                  "availableDeliveryWindows": [],
+                  "pickupStoreInfo": {
+                    "isPickupStore": false,
+                    "friendlyName": null,
+                    "address": null,
+                    "additionalInfo": null,
+                    "dockId": null
+                  }
+                },
+                {
+                  "id": "Econômica",
+                  "shippingEstimate": "10bd",
+                  "shippingEstimateDate": null,
+                  "deliveryWindow": null,
+                  "availableDeliveryWindows": [],
+                  "pickupStoreInfo": {
+                    "isPickupStore": false,
+                    "friendlyName": null,
+                    "address": null,
+                    "additionalInfo": null,
+                    "dockId": null
+                  }
+                }
+              ]
+            }
+          ],
+          "availableAddresses": [
+            {
+              "addressId": "1463046240",
+              "AddressId": "1463046240",
+              "street": "RUA DR RAIMUNDO MAGALDI",
+              "number": "56",
+              "complement": "APTº 804 EDF. ANA VI",
+              "neighborhood": "COSTA AZUL",
+              "postalCode": "41760-020",
+              "city": "SALVADOR",
+              "state": "BA"
+            }
+          ],
+          "selectedAddresses": [
+            {
+              "addressType": "residential",
+              "receiverName": "TANIA REGINA DIAS S PEREIRA",
+              "addressId": "1463046240",
+              "isDisposable": false,
+              "postalCode": "41760-020",
+              "city": "SALVADOR",
+              "state": "BA",
+              "country": "BRA",
+              "street": "RUA DR RAIMUNDO MAGALDI",
+              "number": "56",
+              "neighborhood": "COSTA AZUL",
+              "complement": "APTº 804 EDF. ANA VI",
+              "reference": null,
+              "geoCoordinates": [-38.44676208496094, -12.993664741516113]
+            }
+          ],
+          "pickupPoints": []
+        },
+        "package": {
+          "items": [
+            {
+              "itemIndex": 0,
+              "quantity": 1,
+              "price": 8330,
+              "description": null,
+              "unitMultiplier": 0
+            },
+            {
+              "itemIndex": 1,
+              "quantity": 1,
+              "price": 6930,
+              "description": null,
+              "unitMultiplier": 0
+            },
+            {
+              "itemIndex": 2,
+              "quantity": 1,
+              "price": 11130,
+              "description": null,
+              "unitMultiplier": 0
+            },
+            {
+              "itemIndex": 3,
+              "quantity": 1,
+              "price": 6930,
+              "description": null,
+              "unitMultiplier": 0
+            },
+            {
+              "itemIndex": 4,
+              "quantity": 1,
+              "price": 6930,
+              "description": null,
+              "unitMultiplier": 0
+            },
+            {
+              "itemIndex": 5,
+              "quantity": 1,
+              "price": 8330,
+              "description": null,
+              "unitMultiplier": 0
+            },
+            {
+              "itemIndex": 6,
+              "quantity": 1,
+              "price": 6930,
+              "description": null,
+              "unitMultiplier": 0
+            },
+            {
+              "itemIndex": 7,
+              "quantity": 1,
+              "price": 0,
+              "description": null,
+              "unitMultiplier": 0
+            },
+            {
+              "itemIndex": 8,
+              "quantity": 1,
+              "price": 6930,
+              "description": null,
+              "unitMultiplier": 0
+            }
+          ],
+          "courier": "CD - CAMPO GRANDE - DCASA COPIAS (CORREIOS)",
+          "invoiceNumber": "50200443470566002567550010001947131256153076",
+          "invoiceValue": 62440,
+          "invoiceUrl": null,
+          "issuanceDate": "2020-04-22T11:32:59",
+          "trackingNumber": "OI252957897BR",
+          "invoiceKey": "50200443470566002567550010001947131256153076",
+          "trackingUrl": "https://www2.correios.com.br/sistemas/rastreamento/",
+          "embeddedInvoice": "",
+          "type": "Output",
+          "courierStatus": {
+            "status": "unknown",
+            "finished": false,
+            "deliveredDate": "0001-01-01T00:00:00",
+            "data": []
+          },
+          "cfop": null,
+          "restitutions": {},
+          "volumes": 0
+        },
+        "giftRegistryData": null
+      }
+    ]
+  }
+}

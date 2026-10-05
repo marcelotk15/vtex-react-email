@@ -1,8 +1,18 @@
-import type { ArgKind } from '../profile'
-
-export type BlockName = 'each' | 'if' | 'unless' | 'ifCond' | 'hasSubStr' | 'group' | 'eq'
+export type BlockName =
+  | 'each'
+  | 'if'
+  | 'unless'
+  | 'ifCond'
+  | 'hasSubStr'
+  | 'group'
+  | 'eq'
+  | 'with'
+  | 'math'
+  | 'richShippingData'
 
 export type DynamicAttribute = 'href' | 'src' | 'alt' | 'title'
+
+export type SiteArgKind = 'path' | 'literal'
 
 export interface ResolvedPath {
   emitted: string
@@ -10,7 +20,7 @@ export interface ResolvedPath {
 }
 
 export interface SiteArgument {
-  kind: ArgKind
+  kind: SiteArgKind
   emitted: string
   path?: ResolvedPath
 }

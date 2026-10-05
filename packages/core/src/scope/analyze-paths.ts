@@ -37,6 +37,11 @@ function walk(nodes: readonly ScopeNode[], stack: Frame[], guards: readonly stri
       diagnostics.push(...inspectRef(node, stack, guards))
       continue
     }
+    if (node.path === '@index') {
+      diagnostics.push(...walk(node.children, stack, guards))
+      diagnostics.push(...walk(node.fallback, stack, guards))
+      continue
+    }
     const absolute = absoluteSegments(node.path, node.parentHops, stack)
     const missing = absolute ? null : contractDiagnostic(node.path, 'missing')
     if (!absolute || missing) {
@@ -57,9 +62,8 @@ function walk(nodes: readonly ScopeNode[], stack: Frame[], guards: readonly stri
         continue
       }
       const child: Frame = { schema: elements, prefix: [...absolute.segments, '[]'] }
-      const outer = framesAt(stack, node.parentHops)
-      diagnostics.push(...walk(node.children, [...outer, child], guards))
-      diagnostics.push(...walk(node.fallback, outer, guards))
+      diagnostics.push(...walk(node.children, [...stack, child], guards))
+      diagnostics.push(...walk(node.fallback, stack, guards))
       continue
     }
     if (node.block === 'group') {
@@ -72,9 +76,23 @@ function walk(nodes: readonly ScopeNode[], stack: Frame[], guards: readonly stri
         schema: groupFrameSchema(elements),
         prefix: [...absolute.segments, 'group'],
       }
-      const outer = framesAt(stack, node.parentHops)
-      diagnostics.push(...walk(node.children, [...outer, child], guards))
-      diagnostics.push(...walk(node.fallback, outer, guards))
+      diagnostics.push(...walk(node.children, [...stack, child], guards))
+      diagnostics.push(...walk(node.fallback, stack, guards))
+      continue
+    }
+    if (node.block === 'with') {
+      const child: Frame = { schema: lookup.schema, prefix: absolute.segments }
+      diagnostics.push(...walk(node.children, [...stack, child], guards))
+      diagnostics.push(...walk(node.fallback, stack, guards))
+      continue
+    }
+    if (node.block === 'richShippingData') {
+      const child: Frame = {
+        schema: enrichShippingSchema(lookup.schema),
+        prefix: absolute.segments,
+      }
+      diagnostics.push(...walk(node.children, [...stack, child], guards))
+      diagnostics.push(...walk(node.fallback, stack, guards))
       continue
     }
     const nextGuards = [...guards, absolute.segments]
@@ -178,6 +196,12 @@ function resolve(schema: ZodNode, segments: readonly string[]): Lookup {
     return { status: 'found', optional: peeled.optional || next.optional, schema: next.schema }
   }
   if (current?.type === 'array' && current.element) {
+    if (segments[0] === 'length') {
+      if (segments.length === 1) {
+        return { status: 'found', optional: peeled.optional, schema: { def: { type: 'number' } } }
+      }
+      return { status: 'missing' }
+    }
     if (!/^[0-9]+$/.test(segments[0] ?? '')) return { status: 'missing' }
     const next = resolve(current.element, segments.slice(1))
     if (next.status !== 'found') return next
@@ -210,8 +234,69 @@ function groupFrameSchema(element: ZodNode): ZodNode {
       type: 'object',
       shape: {
         index: { def: { type: 'number' } },
-        value: {},
+        value: { def: { type: 'string' } },
         items: { def: { type: 'array', element } },
+      },
+    },
+  }
+}
+
+const derivedLogisticsFields: Record<string, ZodNode> = {
+  packageId: { def: { type: 'string' } },
+  shippingEstimate: { def: { type: 'string' } },
+  shippingEstimateDate: { def: { type: 'string' } },
+  shippingEstimateDays: { def: { type: 'string' } },
+  shippingEstimateDaysType: { def: { type: 'string' } },
+  deliveryWindow: {
+    def: {
+      type: 'object',
+      shape: {
+        startDateUtc: { def: { type: 'string' } },
+        endDateUtc: { def: { type: 'string' } },
+      },
+    },
+  },
+  availableDeliveryWindows: {
+    def: {
+      type: 'array',
+      element: {
+        def: {
+          type: 'object',
+          shape: {
+            startDateUtc: { def: { type: 'string' } },
+            endDateUtc: { def: { type: 'string' } },
+          },
+        },
+      },
+    },
+  },
+}
+
+function enrichShippingSchema(schema: ZodNode): ZodNode {
+  const peeled = peelSchema(schema)
+  if (peeled.status !== 'ready') return schema
+  const current = schemaDef(peeled.schema)
+  if (!current || current.type !== 'object' || !current.shape) return schema
+  const logistics = current.shape.logisticsInfo
+  if (!logistics) return schema
+  const elements = arrayElements(logistics)
+  if (!elements) return schema
+  const elementPeeled = peelSchema(elements)
+  const elementDef = elementPeeled.status === 'ready' ? schemaDef(elementPeeled.schema) : null
+  const baseShape =
+    elementDef?.type === 'object' && elementDef.shape ? { ...elementDef.shape } : ({} as Record<string, ZodNode>)
+  const enrichedElement: ZodNode = {
+    def: {
+      type: 'object',
+      shape: { ...baseShape, ...derivedLogisticsFields },
+    },
+  }
+  return {
+    def: {
+      type: 'object',
+      shape: {
+        ...current.shape,
+        logisticsInfo: { def: { type: 'array', element: enrichedElement } },
       },
     },
   }

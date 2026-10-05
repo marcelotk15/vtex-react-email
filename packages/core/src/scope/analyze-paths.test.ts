@@ -62,8 +62,40 @@ describe('path analysis', () => {
     expect(opaque[0]?.code).toBe('PATH_UNANALYZABLE')
   })
 
-  it('rejects each over a non-array', () => {
-    const diagnostics = analyzePaths(schema, [each('seller', [ref('name')])])
-    expect(diagnostics[0]?.code).toBe('PATH001')
+  it('keeps the call-site frame when each targets a parent path', () => {
+    const order = z.object({
+      items: z.array(z.object({ id: z.string() })),
+      logisticsInfo: z.array(z.object({ itemId: z.string(), selectedDeliveryChannel: z.string() })),
+    })
+    const root = z.object({ orders: z.array(order) })
+    const diagnostics = analyzePaths(root, [
+      {
+        kind: 'block',
+        block: 'each',
+        path: 'orders',
+        parentHops: 0,
+        fallback: [],
+        children: [
+          {
+            kind: 'block',
+            block: 'each',
+            path: 'logisticsInfo',
+            parentHops: 0,
+            fallback: [],
+            children: [
+              {
+                kind: 'block',
+                block: 'each',
+                path: '../items',
+                parentHops: 1,
+                fallback: [],
+                children: [ref('../selectedDeliveryChannel', 1), ref('id')],
+              },
+            ],
+          },
+        ],
+      },
+    ])
+    expect(diagnostics).toEqual([])
   })
 })

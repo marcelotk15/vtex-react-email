@@ -44,8 +44,8 @@ File: `packages/react/src/render-probe.test.tsx`. `pretty: false`.
 The section 11.3 gate failed for inter-row text: the HTML5 parent measured by parse5 differs from the parent written by React. P0 uses structural splice.
 
 - Each dynamic site gets an opaque `vtx` token plus 20 hexadecimal characters. Identity is type, index, path, and detail. Locale and fixture are not part of the id.
-- The block anchor remains `data-anchor`. The lexer only recognizes `vtx` plus 20 hex digits with non-hex neighbors. `data-vtx`, the word `vtx`, and `vtx-logo` are not markers. An unknown, truncated, split, escaped, hex-adjacent, or wrong-length complete token emits `TOK001`.
-- parse5 reports start and end in the original string. The compiler inserts delimiters at those offsets and removes the anchor. Text, open, and alternative require an explicit closing tag (`endTag`). Without it, `TOK001`. A fragment or more than one child in the region emits `DSL002`.
+- The block anchor remains `data-anchor` on a compiler-owned `vtx-anchor` host (and on inline `span` hosts for values). Authors never declare or forward that attribute. The lexer only recognizes `vtx` plus 20 hex digits with non-hex neighbors. `data-vtx`, the word `vtx`, and `vtx-logo` are not markers. An unknown, truncated, split, escaped, hex-adjacent, or wrong-length complete token emits `TOK001`.
+- parse5 reports start and end in the original string. For blocks, restore strips the host start/end tags and inserts Handlebars at those offsets; the author's inner layout remains. Text, open, and alternative require an explicit closing tag (`endTag`). Without it, `TOK001`. A fragment or more than one root at the email component emits `DSL002`.
 - The document is not re-serialized after parse.
 - React 19 copies the `src` of `<img>` into `<link rel="preload" as="image">` in `<head>`, outside `each` and `if`. The splice deletes that element. The `<img>` keeps `src`, `alt`, `width`, and `height`. Another copy of the same token emits `TOK001`. Restoring the token in `<head>` does not preserve Handlebars context.
 - Pre-restoration HTML that already contains `{{` emits `HBS001`. The nested media-query `}}` pair is CSS, not a delimiter, and remains.
@@ -84,7 +84,7 @@ The manifest marks `homologation: experimental`.
 
 ## Classification
 
-- Proven by test and code: removal of dynamic-image preload, preservation of the original `src`, two item URLs without `imageUrl` at the root, false-condition image absent from the resolved document, explicit close, static neighbors outside the block, `DSL002` for fragment and multiple roots, lexer that ignores loose `vtx` and rejects a corrupted token, catalog isolation and distinct paths, textual count of a single `html`/`head`/`body` in the resolved string, lockfile pins, Node `24.21.0` in this Windows run.
+- Proven by test and code: removal of dynamic-image preload, preservation of the original `src`, two item URLs without `imageUrl` at the root, false-condition image absent from the resolved document, explicit close, static neighbors outside the block, `DSL002` for email-level fragment and multiple roots, lexer that ignores loose `vtx` and rejects a corrupted token, catalog isolation and distinct paths, textual count of a single `html`/`head`/`body` in the resolved string, lockfile pins, Node `24.21.0` in this Windows run.
 - Partially proven: the fixture does not enter the artifact, by absence of sentinels and because `compileEmail` does not read the fixture. The hash of two identical compilations does not demonstrate that.
 - Hypothesis the code rejects: rewriting the preload in `<head>` would be equivalent to `src` inside `each` or `if`.
 - External pending: Message Center, email clients, Linux, macOS, and any Node other than `24.21.0`.
@@ -100,7 +100,7 @@ These items do not block the local proof and are not verified:
 ## Limitations P1 inherits
 
 - Juice, minification, and `pretty: true` remain off.
-- Each DSL block region has a single root element, so an anchor can exist.
+- Block regions are wrapped by a compiler-owned `vtx-anchor` host; authors may pass a function component or multiple children without forwarding `data-anchor`.
 - `Trans` reads only a static catalog string. No placeholder, plural, or HTML in the message.
 - Static URLs accept `https`, `mailto`, and `tel`. Dynamic URL scheme is not checked.
 - The proof locale path is the synthetic fixture `orders.0.clientPreferencesData.locale`.

@@ -1,7 +1,7 @@
 import type { Failure } from '../diagnostics'
-import type { EmissionCapability, EmissionProfile } from '../profile'
+import type { ArgKind, EmissionCapability, EmissionProfile } from '../profile'
 import type { ScopeNode } from '../scope/structure'
-import type { ResolvedPath, SiteRecord } from './sites'
+import type { ResolvedPath, SiteArgument, SiteRecord } from './sites'
 import type { Marker } from './tokens'
 
 import { errorDiagnostic, type Diagnostic } from '../diagnostics'
@@ -54,15 +54,16 @@ function checkCapabilities(sites: ReadonlyMap<string, SiteRecord>, profile: Emis
   const diagnostics: Diagnostic[] = []
   for (const site of sites.values()) {
     if (site.kind === 'helper') {
-      const capability = findCapability(profile, site.helper ?? '')
+      const capability = findCapability(profile, site.helper ?? '', 'inline')
       if (!capability || capability.form !== 'inline') {
         diagnostics.push(errorDiagnostic('HBS002', `Helper is not enabled: ${site.helper ?? ''}`))
         continue
       }
       diagnostics.push(...checkArguments(capability, site))
+      diagnostics.push(...checkLiterals(capability, site))
     }
     if (site.kind === 'block') {
-      const capability = findCapability(profile, site.block ?? '')
+      const capability = findCapability(profile, site.block ?? '', 'block')
       if (!capability || capability.form !== 'block') {
         diagnostics.push(errorDiagnostic('HBS002', `Block is not enabled: ${site.block ?? ''}`))
         continue
@@ -101,13 +102,27 @@ function checkArguments(capability: EmissionCapability, site: SiteRecord): Diagn
   const diagnostics: Diagnostic[] = []
   capability.args.forEach((expected, index) => {
     const actual = args[index]
-    if (actual && actual.kind !== expected) {
+    if (!actual) return
+    if (expected === 'expression') {
+      if (actual.kind !== 'path' && actual.kind !== 'literal') {
+        diagnostics.push(
+          errorDiagnostic('HBS002', `Helper ${capability.name} argument ${index + 1} must be a path or literal.`),
+        )
+      }
+      return
+    }
+    if (actual.kind !== expected) {
       diagnostics.push(
         errorDiagnostic('HBS002', `Helper ${capability.name} argument ${index + 1} must be a ${expected}.`),
       )
     }
   })
   return diagnostics
+}
+
+function checkHashKind(expected: ArgKind, actual: SiteArgument): boolean {
+  if (expected === 'expression') return actual.kind === 'path' || actual.kind === 'literal'
+  return actual.kind === expected
 }
 
 function checkHash(capability: EmissionCapability, site: SiteRecord): Diagnostic[] {
@@ -125,11 +140,13 @@ function checkHash(capability: EmissionCapability, site: SiteRecord): Diagnostic
       diagnostics.push(errorDiagnostic('HBS002', `Helper ${capability.name} requires named argument ${expected.name}.`))
       continue
     }
-    if (actual.kind !== expected.kind) {
+    if (!checkHashKind(expected.kind, actual)) {
       diagnostics.push(
         errorDiagnostic(
           'HBS002',
-          `Helper ${capability.name} named argument ${expected.name} must be a ${expected.kind}.`,
+          `Helper ${capability.name} named argument ${expected.name} must be a ${
+            expected.kind === 'expression' ? 'path or literal' : expected.kind
+          }.`,
         ),
       )
     }
@@ -215,7 +232,7 @@ function regionsFrom(
   for (const [id, site] of sites) {
     if (site.kind !== 'block' || !site.block) continue
     const anchor = anchors.get(id)
-    const capability = findCapability(profile, site.block)
+    const capability = findCapability(profile, site.block, 'block')
     if (!anchor || !capability) continue
     regions.push({
       ...anchor,
@@ -300,10 +317,19 @@ function materialize(
     if (literal) return { ok: true, marker: { ...marker, replacement: emitInterpolation(literal.emitted) } }
   }
   if (marker.kind === 'attr' && site.kind === 'attr') {
-    const path = site.path
-    const literal = site.args?.find((arg) => arg.kind === 'literal')
-    if (path) return { ok: true, marker: { ...marker, replacement: emitInterpolation(path.emitted) } }
-    if (literal) return { ok: true, marker: { ...marker, replacement: emitInterpolation(literal.emitted) } }
+    if (site.path) {
+      return { ok: true, marker: { ...marker, replacement: emitInterpolation(site.path.emitted) } }
+    }
+    const args = site.args ?? []
+    if (args.length === 1 && args[0]?.kind === 'literal' && args[0].emitted.startsWith('"')) {
+      return { ok: true, marker: { ...marker, replacement: emitInterpolation(args[0].emitted) } }
+    }
+    if (args.length >= 1) {
+      const replacement = args
+        .map((arg) => (arg.kind === 'path' ? emitInterpolation(arg.emitted) : arg.emitted))
+        .join('')
+      return { ok: true, marker: { ...marker, replacement } }
+    }
   }
   if (marker.kind === 'open' && site.kind === 'block' && site.block && site.path) {
     const parts = [site.path.emitted, ...(site.args ?? []).map((arg) => arg.emitted)]

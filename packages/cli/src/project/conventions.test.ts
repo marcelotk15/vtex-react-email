@@ -146,19 +146,23 @@ describe('schema conventions', () => {
     expect(parsed.settings.schema).toBe(schema)
   })
 
-  it('loads the conventional default-export schema for basic-store emails', async () => {
-    const { discoverEmails } = await import('./discover')
-    const { loadProjectConfig } = await import('../config/load-config')
-    const loaded = await loadProjectConfig(path.resolve('examples/basic-store/vtex-email.config.ts'))
-    expect(loaded.ok).toBe(true)
-    if (!loaded.ok) return
-    const discovered = await discoverEmails(loaded.config)
-    expect(discovered.ok).toBe(true)
-    if (!discovered.ok) return
-    const payment = discovered.emails.find((email) => email.fileKey === 'payment-approved')
-    const order = discovered.emails.find((email) => email.fileKey === 'order-confirmed-store')
-    expect(payment?.definition.schema).toBeTruthy()
-    expect(order?.definition.schema).toBeTruthy()
-    expect(payment?.definition.id).toBe('payment-approved')
+  it('loads the conventional default-export schema for a seed email', async () => {
+    const { createSeedProject, removeTempDir, SEED_WELCOME } = await import('@vtex-email/test-harness')
+    const seed = await createSeedProject()
+    try {
+      const { discoverEmails } = await import('./discover')
+      const { loadProjectConfig } = await import('../config/load-config')
+      const loaded = await loadProjectConfig(seed.configPath)
+      expect(loaded.ok).toBe(true)
+      if (!loaded.ok) return
+      const discovered = await discoverEmails(loaded.config)
+      expect(discovered.ok).toBe(true)
+      if (!discovered.ok) return
+      const welcome = discovered.emails.find((email) => email.fileKey === SEED_WELCOME)
+      expect(welcome?.definition.schema).toBeTruthy()
+      expect(welcome?.definition.id).toBe(SEED_WELCOME)
+    } finally {
+      await removeTempDir(seed.root)
+    }
   }, 30_000)
 })

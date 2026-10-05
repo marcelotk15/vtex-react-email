@@ -8,7 +8,9 @@ React owns layout and typography. Order, customer, and payment data stay in the 
 import { expr, Vtex } from '@vtex-email/react'
 ```
 
-Evidence: `documented` covers the pair seen in VTEX documentation; `experimental` has a local simulator contract and no Message Center record yet.
+Evidence vocabulary: **available** (documented or experimental and usable in the DSL), **experimental** (local simulator, no Message Center record), **planned** / **not supported** (out of scope). `documented` covers the pair seen in VTEX documentation; nothing is `verified` until Message Center records exist.
+
+The example store lives under `examples/basic-store/src` (`emails/`, `components/`, `fixtures/`, `schemas/`, `locales/`). Config paths are relative to the config directory. Official templates `01-confirmed` … `11-let-me-know` compile with Tailwind tokens resolved from Sass values (`.mw6-5` → 640px; `-ns` → 480px).
 
 ## Helpers
 
@@ -62,22 +64,13 @@ Evidence: documented.
 </details>
 
 <details>
-<summary><code>ifCond</code> — compare a path to a literal</summary>
+<summary><code>ifCond</code> — compare expressions</summary>
 
-`Vtex.IfCond`. Emits `{{#ifCond paymentSystemName "==" "Promissory"}}…{{/ifCond}}`. Operators accepted at compile time: `==`, `===`, and `!=`. An unknown operator fails the build. Both branches keep context.
+`Vtex.IfCond`. Emits `{{#ifCond items.length ">" 1}}…{{/ifCond}}`. Operators: `==`, `===`, `!=`, `<`, `<=`, `>`, `>=`. Right operand is an expression (`expr.path` / `expr.literal`); string `value` remains literal sugar. Both branches keep context.
 
 ```tsx
-<Vtex.IfCond
-  fallback={
-    <Text>
-      <Vtex.Value path="paymentSystemName" />
-    </Text>
-  }
-  operator="=="
-  path="paymentSystemName"
-  value="Promissory"
->
-  <Text>cash</Text>
+<Vtex.IfCond fallback={<Text>one</Text>} operator=">" path="items.length" right={1}>
+  <Text>many</Text>
 </Vtex.IfCond>
 ```
 
@@ -86,12 +79,12 @@ Evidence: experimental.
 </details>
 
 <details>
-<summary><code>hasSubStr</code> — substring in the path value</summary>
+<summary><code>hasSubStr</code> — substring search</summary>
 
-`Vtex.HasSubStr`. Emits `{{#hasSubStr categoriesIds "/9293/"}}…{{/hasSubStr}}`. True when the value is not null and `String(value)` contains the literal. Both branches keep context.
+`Vtex.HasSubStr`. Emits `{{#hasSubStr categoriesIds "/9293/"}}…{{/hasSubStr}}`. Search is an expression. True when the value is not null and `String(value)` contains the search string. Both branches keep context.
 
 ```tsx
-<Vtex.HasSubStr path="additionalInfo.categoriesIds" value="/9293/">
+<Vtex.HasSubStr path="additionalInfo.categoriesIds" search={expr.literal('/9293/')}>
   <Text>ticket</Text>
 </Vtex.HasSubStr>
 ```
@@ -101,14 +94,14 @@ Evidence: experimental.
 </details>
 
 <details>
-<summary><code>eq</code> — strict equality with a literal</summary>
+<summary><code>eq</code> — strict equality</summary>
 
-`Vtex.Eq`. Emits `{{#eq id "Items"}}…{{/eq}}`. Compares the path to a literal. Path versus path is out of scope. Both branches keep context.
+`Vtex.Eq`. Emits `{{#eq id "Items"}}…{{/eq}}` or path versus path via `right={expr.path(...)}`. Both branches keep context. Locale merge also emits `eq` with a literal selector.
 
 ```tsx
-<Vtex.Eq path="id" value="Items">
+<Vtex.Eq path="@index" right={expr.path('../itemIndex')}>
   <Text>
-    <Vtex.Helper args={[expr.path('value')]} name="formatCurrency" />
+    <Vtex.Value path="name" />
   </Text>
 </Vtex.Eq>
 ```
@@ -120,7 +113,7 @@ Evidence: experimental.
 <details>
 <summary><code>group</code> — group an array by a property</summary>
 
-`Vtex.Group`. Emits `{{#group items by="packageId"}}…{{/group}}`. The `by` hash must be an identifier. Item context is `{ index, value, items }`. An empty or missing list uses the outer `fallback`. Does not invent keys. `@index` is not available inside `group` (only inside `each`).
+`Vtex.Group`. Emits `{{#group items by="packageId"}}…{{/group}}`. The `by` hash must be an identifier. Item context is `{ index, value, items }`. An empty or missing list uses the outer `fallback`. Does not invent keys.
 
 ```tsx
 <Vtex.Group by="packageId" fallback={<Text>no items</Text>} path="items">
@@ -139,9 +132,58 @@ Evidence: experimental.
 </details>
 
 <details>
+<summary><code>with</code> — nested object context</summary>
+
+`Vtex.With`. Emits `{{#with shippingData}}…{{else}}…{{/with}}`. The positive branch uses the object; fallback uses the outer context.
+
+```tsx
+<Vtex.With fallback={<Text>missing</Text>} path="shippingData">
+  <Text>
+    <Vtex.Value path="addressId" />
+  </Text>
+</Vtex.With>
+```
+
+Evidence: experimental.
+
+</details>
+
+<details>
+<summary><code>math</code> — arithmetic</summary>
+
+`Vtex.Math`. Inline `{{math index "+" 1}}` or block form. Operators `+ - * / %`. Non-finite results fail preview.
+
+```tsx
+<Vtex.Math left={expr.path('index')} operator="+" right={1} />
+```
+
+Evidence: experimental.
+
+</details>
+
+<details>
+<summary><code>richShippingData</code> — derive SLA fields on a clone</summary>
+
+`Vtex.RichShippingData`. Emits `{{#richShippingData shippingData}}…{{/richShippingData}}`. Simulator clones before deriving `packageId`, estimates, and windows from the selected SLA. See ADR 0010 for deviations (`addressId` vs `addessId`, `items.length` vs `item.length`).
+
+```tsx
+<Vtex.RichShippingData path="shippingData">
+  <Vtex.Group by="packageId" path="logisticsInfo">
+    <Section>
+      <Vtex.Value path="packageId" />
+    </Section>
+  </Vtex.Group>
+</Vtex.RichShippingData>
+```
+
+Evidence: experimental.
+
+</details>
+
+<details>
 <summary><code>formatCurrency</code> — integer cents, no symbol</summary>
 
-`Vtex.Helper` with one path. Emits `{{formatCurrency sellingPrice}}`. The documented pair is `20000` → `200,00`, with no currency symbol and no thousands separator. Other integers follow the same local simulator (divide by 100, two cent digits).
+`Vtex.Helper` with one path. Emits `{{formatCurrency sellingPrice}}`. The documented pair is `20000` → `200,00`, with no currency symbol and no thousands separator.
 
 ```tsx
 <Vtex.Helper args={[expr.path('sellingPrice')]} name="formatCurrency" />
@@ -152,12 +194,14 @@ Evidence: documented for the pair `20000` → `200,00`.
 </details>
 
 <details>
-<summary><code>formatDate</code> — local date <code>dd/MM/yyyy</code></summary>
+<summary><code>formatDate</code> / <code>formatTime</code> / <code>formatDateTime</code></summary>
 
-`Vtex.Helper` with a `Date`-parseable path. Emits `{{formatDate dueDate}}`. Local output is `dd/MM/yyyy`. Timezone follows the host `Date`; there is no verified Message Center parity.
+Inline helpers with one path. Local contracts: `dd/MM/yyyy`, `HH:mm`, `dd/MM/yyyy HH:mm:ss`. ISO offsets honored; invalid values are diagnostics.
 
 ```tsx
 <Vtex.Helper args={[expr.path('dueDate')]} name="formatDate" />
+<Vtex.Helper args={[expr.path('dueDate')]} name="formatTime" />
+<Vtex.Helper args={[expr.path('dueDate')]} name="formatDateTime" />
 ```
 
 Evidence: experimental.
@@ -167,15 +211,14 @@ Evidence: experimental.
 <details>
 <summary><code>replace</code> — replace the first occurrence</summary>
 
-`Vtex.Helper` with one path and two literals. Emits `{{replace shippingEstimate "bd" " business days"}}`. Replaces only the first match of the search string.
+`Vtex.Helper` with one path and two expressions. Emits `{{replace url "{Installment}" installments}}`. Replaces only the first match.
 
 ```tsx
-<Vtex.Helper
-  args={[expr.path('shippingEstimate'), expr.literal('bd'), expr.literal(' business days')]}
-  name="replace"
-/>
+<Vtex.Helper args={[expr.path('url'), expr.literal('{Installment}'), expr.path('installments')]} name="replace" />
 ```
 
 Evidence: documented.
 
 </details>
+
+Composite `href` / `src` attributes may mix literals and paths while preserving escaping and image preload. Fully static URLs stay as `https`, `mailto`, and `tel`.

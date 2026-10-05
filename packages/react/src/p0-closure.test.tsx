@@ -155,14 +155,20 @@ describe('P0 closure', () => {
     expect(orderUrl.artifacts[0]?.content.includes('{{orderId}}')).toBe(false)
   })
 
-  it('rejects a fragment and more than one root element without an artifact', async () => {
+  it('accepts a fragment and multiple children inside a stamped block region', async () => {
     for (const component of [TwoRoots, FragmentRoot]) {
       const compiled = await compileEmail(input(component))
-      expect(compiled.ok).toBe(false)
-      if (compiled.ok) continue
-      expect(compiled.diagnostics[0]?.code).toBe('DSL002')
-      expect(compiled).not.toHaveProperty('artifacts')
+      expect(compiled).toMatchObject({ ok: true })
+      if (!compiled.ok) continue
+      const html = compiled.artifacts[0]?.content ?? ''
+      expect(html).toContain('{{#each items}}')
+      expect(html.includes('data-anchor')).toBe(false)
+      expect(html.includes('vtx-anchor')).toBe(false)
     }
+  })
+
+  it('rejects DSL use outside a compilation session with DSL002', () => {
+    expect(() => Each({ path: 'items', children: <Text>x</Text> })).toThrow(/DSL002|compilation/i)
   })
 
   it('rejects two html tags in the resolved string with HTML001', () => {

@@ -27,6 +27,21 @@ describe('isolated runtime', () => {
     expect(() => renderTemplate('{{localOnly price}}', { price: 1 }, p0Profile)).toThrow(/helper/i)
   })
 
+  it('simulates ifCond inequalities, path eq, and dynamic replace', () => {
+    const html = renderTemplate(
+      '{{#ifCond items.length ">" 1}}many{{else}}one{{/ifCond}}|{{#eq left right}}same{{else}}diff{{/eq}}|{{replace url "{Installment}" installments}}',
+      {
+        items: [1, 2],
+        left: 'a',
+        right: 'a',
+        url: 'https://example.com/{Installment}',
+        installments: '3',
+      },
+      p0Profile,
+    )
+    expect(html).toBe('many|same|https://example.com/3')
+  })
+
   it('simulates ifCond, hasSubStr, group, and formatDate', () => {
     const html = renderTemplate(
       '{{#ifCond name "===" "Destinatario"}}yes{{else}}no{{/ifCond}}|{{#hasSubStr categoriesIds "/9293/"}}ticket{{else}}plain{{/hasSubStr}}|{{#group items by="packageId"}}{{#each items}}{{name}}-{{/each}}{{/group}}|{{formatDate dueDate}}',
@@ -47,6 +62,41 @@ describe('isolated runtime', () => {
     expect(html).toContain('A-B-')
     expect(html).toContain('C-')
     expect(html).toMatch(/\d{2}\/\d{2}\/2026/)
+  })
+
+  it('simulates formatTime, formatDateTime, math, with, and richShippingData', () => {
+    const html = renderTemplate(
+      '{{formatTime when}}|{{formatDateTime when}}|{{math a "+" b}}|{{#with address}}{{street}}{{/with}}|{{#richShippingData shippingData}}{{#group logisticsInfo by="packageId"}}{{value}};{{/group}}{{/richShippingData}}',
+      {
+        when: '2026-03-15T14:05:09.000',
+        a: 2,
+        b: 3,
+        address: { street: 'Rua A' },
+        shippingData: {
+          logisticsInfo: [
+            {
+              selectedSla: 'normal',
+              slas: [{ id: 'normal', shippingEstimate: '3d', shippingEstimateDate: '2026-03-18' }],
+            },
+            {
+              selectedSla: 'express',
+              slas: [{ id: 'express', shippingEstimate: '1d', shippingEstimateDate: '2026-03-16' }],
+            },
+          ],
+        },
+      },
+      p0Profile,
+    )
+    expect(html).toContain('14:05')
+    expect(html).toContain('15/03/2026 14:05:09')
+    expect(html).toContain('5')
+    expect(html).toContain('Rua A')
+    expect(html.indexOf('express')).toBeLessThan(html.indexOf('normal'))
+  })
+
+  it('rejects invalid dates and non-finite math', () => {
+    expect(() => renderTemplate('{{formatDate bad}}', { bad: 'not-a-date' }, p0Profile)).toThrow(/formatDate/)
+    expect(() => renderTemplate('{{math a "/" b}}', { a: 1, b: 0 }, p0Profile)).toThrow(/math/)
   })
 
   it('escapes special characters exactly once', () => {

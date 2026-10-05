@@ -20,7 +20,7 @@ describe('capability report', () => {
       manifest: null,
       wrote: [],
       preserved: [],
-      configDir: 'examples/basic-store',
+      configDir: '/tmp/vtex-report-project',
     })
     expect(report.unverifiedCapabilities).toEqual([
       { templateId: 'order-confirmed', name: 'eq', evidence: 'experimental', severity: 'warning' },

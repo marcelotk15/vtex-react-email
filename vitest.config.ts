@@ -20,6 +20,7 @@ export default defineConfig({
       '@vtex-email/react': path.join(root, 'packages/react/src/index.ts'),
       '@vtex-email/vtex': path.join(root, 'packages/vtex/src/index.ts'),
       '@vtex-email/preview': path.join(root, 'packages/preview/src/index.ts'),
+      '@vtex-email/test-harness': path.join(root, 'tooling/test-harness/index.ts'),
     },
   },
   test: {

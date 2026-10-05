@@ -1,5 +1,14 @@
+import {
+  createSeedProject,
+  removeTempDir,
+  SEED_FREEZE_MARKER,
+  SEED_GREETING_EN,
+  SEED_GREETING_PT,
+  SEED_OPS,
+  SEED_WELCOME,
+} from '@vtex-email/test-harness'
 import { createHash } from 'node:crypto'
-import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, readFile, writeFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
@@ -10,14 +19,12 @@ import { startPreview, type PreviewEndpoint } from './server/start-preview'
 import { prefsKey } from './ui/prefs/prefs'
 import { themeKey } from './ui/theme/theme'
 
-const example = path.resolve('examples/basic-store')
 describe('preview workbench', () => {
   it('supports the daily inspection flow and keeps the iframe stable', async () => {
-    const root = await mkdtemp(path.join(example, '.preview- '))
+    const seed = await createSeedProject({ spaces: true })
     const shots = await mkdtemp(path.join(tmpdir(), 'vtex-preview-ui-'))
-    const configPath = await copyStore(root)
     const port = await freePort()
-    await writeFile(configPath, (await readFile(configPath, 'utf8')).replace('port: 3000', `port: ${port}`))
+    await writeFile(seed.configPath, (await readFile(seed.configPath, 'utf8')).replace('port: 3000', `port: ${port}`))
     let started: PreviewEndpoint | undefined
     const browser = await chromium.launch({ channel: 'msedge', headless: true })
     const page = await browser.newPage({
@@ -34,20 +41,20 @@ describe('preview workbench', () => {
     })
 
     try {
-      const preview = await startPreview({ configPath })
+      const preview = await startPreview({ configPath: seed.configPath })
       if (!preview.ok) throw new Error(JSON.stringify(preview.diagnostics))
       started = preview
       await page.goto(preview.url)
       await page.getByText('Updated').waitFor()
       expect(eventRequests).toHaveLength(1)
-      const project = path.basename(root)
+      const project = path.basename(seed.root)
       await expectText(page.getByText(project))
 
       const tree = page.getByRole('tree', { name: 'Emails' })
-      await tree.getByRole('treeitem', { name: 'order-confirmed-store', exact: true }).click()
+      await tree.getByRole('treeitem', { name: SEED_WELCOME, exact: true }).click()
       await tree.getByRole('treeitem', { name: 'full' }).click()
       const frame = page.frameLocator('[data-testid="email-frame"]')
-      await frame.getByText('Hi,').waitFor()
+      await frame.getByText(new RegExp(SEED_GREETING_EN)).waitFor()
       const deliveryBox = await page.getByTestId('email-frame').boundingBox()
       expect(deliveryBox?.width).toBe(600)
 
@@ -58,9 +65,9 @@ describe('preview workbench', () => {
       await search.press('Escape')
       await search.fill('missing-locale')
       await tree.getByRole('treeitem', { name: 'missing-locale' }).waitFor()
-      await expectMissing(tree.getByRole('treeitem', { name: 'payment-approved' }))
+      await expectMissing(tree.getByRole('treeitem', { name: SEED_OPS }))
       await search.fill('')
-      await tree.getByRole('treeitem', { name: 'payment-approved' }).waitFor()
+      await tree.getByRole('treeitem', { name: SEED_OPS }).waitFor()
 
       await page.getByRole('tab', { name: 'Handlebars' }).click()
       // Base UI keeps inactive panels mounted; name scopes past Data's <pre> (macOS :visible flake).
@@ -79,7 +86,7 @@ describe('preview workbench', () => {
       expect(iframeLoads).toBe(beforeLoads)
 
       await tree.getByRole('treeitem', { name: 'missing-locale' }).click()
-      await frame.getByText('Olá,').waitFor()
+      await frame.getByText(new RegExp(`${SEED_GREETING_PT}|OlÃ¡`)).waitFor()
       expect(iframeLoads).toBe(beforeLoads + 1)
       await page.getByRole('tab', { name: 'Handlebars' }).click()
       expect(normalizeSource(await source.innerText())).toBe(before)
@@ -87,10 +94,10 @@ describe('preview workbench', () => {
       await page.getByRole('tab', { name: 'Properties' }).click()
       await page.getByLabel('Locale').click()
       await page.getByRole('option', { name: 'pt-BR' }).click()
-      await page.getByText('orders.0.clientPreferencesData.locale = pt-BR only on the evaluated copy.').waitFor()
+      await page.getByText('client.locale = pt-BR only on the evaluated copy.').waitFor()
       await page.screenshot({ path: path.join(shots, '1280-forced.png'), fullPage: false })
-      const fixtureFile = path.join(root, 'fixtures', 'order-confirmed-store', 'full.jsonc')
-      const missingFile = path.join(root, 'fixtures', 'order-confirmed-store', 'missing-locale.jsonc')
+      const fixtureFile = path.join(seed.root, 'src', 'fixtures', 'welcome', 'full.jsonc')
+      const missingFile = path.join(seed.root, 'src', 'fixtures', 'welcome', 'missing-locale.jsonc')
       expect(await readFile(missingFile, 'utf8')).not.toContain('Content-Security-Policy')
 
       await page.getByRole('button', { name: 'Mobile' }).click()
@@ -115,7 +122,7 @@ describe('preview workbench', () => {
 
       await page.keyboard.press('Control+K')
       await expect.poll(() => page.evaluate('document.activeElement && document.activeElement.id')).toBe('email-search')
-      await page.getByRole('treeitem', { name: 'order-confirmed-store', exact: true }).focus()
+      await page.getByRole('treeitem', { name: SEED_WELCOME, exact: true }).focus()
       await page.keyboard.press('ArrowDown')
       await expect
         .poll(() => page.evaluate('document.activeElement && document.activeElement.getAttribute("data-row")'))
@@ -126,18 +133,18 @@ describe('preview workbench', () => {
       const blockedDoc = await frameDocument(page)
       expect(blockedDoc).toContain("img-src 'none'")
       expect(await readFile(fixtureFile, 'utf8')).not.toContain('Content-Security-Policy')
-      const emailFile = path.join(root, 'emails', 'order-confirmed-store.email.tsx')
+      const emailFile = path.join(seed.root, 'src', 'emails', 'welcome.email.tsx')
       const originalEmail = await readFile(emailFile, 'utf8')
       await writeFile(
         emailFile,
         originalEmail
           .replace(
-            "import { Section } from '@react-email/components'",
-            "import { Img, Section } from '@react-email/components'",
+            "import { Section, Text } from '@react-email/components'",
+            "import { Img, Section, Text } from '@react-email/components'",
           )
           .replace(
-            '<StoreShell>',
-            '<StoreShell><Img alt="Camisa" height="12" src="https://cdn.example/shirt.png" width="12" />',
+            '<Section>',
+            '<Section><Img alt="Camisa" height="12" src="https://cdn.example/shirt.png" width="12" />',
           ),
       )
       await frame.getByRole('img', { name: 'Camisa' }).waitFor({ timeout: 20_000 })
@@ -160,15 +167,14 @@ describe('preview workbench', () => {
       await page.screenshot({ path: path.join(shots, '1280-stale.png'), fullPage: false })
       await writeFile(emailFile, originalEmail)
       await page.getByText('Updated').waitFor({ timeout: 20_000 })
-      await frame.getByText('Olá,').waitFor()
+      await frame.getByText(new RegExp(`${SEED_GREETING_PT}|OlÃ¡`)).waitFor()
 
       await page.getByRole('tab', { name: 'Handlebars' }).click()
       await page.getByRole('button', { name: 'Copy' }).click()
       await page.getByRole('button', { name: 'Copied' }).waitFor()
       const stored = await page.evaluate(`window.localStorage.getItem(${JSON.stringify(prefsKey)})`)
       expect(stored).toContain('"tab":"source"')
-      expect(stored ?? '').not.toContain('Alex')
-      expect(stored ?? '').not.toContain('ORD-1001')
+      expect(stored ?? '').not.toContain(SEED_FREEZE_MARKER)
       expect(eventRequests).toHaveLength(1)
 
       await page.context().setOffline(true)
@@ -182,7 +188,7 @@ describe('preview workbench', () => {
       await page.getByLabel('Locale').click()
       await page.getByRole('option', { name: 'Fixture locale' }).click()
       await tree.getByRole('treeitem', { name: 'full' }).click()
-      await frame.getByText('Hi,').waitFor()
+      await frame.getByText(new RegExp(SEED_GREETING_EN)).waitFor()
       await page.getByRole('button', { name: 'Copy', exact: true }).waitFor()
 
       const themeLoads = iframeLoads
@@ -230,31 +236,10 @@ describe('preview workbench', () => {
     } finally {
       await browser.close()
       await started?.close()
-      await removeTemp(root)
+      await removeTempDir(seed.root)
     }
   }, 240_000)
 })
-
-async function removeTemp(directory: string): Promise<void> {
-  for (let attempt = 0; attempt < 5; attempt += 1) {
-    try {
-      await rm(directory, { recursive: true, force: true })
-      return
-    } catch {
-      await new Promise((resolve) => setTimeout(resolve, 200 * (attempt + 1)))
-    }
-  }
-  await rm(directory, { recursive: true, force: true }).catch(() => undefined)
-}
-
-async function copyStore(destination: string): Promise<string> {
-  await mkdir(destination, { recursive: true })
-  for (const name of ['emails', 'schemas', 'locales', 'fixtures', 'components']) {
-    await cp(path.join(example, name), path.join(destination, name), { recursive: true })
-  }
-  await cp(path.join(example, 'vtex-email.config.ts'), path.join(destination, 'vtex-email.config.ts'))
-  return path.join(destination, 'vtex-email.config.ts')
-}
 
 async function frameDocument(page: Page): Promise<string> {
   const value = await page.getByTestId('email-frame').evaluate((node) => Reflect.get(node, 'srcdoc'))

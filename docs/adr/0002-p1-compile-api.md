@@ -10,9 +10,9 @@ The public compilation produces one document for one language. `compileEmail` re
 
 Evaluation is `evaluateArtifact`. It receives the already compiled string, the data, and the local simulator. The compiler validates Handlebars syntax with `compile` and does not execute the template.
 
-The emission profile lists capabilities, form, arity, argument types, context, and evidence. The local simulator is a separate map of functions. A function present only in the simulator cannot be emitted. `formatCurrency` and `replace` remain `documented`. `eq` remains `experimental` and only appears in the merge trial, outside the DSL. Nothing in this phase is `verified`. The manifest stays `experimental`.
+The emission profile lists capabilities, form, arity, argument types, context, and evidence. The local simulator is a separate map of functions. A function present only in the simulator cannot be emitted. `formatCurrency` and `replace` remain `documented`. Experimental helpers may appear in the DSL when the profile lists them (see ADR 0009 and ADR 0010); nothing in this phase is `verified`. The manifest stays `experimental`.
 
-`each` creates item context; `fallback` uses the outer context. `if` and `unless` preserve context in both branches. `../` cannot go past the root. There is still no `@root`, `@index`, `@first`, `@last`, `this`, brackets, `With`, `Compare`, block helper in the DSL, object iteration, or subexpression. An expression in `className` produces `DSL002`. The Tailwind adapter reads `className` before calling the component; the compiler maps that failure to the same diagnostic.
+`each` creates item context; `fallback` uses the outer context. `if` and `unless` preserve context in both branches. `../` cannot go past the root. Expressions in `className` produce `DSL002`. The Tailwind adapter reads `className` before calling the component; the compiler maps that failure to the same diagnostic. Later experimental extensions (`@index`, block helpers, `with`, `math`, composite attributes) are additive and do not change the `compileEmail` input contract: still no fixture, schema, or event JSON.
 
 Writing remains separate. `commitArtifacts` is called only after `ok`. An invalid name does not replace existing files. A failure mid-promotion restores the previous content.
 

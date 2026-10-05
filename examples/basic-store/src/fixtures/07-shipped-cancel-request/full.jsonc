@@ -1,0 +1,173 @@
+{
+  "meta": {
+    "description": "07-shipped-cancel-request full synthetic payload",
+    "origin": "synthetic",
+    "event": "07-shipped-cancel-request",
+    "purpose": "preview",
+    "expectedLocale": "pt-BR",
+    "expect": "valid"
+  },
+  "data": {
+    "locale": "pt-BR",
+    "split": false,
+    "ordersUrl": "https://example.com/orders",
+    "_accountInfo": {
+      "TradingName": "Loja Exemplo",
+      "HostName": "loja-exemplo",
+      "Id": "example-account",
+      "StoreUrl": "https://example.com",
+      "LogoUrl": "https://example.com/logo.png"
+    },
+    "orders": [
+      {
+        "orderId": "803140415281-01",
+        "value": 5765,
+        "clientProfileData": {
+          "firstName": "Maria",
+          "lastName": "Silva"
+        },
+        "clientPreferencesData": {
+          "locale": "pt-BR"
+        },
+        "sellers": [
+          {
+            "name": "qamarketplace"
+          }
+        ],
+        "items": [
+          {
+            "id": "15",
+            "name": "Novalgina",
+            "imageUrl": "https://example.com/images/product.png",
+            "quantity": 1,
+            "sellingPrice": 4264,
+            "itemIndex": 0,
+            "bundleItems": [],
+            "additionalInfo": {
+              "categoriesIds": "/4/5/"
+            }
+          }
+        ],
+        "totals": [
+          {
+            "id": "Items",
+            "value": 5764
+          },
+          {
+            "id": "Discounts",
+            "value": -1500
+          },
+          {
+            "id": "Shipping",
+            "value": 1501
+          },
+          {
+            "id": "Tax",
+            "value": 0
+          }
+        ],
+        "paymentData": {
+          "transactions": [
+            {
+              "payments": [
+                {
+                  "paymentSystemName": "Mastercard",
+                  "lastDigits": "5100",
+                  "value": 5765,
+                  "installments": 1,
+                  "url": "https://example.com/boleto/{Installment}"
+                }
+              ]
+            }
+          ]
+        },
+        "shippingData": {
+          "addressId": "-1476460151082",
+          "logisticsInfo": [
+            {
+              "itemIndex": 0,
+              "itemId": "15",
+              "selectedSla": "Normal",
+              "selectedDeliveryChannel": "delivery",
+              "addressId": "-1476460151082",
+              "deliveryChannel": "delivery",
+              "slas": [
+                {
+                  "id": "Normal",
+                  "shippingEstimate": "7d",
+                  "shippingEstimateDate": "2018-01-21T00:08:08.9572036Z",
+                  "deliveryWindow": null,
+                  "availableDeliveryWindows": [],
+                  "pickupStoreInfo": {
+                    "isPickupStore": false,
+                    "friendlyName": null,
+                    "address": null,
+                    "additionalInfo": null,
+                    "dockId": null
+                  }
+                }
+              ]
+            }
+          ],
+          "availableAddresses": [
+            {
+              "addressId": "-1476460151082",
+              "AddressId": "-1476460151082",
+              "street": "Rua da passagem",
+              "number": "4",
+              "complement": "",
+              "neighborhood": "Botafogo",
+              "postalCode": "22222-222",
+              "city": "Rio de Janeiro",
+              "state": "RJ"
+            }
+          ],
+          "selectedAddresses": [
+            {
+              "addressType": "residential",
+              "receiverName": "Freds Da Bahia",
+              "addressId": "-1476460151082",
+              "postalCode": "22222-222",
+              "city": "Rio de Janeiro",
+              "state": "RJ",
+              "country": "BRA",
+              "street": "Rua da passagem",
+              "number": "4",
+              "neighborhood": "Botafogo",
+              "complement": null,
+              "reference": null,
+              "geoCoordinates": []
+            }
+          ],
+          "pickupPoints": []
+        },
+        "package": {
+          "items": [
+            {
+              "itemIndex": 0,
+              "quantity": 1,
+              "price": 4264,
+              "description": null
+            }
+          ],
+          "courier": "Transportadora",
+          "invoiceNumber": "1234567890",
+          "invoiceValue": 5765,
+          "invoiceUrl": null,
+          "issuanceDate": "2018-01-14T02:08:05.7574515+00:00",
+          "trackingNumber": "RASXXXXXXXXXX",
+          "invoiceKey": null,
+          "trackingUrl": "http://urlrastreio",
+          "embeddedInvoice": "",
+          "type": "Output",
+          "courierStatus": {
+            "status": "unknown",
+            "finished": false,
+            "data": []
+          }
+        },
+        "giftRegistryData": null
+      }
+    ]
+  }
+}

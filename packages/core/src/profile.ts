@@ -1,6 +1,6 @@
 export type Evidence = 'documented' | 'verified' | 'experimental'
 
-export type ArgKind = 'path' | 'literal'
+export type ArgKind = 'path' | 'literal' | 'expression'
 
 export interface HashArg {
   name: string

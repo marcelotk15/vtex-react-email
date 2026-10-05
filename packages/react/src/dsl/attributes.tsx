@@ -1,4 +1,4 @@
-import type { DynamicAttribute } from '@vtex-email/core'
+import type { DynamicAttribute, SiteArgument } from '@vtex-email/core'
 import type { ReactNode } from 'react'
 
 import { Button as EmailButton, Img as EmailImg, Link as EmailLink } from '@react-email/components'
@@ -7,6 +7,8 @@ import { emitLiteral } from '@vtex-email/core'
 import { addMarker, addSite, getSession, type Session } from '../compile/session'
 import { isExpression, type Expression } from './expr'
 import { dslFailure, resolvePath } from './resolve'
+
+export type AttributeValue = string | Expression | ReadonlyArray<string | Expression>
 
 function assertStaticUrl(value: string, session: Session): void {
   let url: URL
@@ -20,11 +22,52 @@ function assertStaticUrl(value: string, session: Session): void {
   }
 }
 
-export function attributeToken(name: DynamicAttribute, value: string | Expression): string {
+function readCompositePart(part: string | Expression, session: Session): SiteArgument {
+  if (typeof part === 'string') {
+    if (part.includes('"') || part.includes('\n') || part.includes('\r')) {
+      dslFailure(session, 'HBS001', 'Composite attribute literals cannot contain quotes or newlines.')
+    }
+    return { kind: 'literal', emitted: part }
+  }
+  if (!isExpression(part)) {
+    dslFailure(session, 'DSL002', 'A dynamic attribute requires expr.path or expr.literal.')
+  }
+  if (part.kind === 'literal') {
+    const text = part.value === null || typeof part.value === 'boolean' ? String(part.value) : String(part.value)
+    if (text.includes('"') || text.includes('\n') || text.includes('\r')) {
+      dslFailure(session, 'HBS001', 'Composite attribute literals cannot contain quotes or newlines.')
+    }
+    return { kind: 'literal', emitted: text }
+  }
+  const resolved = resolvePath(part.value, session)
+  return { kind: 'path', emitted: resolved.emitted, path: resolved }
+}
+
+export function attributeToken(name: DynamicAttribute, value: AttributeValue): string {
   const session = getSession()
   if (typeof value === 'string') {
     if (name === 'href' || name === 'src') assertStaticUrl(value, session)
     return value
+  }
+  if (Array.isArray(value)) {
+    if (value.length === 0) dslFailure(session, 'DSL002', 'A composite attribute requires at least one part.')
+    const parts = value.map((part) => readCompositePart(part, session))
+    const hasPath = parts.some((part) => part.kind === 'path')
+    if (!hasPath && (name === 'href' || name === 'src')) {
+      assertStaticUrl(parts.map((part) => part.emitted).join(''), session)
+    }
+    const detail = parts.map((part) => part.emitted).join('')
+    const token = addMarker(
+      session,
+      { kind: 'attr', path: name, detail },
+      {
+        kind: 'attr',
+        attribute: name,
+        replacement: '',
+      },
+    )
+    addSite(session, token, { kind: 'attr', attribute: name, args: parts })
+    return token
   }
   if (!isExpression(value)) {
     dslFailure(session, 'DSL002', 'A dynamic attribute requires expr.path or expr.literal.')
@@ -74,8 +117,8 @@ export function DynamicLink({
   children,
   className,
 }: {
-  href: string | Expression
-  title?: string | Expression
+  href: AttributeValue
+  title?: AttributeValue
   children?: ReactNode
   className?: string | Expression
 }) {
@@ -97,18 +140,21 @@ export function DynamicImg({
   title,
   width,
   height,
+  style,
 }: {
-  src: string | Expression
-  alt: string | Expression
-  title?: string | Expression
-  width: number
-  height: number
+  src: AttributeValue
+  alt: AttributeValue
+  title?: AttributeValue
+  width?: number | `${number}`
+  height?: number | `${number}`
+  style?: React.CSSProperties
 }) {
   return (
     <EmailImg
       alt={attributeToken('alt', alt)}
       height={height}
       src={attributeToken('src', src)}
+      style={style}
       title={title === undefined ? undefined : attributeToken('title', title)}
       width={width}
     />
@@ -121,8 +167,8 @@ export function DynamicButton({
   children,
   className,
 }: {
-  href: string | Expression
-  title?: string | Expression
+  href: AttributeValue
+  title?: AttributeValue
   children?: ReactNode
   className?: string | Expression
 }) {
