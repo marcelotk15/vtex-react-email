@@ -1,39 +1,7 @@
 import { Section, Text } from '@react-email/components'
 import { expr, Trans, Vtex } from '@vtex-email/react'
 
-function PaymentLine() {
-  return (
-    <Section className="border-b border-[#dddddd] py-1 text-sm">
-      <Text className="m-0">
-        <Vtex.Value path="paymentSystemName" />
-        <Vtex.If path="lastDigits">
-          <span>
-            {' '}
-            <Trans id="payment.lastDigits" /> <Vtex.Value path="lastDigits" />
-          </span>
-        </Vtex.If>
-        <Vtex.Eq
-          fallback={
-            <span>
-              <Trans id="payment.in" /> <Vtex.Value path="installments" />x
-            </span>
-          }
-          path="installments"
-          value={1}
-        >
-          <span>
-            {' '}
-            <Trans id="payment.atSight" />
-          </span>
-        </Vtex.Eq>
-        {' — '}
-        <Trans id="common.currency" /> <Vtex.Helper args={[expr.path('value')]} name="formatCurrency" />
-      </Text>
-    </Section>
-  )
-}
-
-function PaymentSingle() {
+function PaymentItem() {
   return (
     <Section>
       <Text className="m-0 text-sm leading-5">
@@ -69,24 +37,9 @@ function PaymentSingle() {
 export function PaymentList() {
   return (
     <Section>
-      <Vtex.IfCond
-        fallback={
-          <Section>
-            <Vtex.Each path="payments">
-              <PaymentLine />
-            </Vtex.Each>
-          </Section>
-        }
-        operator="=="
-        path="payments.length"
-        right={1}
-      >
-        <Section>
-          <Vtex.Each path="payments">
-            <PaymentSingle />
-          </Vtex.Each>
-        </Section>
-      </Vtex.IfCond>
+      <Vtex.Each path="payments">
+        <PaymentItem />
+      </Vtex.Each>
     </Section>
   )
 }

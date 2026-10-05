@@ -1,0 +1,216 @@
+{
+  "meta": {
+    "description": "01-confirmed sanitized payload from Message Center with credit card payment",
+    "origin": "sanitized",
+    "event": "01-confirmed",
+    "purpose": "preview",
+    "expectedLocale": "pt-BR",
+    "expect": "valid"
+  },
+  "data": {
+    "split": false,
+    "ordersUrl": "http://example.myvtex.com/account#/orders",
+    "orderGroup": "1632330510950",
+    "totalValue": 24500,
+    "_accountInfo": {
+      "TradingName": "Example Store",
+      "HostName": "example",
+      "Id": "856900d6-9edc-4248-bf4c-05b60375bb4e",
+      "StoreUrl": "https://example.com",
+      "LogoUrl": "https://example.com/logo.png"
+    },
+    "subjectItemAttachment": {
+      "item": "Stanley Quencher H2....",
+      "totalItems": 1
+    },
+    "orders": [
+      {
+        "orderId": "1632330510950-01",
+        "orderGroup": "1632330510950",
+        "value": 24500,
+        "clientProfileData": {
+          "firstName": "Ana",
+          "lastName": "Silva",
+          "email": "ana@example.com",
+          "documentType": "cpf",
+          "document": "00000000000",
+          "phone": "+5500000000000"
+        },
+        "clientPreferencesData": {
+          "locale": "pt-BR",
+          "optinNewsLetter": false
+        },
+        "sellers": [
+          {
+            "id": "example",
+            "name": "Example Store"
+          }
+        ],
+        "items": [
+          {
+            "id": "115499303",
+            "productId": "115499037",
+            "name": "Stanley Quencher H2.0 FlowState Tumbler 40oz Cream",
+            "skuName": "Stanley Quencher H2.0 FlowState Tumbler 40oz Cream",
+            "imageUrl": "https://example.vteximg.com.br/arquivos/ids/161642-300-800/product.jpg",
+            "quantity": 1,
+            "sellingPrice": 24000,
+            "price": 24000,
+            "listPrice": 24100,
+            "itemIndex": 0,
+            "bundleItems": []
+          }
+        ],
+        "totals": [
+          {
+            "id": "Items",
+            "name": "Total Items",
+            "value": 24000
+          },
+          {
+            "id": "Discounts",
+            "name": "Total Discounts",
+            "value": 0
+          },
+          {
+            "id": "Shipping",
+            "name": "Total Shipping",
+            "value": 500
+          },
+          {
+            "id": "Tax",
+            "name": "Total Tax",
+            "value": 0
+          }
+        ],
+        "paymentData": {
+          "giftCards": [
+            {
+              "id": "xpto1",
+              "caption": "gift card by id",
+              "value": 0,
+              "balance": 0,
+              "provider": "BemolBonus",
+              "inUse": false,
+              "isSpecialCard": true
+            },
+            {
+              "id": "xpto1",
+              "caption": "gift card by id",
+              "value": 0,
+              "balance": 0,
+              "provider": "BemolCrediario",
+              "inUse": false,
+              "isSpecialCard": true
+            },
+            {
+              "id": "xpto1",
+              "caption": "gift card by id",
+              "value": 0,
+              "balance": 0,
+              "provider": "BemolValeCredito",
+              "inUse": false,
+              "isSpecialCard": true
+            }
+          ],
+          "transactions": [
+            {
+              "isActive": true,
+              "transactionId": "0DB75E0D2EAF48CE9A850F0A8A9C4370",
+              "merchantName": "Example Store",
+              "payments": [
+                {
+                  "id": "59046ADAD536459E947ED05C5A953774",
+                  "paymentSystem": "4",
+                  "paymentSystemName": "Mastercard",
+                  "value": 24500,
+                  "installments": 1,
+                  "referenceValue": 24500,
+                  "firstDigits": "525652",
+                  "lastDigits": "5530",
+                  "group": "creditCard",
+                  "url": null,
+                  "connectorResponses": {}
+                }
+              ]
+            }
+          ]
+        },
+        "shippingData": {
+          "addressId": "a0204124f55a467bb7cb0e8cc6bd6f1f",
+          "address": {
+            "addressType": "residential",
+            "receiverName": "Ana Silva",
+            "addressId": "a0204124f55a467bb7cb0e8cc6bd6f1f",
+            "postalCode": "01000-000",
+            "city": "Sao Paulo",
+            "state": "SP",
+            "country": "BRA",
+            "street": "Rua Exemplo",
+            "number": "100",
+            "neighborhood": "Centro",
+            "complement": "Apto 1"
+          },
+          "selectedAddresses": [
+            {
+              "addressId": "a0204124f55a467bb7cb0e8cc6bd6f1f",
+              "addressType": "residential",
+              "receiverName": "Ana Silva",
+              "street": "Rua Exemplo",
+              "number": "100",
+              "complement": "Apto 1",
+              "neighborhood": "Centro",
+              "postalCode": "01000-000",
+              "city": "Sao Paulo",
+              "state": "SP",
+              "country": "BRA"
+            }
+          ],
+          "availableAddresses": [
+            {
+              "addressId": "a0204124f55a467bb7cb0e8cc6bd6f1f",
+              "addressType": "residential",
+              "receiverName": "Ana Silva",
+              "street": "Rua Exemplo",
+              "number": "100",
+              "complement": "Apto 1",
+              "neighborhood": "Centro",
+              "postalCode": "01000-000",
+              "city": "Sao Paulo",
+              "state": "SP",
+              "country": "BRA"
+            }
+          ],
+          "logisticsInfo": [
+            {
+              "itemIndex": 0,
+              "itemId": "115499303",
+              "selectedDeliveryChannel": "delivery",
+              "selectedSla": "Entrega padrão",
+              "addressId": "a0204124f55a467bb7cb0e8cc6bd6f1f",
+              "deliveryChannel": "delivery",
+              "shippingEstimate": "3bd",
+              "shippingEstimateDate": "2026-05-20T17:05:00+00:00",
+              "slas": [
+                {
+                  "id": "Entrega padrão",
+                  "name": "Entrega padrão",
+                  "shippingEstimate": "3bd",
+                  "shippingEstimateDate": "2026-05-20T17:05:00+00:00",
+                  "deliveryChannel": "delivery",
+                  "price": 500,
+                  "listPrice": 500
+                }
+              ]
+            }
+          ]
+        },
+        "storePreferencesData": {
+          "countryCode": "BRA",
+          "currencyCode": "BRL",
+          "currencySymbol": "R$"
+        }
+      }
+    ]
+  }
+}
