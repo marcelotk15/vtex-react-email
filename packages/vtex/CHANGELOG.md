@@ -1,5 +1,17 @@
 # @vtex-email/vtex
 
+## 0.3.0
+
+### Minor Changes
+
+- f3cd8e7: Expand experimental DSL and simulator for expression operands, dates, math, with, richShippingData, and composite attributes so official store templates can migrate under src/.
+
+### Patch Changes
+
+- Updated dependencies [f3cd8e7]
+- Updated dependencies [f3cd8e7]
+  - @vtex-email/core@0.3.0
+
 ## 0.2.0
 
 ### Minor Changes
