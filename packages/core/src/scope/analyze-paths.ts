@@ -62,9 +62,8 @@ function walk(nodes: readonly ScopeNode[], stack: Frame[], guards: readonly stri
         continue
       }
       const child: Frame = { schema: elements, prefix: [...absolute.segments, '[]'] }
-      const outer = framesAt(stack, node.parentHops)
-      diagnostics.push(...walk(node.children, [...outer, child], guards))
-      diagnostics.push(...walk(node.fallback, outer, guards))
+      diagnostics.push(...walk(node.children, [...stack, child], guards))
+      diagnostics.push(...walk(node.fallback, stack, guards))
       continue
     }
     if (node.block === 'group') {
@@ -77,9 +76,8 @@ function walk(nodes: readonly ScopeNode[], stack: Frame[], guards: readonly stri
         schema: groupFrameSchema(elements),
         prefix: [...absolute.segments, 'group'],
       }
-      const outer = framesAt(stack, node.parentHops)
-      diagnostics.push(...walk(node.children, [...outer, child], guards))
-      diagnostics.push(...walk(node.fallback, outer, guards))
+      diagnostics.push(...walk(node.children, [...stack, child], guards))
+      diagnostics.push(...walk(node.fallback, stack, guards))
       continue
     }
     const nextGuards = [...guards, absolute.segments]
