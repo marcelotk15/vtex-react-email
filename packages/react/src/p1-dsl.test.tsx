@@ -323,6 +323,40 @@ describe('P1 DSL', () => {
     expect(html).toContain('{{#group logisticsInfo by="packageId"}}')
   })
 
+  it('emits composite href and src attributes', async () => {
+    function View() {
+      return (
+        <Email>
+          <Section>
+            <Vtex.Link href={['http://', expr.path('_accountInfo.HostName'), '.com.br']}>store</Vtex.Link>
+            <Vtex.Img
+              alt={expr.path('_accountInfo.TradingName')}
+              height={80}
+              src={[
+                'http://licensemanager.vtex.com.br/api/site/pub/accounts/',
+                expr.path('_accountInfo.Id'),
+                '/logos/show',
+              ]}
+              style={{ maxHeight: 80 }}
+              width={160}
+            />
+          </Section>
+        </Email>
+      )
+    }
+    const compiled = await compile(View)
+    if (!compiled.ok) {
+      // oxlint-disable-next-line vitest/no-conditional-expect
+      expect.fail(compiled.diagnostics.map((d) => `${d.code}: ${d.message}`).join('\n'))
+    }
+    const html = compiled.artifacts[0]?.content ?? ''
+    expect(html).toContain('href="http://{{_accountInfo.HostName}}.com.br"')
+    expect(html).toContain(
+      'src="http://licensemanager.vtex.com.br/api/site/pub/accounts/{{_accountInfo.Id}}/logos/show"',
+    )
+    expect(html).toContain('alt="{{_accountInfo.TradingName}}"')
+  })
+
   it('rejects an invalid ifCond operator, @index outside each, and a bad group by', async () => {
     function BadOperator() {
       return (

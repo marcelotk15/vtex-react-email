@@ -317,10 +317,19 @@ function materialize(
     if (literal) return { ok: true, marker: { ...marker, replacement: emitInterpolation(literal.emitted) } }
   }
   if (marker.kind === 'attr' && site.kind === 'attr') {
-    const path = site.path
-    const literal = site.args?.find((arg) => arg.kind === 'literal')
-    if (path) return { ok: true, marker: { ...marker, replacement: emitInterpolation(path.emitted) } }
-    if (literal) return { ok: true, marker: { ...marker, replacement: emitInterpolation(literal.emitted) } }
+    if (site.path) {
+      return { ok: true, marker: { ...marker, replacement: emitInterpolation(site.path.emitted) } }
+    }
+    const args = site.args ?? []
+    if (args.length === 1 && args[0]?.kind === 'literal' && args[0].emitted.startsWith('"')) {
+      return { ok: true, marker: { ...marker, replacement: emitInterpolation(args[0].emitted) } }
+    }
+    if (args.length >= 1) {
+      const replacement = args
+        .map((arg) => (arg.kind === 'path' ? emitInterpolation(arg.emitted) : arg.emitted))
+        .join('')
+      return { ok: true, marker: { ...marker, replacement } }
+    }
   }
   if (marker.kind === 'open' && site.kind === 'block' && site.block && site.path) {
     const parts = [site.path.emitted, ...(site.args ?? []).map((arg) => arg.emitted)]

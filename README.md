@@ -218,3 +218,5 @@ Evidence: experimental.
 Evidence: documented.
 
 </details>
+
+Composite `href` / `src` attributes may mix literals and paths while preserving escaping and image preload. Fully static URLs stay as `https`, `mailto`, and `tel`.
