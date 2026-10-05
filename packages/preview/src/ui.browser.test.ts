@@ -185,25 +185,25 @@ describe('preview workbench', () => {
       const themeLoads = iframeLoads
       const beforeThemeDoc = await frameDocument(page)
       await page.getByRole('button', { name: 'Dark' }).click()
-      await expect.poll(() => page.evaluate(() => document.documentElement.dataset.theme)).toBe('dark')
+      await expect.poll(() => page.evaluate('document.documentElement.dataset.theme')).toBe('dark')
       expect(await page.evaluate(`window.localStorage.getItem(${JSON.stringify(themeKey)})`)).toBe('dark')
       expect(iframeLoads).toBe(themeLoads)
       expect(await frameDocument(page)).toBe(beforeThemeDoc)
       await page.screenshot({ path: path.join(shots, '1280-dark.png'), fullPage: false })
       await page.getByRole('button', { name: 'Light' }).click()
-      await expect.poll(() => page.evaluate(() => document.documentElement.dataset.theme)).toBe('white')
+      await expect.poll(() => page.evaluate('document.documentElement.dataset.theme')).toBe('white')
       expect(iframeLoads).toBe(themeLoads)
       expect(await frameDocument(page)).toBe(beforeThemeDoc)
       await page.emulateMedia({ colorScheme: 'dark' })
-      await expect.poll(() => page.evaluate(() => document.documentElement.dataset.theme)).toBe('white')
+      await expect.poll(() => page.evaluate('document.documentElement.dataset.theme')).toBe('white')
       await page.getByRole('button', { name: 'System' }).click()
-      await expect.poll(() => page.evaluate(() => document.documentElement.dataset.theme)).toBe('dark')
+      await expect.poll(() => page.evaluate('document.documentElement.dataset.theme')).toBe('dark')
       await page.emulateMedia({ colorScheme: 'light' })
-      await expect.poll(() => page.evaluate(() => document.documentElement.dataset.theme)).toBe('white')
+      await expect.poll(() => page.evaluate('document.documentElement.dataset.theme')).toBe('white')
       expect(iframeLoads).toBe(themeLoads)
       await page.reload()
       await page.getByText('Updated').waitFor()
-      await expect.poll(() => page.evaluate(() => document.documentElement.dataset.theme)).toBe('white')
+      await expect.poll(() => page.evaluate('document.documentElement.dataset.theme')).toBe('white')
       expect(await page.evaluate(`window.localStorage.getItem(${JSON.stringify(themeKey)})`)).toBe('system')
 
       await page.screenshot({ path: path.join(shots, '1280.png'), fullPage: false })
@@ -227,10 +227,22 @@ describe('preview workbench', () => {
     } finally {
       await browser.close()
       await started?.close()
-      await rm(root, { recursive: true, force: true })
+      await removeTemp(root)
     }
   }, 240_000)
 })
+
+async function removeTemp(directory: string): Promise<void> {
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    try {
+      await rm(directory, { recursive: true, force: true })
+      return
+    } catch {
+      await new Promise((resolve) => setTimeout(resolve, 200 * (attempt + 1)))
+    }
+  }
+  await rm(directory, { recursive: true, force: true }).catch(() => undefined)
+}
 
 async function copyStore(destination: string): Promise<string> {
   await mkdir(destination, { recursive: true })

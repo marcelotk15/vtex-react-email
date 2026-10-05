@@ -111,7 +111,7 @@ describe('preview server', () => {
       events.close()
     } finally {
       await started?.close()
-      await rm(root, { recursive: true, force: true })
+      await removeTemp(root)
     }
   }, 180_000)
 
@@ -152,7 +152,7 @@ describe('preview server', () => {
       ).resolves.toBe(false)
     } finally {
       await new Promise<void>((resolve) => blocker.close(() => resolve()))
-      await rm(root, { recursive: true, force: true })
+      await removeTemp(root)
     }
   }, 60_000)
 
@@ -180,7 +180,7 @@ describe('preview server', () => {
       expect(JSON.stringify(notices).includes('banner')).toBe(false)
     } finally {
       await preview.close()
-      await rm(root, { recursive: true, force: true })
+      await removeTemp(root)
     }
   }, 120_000)
 
@@ -203,10 +203,22 @@ describe('preview server', () => {
       expect(await reachable(port)).toBe(false)
     } finally {
       await preview.close()
-      await rm(root, { recursive: true, force: true })
+      await removeTemp(root)
     }
   }, 120_000)
 })
+
+async function removeTemp(directory: string): Promise<void> {
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    try {
+      await rm(directory, { recursive: true, force: true })
+      return
+    } catch {
+      await new Promise((resolve) => setTimeout(resolve, 200 * (attempt + 1)))
+    }
+  }
+  await rm(directory, { recursive: true, force: true }).catch(() => undefined)
+}
 
 async function copyStore(destination: string): Promise<string> {
   await mkdir(destination, { recursive: true })
