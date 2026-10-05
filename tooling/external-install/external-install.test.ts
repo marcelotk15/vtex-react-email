@@ -6,6 +6,7 @@ describe('external package installation', () => {
   it('installs packed tarballs outside the workspace and runs validate, build, and dev', async () => {
     const result = await runExternalInstall()
     expect(result.ok).toBe(true)
-    expect(result.hashes['order-confirmed-store.html']).toMatch(/^[a-f0-9]{64}$/)
+    expect(result.html).toContain('{{name}}')
+    expect(result.html.includes('Ada')).toBe(false)
   }, 600_000)
 })
