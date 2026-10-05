@@ -1,6 +1,7 @@
 packages:
   - 'packages/*'
   - 'examples/*'
+  - 'tooling/test-harness'
 
 overrides:
   tailwindcss: 4.1.18

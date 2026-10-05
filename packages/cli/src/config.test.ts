@@ -24,7 +24,7 @@ function projectConfig(extra: Record<string, unknown> = {}) {
 
 describe('project config', () => {
   it('rejects an unknown key and an output directory at the project root', () => {
-    const root = path.resolve('examples/basic-store')
+    const root = path.join(path.sep, 'tmp', 'vtex-config-root')
     const unknown = validateConfig(projectConfig({ extra: true }), root)
     expect(unknown.ok).toBe(false)
     if (unknown.ok) return
@@ -35,7 +35,7 @@ describe('project config', () => {
   })
 
   it('resolves paths, fixturesDir, schemasDir, and localePath from the config directory', () => {
-    const root = path.resolve('examples/basic-store')
+    const root = path.join(path.sep, 'tmp', 'vtex-config-paths')
     const validated = validateConfig(projectConfig({ fixturesDir: 'fixtures' }), root)
     expect(validated.ok).toBe(true)
     if (!validated.ok) return
@@ -48,7 +48,7 @@ describe('project config', () => {
   })
 
   it('accepts an explicit schemasDir override', () => {
-    const root = path.resolve('examples/basic-store')
+    const root = path.join(path.sep, 'tmp', 'vtex-config-schemas')
     const validated = validateConfig(projectConfig({ schemasDir: 'contracts' }), root)
     expect(validated.ok).toBe(true)
     if (!validated.ok) return

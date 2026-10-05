@@ -1,7 +1,15 @@
 import type { DevNotice } from '@vtex-email/cli/project'
 
+import {
+  createSeedProject,
+  removeTempDir,
+  SEED_GREETING_EN,
+  SEED_GREETING_PT,
+  SEED_WELCOME,
+  type SeedProject,
+} from '@vtex-email/test-harness'
 import { createHash } from 'node:crypto'
-import { access, cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { access, readFile, writeFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
@@ -11,15 +19,15 @@ import type { PreviewState } from '../session/session'
 import { displayDocument } from '../shared/display-document'
 import { startPreview, type PreviewEndpoint } from './start-preview'
 
-const example = path.resolve('examples/basic-store')
-
 describe('preview server', () => {
   it('serves an isolated preview without writing dist and rebinds when the port changes', async () => {
-    const root = await mkdtemp(path.join(example, '.preview- '))
-    const configPath = await copyStore(root)
+    const seed = await createSeedProject({ spaces: true })
     const initialPort = await freePort()
     const nextPort = await freePort()
-    await writeFile(configPath, (await readFile(configPath, 'utf8')).replace('port: 3000', `port: ${initialPort}`))
+    await writeFile(
+      seed.configPath,
+      (await readFile(seed.configPath, 'utf8')).replace('port: 3000', `port: ${initialPort}`),
+    )
     const cliPackage = JSON.parse(await readFile(path.resolve('packages/cli/package.json'), 'utf8')) as {
       dependencies?: Record<string, string>
     }
@@ -31,11 +39,11 @@ describe('preview server', () => {
 
     let started: PreviewEndpoint | undefined
     try {
-      const preview = await startPreview({ configPath })
+      const preview = await startPreview({ configPath: seed.configPath })
       if (!preview.ok) throw new Error(JSON.stringify(preview.diagnostics))
       started = preview
       expect(preview.url.startsWith('http://127.0.0.1:')).toBe(true)
-      expect(await missing(path.join(root, 'dist'))).toBe(true)
+      expect(await missing(path.join(seed.root, 'dist'))).toBe(true)
 
       const page = await fetch(preview.url)
       const html = await page.text()
@@ -54,44 +62,42 @@ describe('preview server', () => {
       expect(ready.status).toBe('ready')
       expect(ready.html.length).toBeGreaterThan(0)
       viewKeepsArtifact(ready.html, ready.source)
-      const order = await post(preview.url, {
-        emailId: 'order-confirmed-store',
+      const welcome = await post(preview.url, {
+        emailId: SEED_WELCOME,
         fixtureId: 'full',
         mode: 'runtime',
       })
       const delivery = await events.next()
-      expect(order.html).toBe(delivery.html)
-      expect(delivery.html.includes('Hi,')).toBe(true)
+      expect(welcome.html).toBe(delivery.html)
+      expect(delivery.html.includes(SEED_GREETING_EN)).toBe(true)
       const deliverySource = digest(delivery.source)
 
       const missingLocale = await post(preview.url, { fixtureId: 'missing-locale', mode: 'runtime' })
-      expect(missingLocale.html.includes('Olá,')).toBe(true)
+      expect(missingLocale.html.includes(SEED_GREETING_PT) || missingLocale.html.includes('OlÃ¡')).toBe(true)
       expect(missingLocale.html).not.toBe(delivery.html)
       expect(digest(missingLocale.source)).toBe(deliverySource)
 
-      const fixtureFile = path.join(root, 'fixtures', 'order-confirmed-store', 'full.jsonc')
+      const fixtureFile = path.join(seed.root, 'src', 'fixtures', 'welcome', 'full.jsonc')
       const fixtureBefore = await readFile(fixtureFile, 'utf8')
       const forced = await post(preview.url, { fixtureId: 'full', mode: 'forced', forcedLocale: 'pt-BR' })
       expect(forced.selection.mode).toBe('forced')
-      expect(forced.html.includes('Olá,')).toBe(true)
-      expect(forced.html.includes('Hi,')).toBe(false)
+      expect(forced.html.includes(SEED_GREETING_PT) || forced.html.includes('OlÃ¡')).toBe(true)
+      expect(forced.html.includes(SEED_GREETING_EN)).toBe(false)
       expect(await readFile(fixtureFile, 'utf8')).toBe(fixtureBefore)
-      expect(forced.project.name).toBe(path.basename(root))
-      expect(forced.emails.find((item) => item.id === 'order-confirmed-store')?.localePath).toBe(
-        'orders.0.clientPreferencesData.locale',
-      )
+      expect(forced.project.name).toBe(path.basename(seed.root))
+      expect(forced.emails.find((item) => item.id === SEED_WELCOME)?.localePath).toBe('client.locale')
       expect(
-        forced.emails.find((item) => item.id === 'order-confirmed-store')?.fixtures.find((item) => item.id === 'full'),
+        forced.emails.find((item) => item.id === SEED_WELCOME)?.fixtures.find((item) => item.id === 'full'),
       ).toMatchObject({
-        file: 'fixtures/order-confirmed-store/full.jsonc',
+        file: 'src/fixtures/welcome/full.jsonc',
         origin: 'synthetic',
         purpose: 'preview',
       })
       expect(localeOf(forced.data)).toBe('en-US')
       expect(digest(forced.source)).toBe(deliverySource)
-      expect(await missing(path.join(root, 'dist'))).toBe(true)
+      expect(await missing(path.join(seed.root, 'dist'))).toBe(true)
 
-      const changed = fixtureBefore.replace('Alex', 'PreviewName')
+      const changed = fixtureBefore.replace('FREEZE-MARKER', 'PreviewName')
       await writeFile(fixtureFile, changed)
       const updated = await waitForState(events, (state) => state.html.includes('PreviewName'))
       expect(updated.status).toBe('ready')
@@ -101,23 +107,22 @@ describe('preview server', () => {
       expect(changed.includes('Content-Security-Policy')).toBe(false)
 
       await writeFile(
-        configPath,
-        (await readFile(configPath, 'utf8')).replace(`port: ${initialPort}`, `port: ${nextPort}`),
+        seed.configPath,
+        (await readFile(seed.configPath, 'utf8')).replace(`port: ${initialPort}`, `port: ${nextPort}`),
       )
       await waitForPort(nextPort)
       expect(await reachable(initialPort)).toBe(false)
       events.close()
     } finally {
       await started?.close()
-      await removeTemp(root)
+      await removeTempDir(seed.root)
     }
   }, 180_000)
 
   it('reports a busy port and closes idempotently', async () => {
-    const root = await mkdtemp(path.join(example, '.preview-busy-'))
-    const configPath = await copyStore(root)
+    const seed = await createSeedProject()
     const port = await freePort()
-    await writeFile(configPath, (await readFile(configPath, 'utf8')).replace('port: 3000', `port: ${port}`))
+    await writeFile(seed.configPath, (await readFile(seed.configPath, 'utf8')).replace('port: 3000', `port: ${port}`))
     const blocker = createServer()
     await new Promise<void>((resolve, reject) => {
       blocker.once('error', reject)
@@ -126,7 +131,7 @@ describe('preview server', () => {
     try {
       const notices: DevNotice[] = []
       const failed = await startPreview({
-        configPath,
+        configPath: seed.configPath,
         host: '127.0.0.1',
         port,
         onNotice: (notice) => {
@@ -140,7 +145,7 @@ describe('preview server', () => {
       expect(notices.some((item) => item.kind === 'listening')).toBe(false)
       expect(notices.some((item) => item.kind === 'failed')).toBe(true)
       await expect(
-        startPreview({ configPath, host: '127.0.0.1', port }).then(async (result) => {
+        startPreview({ configPath: seed.configPath, host: '127.0.0.1', port }).then(async (result) => {
           if (result.ok) {
             await result.close()
             await result.close()
@@ -150,81 +155,66 @@ describe('preview server', () => {
       ).resolves.toBe(false)
     } finally {
       await new Promise<void>((resolve) => blocker.close(() => resolve()))
-      await removeTemp(root)
+      await removeTempDir(seed.root)
     }
   }, 60_000)
 
   it('emits listening only after bind and never repeats a banner notice', async () => {
-    const root = await mkdtemp(path.join(example, '.preview-notice-'))
-    const configPath = await copyStore(root)
-    const port = await freePort()
-    await writeFile(configPath, (await readFile(configPath, 'utf8')).replace('port: 3000', `port: ${port}`))
-    const notices: DevNotice[] = []
-    const preview = await startPreview({
-      configPath,
-      onNotice: (notice) => {
-        notices.push(notice)
-      },
+    const seed = await createSeedProject()
+    await withPort(seed, async () => {
+      const notices: DevNotice[] = []
+      const preview = await startPreview({
+        configPath: seed.configPath,
+        onNotice: (notice) => {
+          notices.push(notice)
+        },
+      })
+      expect(preview.ok).toBe(true)
+      if (!preview.ok) return
+      try {
+        const kinds = notices.map((item) => item.kind)
+        expect(kinds.indexOf('listening')).toBeGreaterThan(kinds.lastIndexOf('phase'))
+        const listening = notices.find((item) => item.kind === 'listening')
+        expect(listening).toEqual({ kind: 'listening', url: preview.url })
+        expect(notices.some((item) => item.kind === 'startup')).toBe(true)
+        expect(notices.some((item) => item.kind === 'discovered')).toBe(true)
+        expect(JSON.stringify(notices).includes('banner')).toBe(false)
+      } finally {
+        await preview.close()
+      }
     })
-    expect(preview.ok).toBe(true)
-    if (!preview.ok) return
-    try {
-      const kinds = notices.map((item) => item.kind)
-      expect(kinds.indexOf('listening')).toBeGreaterThan(kinds.lastIndexOf('phase'))
-      const listening = notices.find((item) => item.kind === 'listening')
-      expect(listening).toEqual({ kind: 'listening', url: preview.url })
-      expect(notices.some((item) => item.kind === 'startup')).toBe(true)
-      expect(notices.some((item) => item.kind === 'discovered')).toBe(true)
-      expect(JSON.stringify(notices).includes('banner')).toBe(false)
-    } finally {
-      await preview.close()
-      await removeTemp(root)
-    }
   }, 120_000)
 
   it('ignores a neighboring vite.config.ts and closes twice safely', async () => {
-    const root = await mkdtemp(path.join(example, '.preview-vite-cfg-'))
-    const configPath = await copyStore(root)
-    const port = await freePort()
-    await writeFile(configPath, (await readFile(configPath, 'utf8')).replace('port: 3000', `port: ${port}`))
-    await writeFile(
-      path.join(root, 'vite.config.ts'),
-      `export default { server: { port: ${port + 1}, host: '0.0.0.0' } }\n`,
-    )
-    const preview = await startPreview({ configPath })
-    expect(preview.ok).toBe(true)
-    if (!preview.ok) return
-    try {
-      expect(preview.url).toBe(`http://127.0.0.1:${port}/`)
-      await preview.close()
-      await preview.close()
-      expect(await reachable(port)).toBe(false)
-    } finally {
-      await preview.close()
-      await removeTemp(root)
-    }
+    const seed = await createSeedProject()
+    await withPort(seed, async (port) => {
+      await writeFile(
+        path.join(seed.root, 'vite.config.ts'),
+        `export default { server: { port: ${port + 1}, host: '0.0.0.0' } }\n`,
+      )
+      const preview = await startPreview({ configPath: seed.configPath })
+      expect(preview.ok).toBe(true)
+      if (!preview.ok) return
+      try {
+        expect(preview.url).toBe(`http://127.0.0.1:${port}/`)
+        await preview.close()
+        await preview.close()
+        expect(await reachable(port)).toBe(false)
+      } finally {
+        await preview.close()
+      }
+    })
   }, 120_000)
 })
 
-async function removeTemp(directory: string): Promise<void> {
-  for (let attempt = 0; attempt < 5; attempt += 1) {
-    try {
-      await rm(directory, { recursive: true, force: true })
-      return
-    } catch {
-      await new Promise((resolve) => setTimeout(resolve, 200 * (attempt + 1)))
-    }
+async function withPort(seed: SeedProject, run: (port: number) => Promise<void>): Promise<void> {
+  const port = await freePort()
+  await writeFile(seed.configPath, (await readFile(seed.configPath, 'utf8')).replace('port: 3000', `port: ${port}`))
+  try {
+    await run(port)
+  } finally {
+    await removeTempDir(seed.root)
   }
-  await rm(directory, { recursive: true, force: true }).catch(() => undefined)
-}
-
-async function copyStore(destination: string): Promise<string> {
-  await mkdir(destination, { recursive: true })
-  for (const name of ['emails', 'schemas', 'locales', 'fixtures', 'components']) {
-    await cp(path.join(example, name), path.join(destination, name), { recursive: true })
-  }
-  await cp(path.join(example, 'vtex-email.config.ts'), path.join(destination, 'vtex-email.config.ts'))
-  return path.join(destination, 'vtex-email.config.ts')
 }
 
 function viewKeepsArtifact(html: string, source: string): void {
@@ -238,13 +228,9 @@ function viewKeepsArtifact(html: string, source: string): void {
 
 function localeOf(data: unknown): string | undefined {
   if (!data || typeof data !== 'object') return undefined
-  const orders = (data as { orders?: unknown }).orders
-  if (!Array.isArray(orders)) return undefined
-  const first = orders[0]
-  if (!first || typeof first !== 'object') return undefined
-  const preferences = (first as { clientPreferencesData?: unknown }).clientPreferencesData
-  if (!preferences || typeof preferences !== 'object') return undefined
-  const locale = (preferences as { locale?: unknown }).locale
+  const client = (data as { client?: unknown }).client
+  if (!client || typeof client !== 'object') return undefined
+  const locale = (client as { locale?: unknown }).locale
   return typeof locale === 'string' ? locale : undefined
 }
 

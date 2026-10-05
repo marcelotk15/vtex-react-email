@@ -1,24 +1,21 @@
-import { mkdtemp, cp, mkdir, readFile, writeFile, rm } from 'node:fs/promises'
+import { createSeedProject, removeTempDir } from '@vtex-email/test-harness'
+import { readFile, writeFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
-import path from 'node:path'
 import { chromium } from 'playwright-core'
 import { describe, expect, it } from 'vitest'
 
 import { startPreview, type PreviewEndpoint } from './server/start-preview'
 
-const example = path.resolve('examples/basic-store')
-
 describe('sidebar toggle', () => {
   it('sidebar toggle restores width', async () => {
-    const root = await mkdtemp(path.join(example, '.preview- '))
-    const configPath = await copyStore(root)
+    const seed = await createSeedProject({ spaces: true })
     const port = await freePort()
-    await writeFile(configPath, (await readFile(configPath, 'utf8')).replace('port: 3000', `port: ${port}`))
+    await writeFile(seed.configPath, (await readFile(seed.configPath, 'utf8')).replace('port: 3000', `port: ${port}`))
     let started: PreviewEndpoint | undefined
     const browser = await chromium.launch({ channel: 'msedge', headless: true })
     const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
     try {
-      const preview = await startPreview({ configPath })
+      const preview = await startPreview({ configPath: seed.configPath })
       if (!preview.ok) throw new Error(JSON.stringify(preview.diagnostics))
       started = preview
       await page.goto(preview.url)
@@ -33,19 +30,10 @@ describe('sidebar toggle', () => {
     } finally {
       await browser.close()
       await started?.close()
-      await rm(root, { recursive: true, force: true })
+      await removeTempDir(seed.root)
     }
   }, 120_000)
 })
-
-async function copyStore(destination: string): Promise<string> {
-  await mkdir(destination, { recursive: true })
-  for (const name of ['emails', 'schemas', 'locales', 'fixtures', 'components']) {
-    await cp(path.join(example, name), path.join(destination, name), { recursive: true })
-  }
-  await cp(path.join(example, 'vtex-email.config.ts'), path.join(destination, 'vtex-email.config.ts'))
-  return path.join(destination, 'vtex-email.config.ts')
-}
 
 function freePort(): Promise<number> {
   return new Promise((resolve, reject) => {
