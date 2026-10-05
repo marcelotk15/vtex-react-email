@@ -1,6 +1,6 @@
 # If, unless, and alternatives
 
-Capabilities: `if` and `unless`. Current state: `documented`. Truthiness is Handlebars truthiness: `0`, empty string, and empty array are false. Both branches keep context. The local proof does not replace `if` with JavaScript `Boolean()`.
+Capabilities: `if` and `unless`. Current state: `verified` for Message Center runs of basic-store 01–03 with sanitized fixtures ([records](../records/basic-store-01-03-message-center.md)): truthy `if` branches (firstName, lastDigits, sellingPrice, non-zero totals) and falsy `split` under `unless` (01, 03). Truthiness is Handlebars truthiness: `0`, empty string, and empty array are false. Both branches keep context. The local proof does not replace `if` with JavaScript `Boolean()`.
 
 ## Minimal template
 
@@ -59,8 +59,8 @@ Three excerpts: address present, pickup alternative, active `unless` branch. Lay
 
 ## Approval
 
-Each approved behavior in its own record. Street presence does not approve the alternative. `unless` with false does not approve `expired: true`.
+Store sanitized Message Center records cover the exercised `if` / `unless` branches above. Street presence does not approve the pickup alternative. `unless` with falsy `split` does not approve `expired: true` or free-item `unless sellingPrice`.
 
 ## Divergence
 
-Record which branch appeared. `if` and `unless` remain `documented`.
+Record which branch appeared. Unexercised branches stay outside the verified scope.

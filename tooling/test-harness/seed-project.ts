@@ -122,9 +122,11 @@ export default function OpsNotice() {
     <Email>
       <Section>
         <Vtex.Eq fallback={<Text>other</Text>} path="kind" value="notice">
-          <Text>
-            <Trans id="ops.body" />
-          </Text>
+          <Vtex.HasSubStr fallback={<Text>other</Text>} path="kind" value="notice">
+            <Text>
+              <Trans id="ops.body" />
+            </Text>
+          </Vtex.HasSubStr>
         </Vtex.Eq>
       </Section>
     </Email>

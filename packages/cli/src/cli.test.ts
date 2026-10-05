@@ -80,14 +80,14 @@ describe('vtex-email executable', () => {
       expect(report.ok).toBe(true)
       expect(report.wrote).toEqual([])
       expect(validated.stdout.includes(project)).toBe(false)
+      expect(report.unverifiedCapabilities.some((item) => item.templateId === SEED_WELCOME && item.name === 'eq')).toBe(
+        false,
+      )
       expect(
         report.unverifiedCapabilities.some(
-          (item) => item.templateId === SEED_WELCOME && item.name === 'eq' && item.evidence === 'experimental',
+          (item) => item.templateId === SEED_OPS && item.name === 'hasSubStr' && item.evidence === 'experimental',
         ),
       ).toBe(true)
-      expect(report.unverifiedCapabilities.some((item) => item.templateId === SEED_OPS && item.name === 'eq')).toBe(
-        true,
-      )
       expect(validated.stderr).toContain('homologation experimental')
       expect(await missing(path.join(project, 'dist'))).toBe(true)
 

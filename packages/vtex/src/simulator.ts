@@ -150,15 +150,15 @@ export const messageCenterSimulator: LocalSimulator = {
     {
       name: 'formatCurrency',
       kind: 'inline',
-      evidence: 'documented',
-      note: '20000 -> 200,00 is documented. Other integers are a local contract.',
+      evidence: 'verified',
+      note: 'Cents to decimal without a symbol. Message Center verified pairs include 24000, 24500, 500, 196500, and 197000.',
       apply: formatCurrency,
     },
     {
       name: 'formatDate',
       kind: 'inline',
-      evidence: 'experimental',
-      note: 'Local dd/MM/yyyy. Not verified on VTEX.',
+      evidence: 'verified',
+      note: 'dd/MM/yyyy. Verified on Message Center for shippingEstimateDate when deliveryWindow is absent.',
       apply: formatDate,
     },
     {
@@ -192,8 +192,8 @@ export const messageCenterSimulator: LocalSimulator = {
     {
       name: 'eq',
       kind: 'block',
-      evidence: 'experimental',
-      note: 'Local strict equality. Path versus path or literal. Not verified on VTEX.',
+      evidence: 'verified',
+      note: 'Strict equality. Verified on Message Center for locale merge, installments, totals, and item match.',
       apply: (context, values, options) => {
         const [left, right] = values
         return left === right ? options.fn(context) : options.inverse(context)
@@ -202,8 +202,8 @@ export const messageCenterSimulator: LocalSimulator = {
     {
       name: 'ifCond',
       kind: 'block',
-      evidence: 'experimental',
-      note: 'Local ==, ===, !=, <, <=, >, and >=. Not verified on VTEX.',
+      evidence: 'verified',
+      note: 'Verified on Message Center for == and !=. Other operators remain unexercised in those runs.',
       apply: (context, values, options) => {
         const [left, operator, right] = values
         const pass = compareValues(left, operator, right)
@@ -225,8 +225,8 @@ export const messageCenterSimulator: LocalSimulator = {
     {
       name: 'group',
       kind: 'block',
-      evidence: 'experimental',
-      note: 'Local array grouping by hash.by. Not verified on VTEX.',
+      evidence: 'verified',
+      note: 'Array grouping by hash.by. Verified on Message Center with packageId and addressId.',
       apply: (context, values, options) => {
         const list = values[0]
         const prop = options.hash.by
@@ -266,8 +266,8 @@ export const messageCenterSimulator: LocalSimulator = {
     {
       name: 'richShippingData',
       kind: 'block',
-      evidence: 'experimental',
-      note: 'Clones shippingData before deriving SLA fields. Not verified on VTEX.',
+      evidence: 'verified',
+      note: 'Clones shippingData before deriving SLA fields. Verified on Message Center.',
       apply: richShippingData,
     },
   ],

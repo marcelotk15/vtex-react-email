@@ -2,7 +2,7 @@
 
 The combined source contains one document per branch. After evaluation, the local result has one `doctype`, one `html`, one `head`, and one `body`. The proof count is textual on the resolved string. Analyzing the combined source as if it were already the delivered email is not the criterion.
 
-`eq` remains `experimental`. This case is the target question about accepting that source.
+`eq` is `verified` for the Message Center behaviors in [records/basic-store-01-03-message-center.md](../records/basic-store-01-03-message-center.md). This case is the target question about accepting the combined single-document source for additional locale branches.
 
 ## Minimal template
 
@@ -31,7 +31,7 @@ The account's acceptance or refusal message, and the resolved HTML with the `htm
 
 ## Approval
 
-The account accepts the source and each JSON returns one document. That, together with the four locale payloads, is what allows discussing moving `eq` out of `experimental`. Without both, the state does not change.
+The account accepts the source and each JSON returns one document. Locale merge `eq` for `pt-BR` on store 01–03 is already `verified`; additional locale branches still need their own records.
 
 ## Divergence
 

@@ -1,6 +1,6 @@
 # Parent context reference
 
-Capability: `../`. Current state: `documented`. The path does not rise past the root. It does not unlock `@root`, `@index`, `@first`, `@last`, or `this`.
+Capability: `../`. Current state: `verified` for Message Center runs of basic-store 01–02 with sanitized fixtures ([records](../records/basic-store-01-03-message-center.md)): item matching and estimate parent climbs. The path does not rise past the root. It does not unlock `@root`, `@first`, `@last`, or `this` (`@index` is a separate capability).
 
 ## Minimal template
 
@@ -33,8 +33,8 @@ Resolved excerpt of the three items with the identifier beside them. Layer: Mess
 
 ## Approval
 
-The two `ORD-A` items show `ORD-A` and the `ORD-B` item shows `ORD-B`. That parent path, in that nesting. Nothing beyond that.
+Message Center store records: parent climbs on 01–02 sanitized. Local golden proof: the two `ORD-A` items show `ORD-A` and the `ORD-B` item shows `ORD-B`. That parent path, in that nesting. Nothing beyond that.
 
 ## Divergence
 
-Record which item showed which identifier. `../` remains `documented`.
+Record which item showed which identifier. Unseen nestings stay outside the verified scope.
