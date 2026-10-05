@@ -8,7 +8,7 @@ import { Greeting, Logo, OrderReference, Regards, StoreShell } from '../componen
 
 export const settings = {
   i18n: {
-    localePath: 'orders.0.clientPreferencesData.locale',
+    localePath: 'clientPreferencesData.locale',
     output: 'merged',
     aliases: { 'pt-br': 'pt-BR' },
   },
@@ -63,40 +63,38 @@ export default function Invoiced() {
       <Section className="w-full border-b border-[#dddddd] px-8 pb-4 text-center max-[480px]:px-4">
         <Logo />
       </Section>
-      <Vtex.Each path="orders">
-        <Section className="w-full px-8 py-4 max-[480px]:px-4">
-          <OrderReference />
-          <Greeting />
-          <Text className="m-0 mt-2 text-sm">
-            <Trans id="invoice.invoiced" />
-          </Text>
-          <HandlingMessage />
-          <Vtex.RichShippingData path="shippingData">
-            <Section>
-              <Vtex.Group by="packageId" path="logisticsInfo">
-                <Section>
-                  <Text className="mt-4 text-xl">
-                    <Vtex.Eq
-                      fallback={
-                        <span>
-                          <Trans id="invoice.products" />
-                        </span>
-                      }
-                      path="items.length"
-                      value={1}
-                    >
+      <Section className="w-full px-8 py-4 max-[480px]:px-4">
+        <OrderReference />
+        <Greeting />
+        <Text className="m-0 mt-2 text-sm">
+          <Trans id="invoice.invoiced" />
+        </Text>
+        <HandlingMessage />
+        <Vtex.RichShippingData path="shippingData">
+          <Section>
+            <Vtex.Group by="packageId" path="logisticsInfo">
+              <Section>
+                <Text className="mt-4 text-xl">
+                  <Vtex.Eq
+                    fallback={
                       <span>
-                        <Trans id="invoice.product" />
+                        <Trans id="invoice.products" />
                       </span>
-                    </Vtex.Eq>
-                  </Text>
-                  <PackageItems orderItemsPath="../../../items" />
-                </Section>
-              </Vtex.Group>
-            </Section>
-          </Vtex.RichShippingData>
-        </Section>
-      </Vtex.Each>
+                    }
+                    path="items.length"
+                    value={1}
+                  >
+                    <span>
+                      <Trans id="invoice.product" />
+                    </span>
+                  </Vtex.Eq>
+                </Text>
+                <PackageItems orderItemsPath="../../../items" />
+              </Section>
+            </Vtex.Group>
+          </Section>
+        </Vtex.RichShippingData>
+      </Section>
       <Section className="border-t border-[#dddddd] px-8 py-3 max-[480px]:px-4">
         <Regards />
       </Section>
