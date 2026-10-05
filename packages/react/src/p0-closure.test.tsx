@@ -167,6 +167,10 @@ describe('P0 closure', () => {
     }
   })
 
+  it('rejects DSL use outside a compilation session with DSL002', () => {
+    expect(() => Each({ path: 'items', children: <Text>x</Text> })).toThrow(/DSL002|compilation/i)
+  })
+
   it('rejects two html tags in the resolved string with HTML001', () => {
     const duplicated = '<!DOCTYPE html><html><head></head><body></body></html>'.repeat(2)
     expect(() => resolvedHtml(duplicated, {})).toThrow(TemplateFailure)
