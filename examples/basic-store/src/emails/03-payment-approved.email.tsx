@@ -8,7 +8,7 @@ import { Greeting, Logo, OrderReference, Regards, StoreShell } from '../componen
 
 export const settings = {
   i18n: {
-    localePath: 'orders.0.clientPreferencesData.locale',
+    localePath: 'clientPreferencesData.locale',
     output: 'merged',
     aliases: { 'pt-br': 'pt-BR' },
   },
@@ -20,31 +20,31 @@ export default function PaymentApproved() {
       <Section className="w-full border-b border-[#dddddd] px-8 pb-4 text-center max-[480px]:px-4">
         <Logo />
       </Section>
-      <Vtex.Each path="orders">
-        <Section className="w-full px-8 py-4 max-[480px]:px-4">
-          <OrderReference />
-          <Greeting />
+      <Section className="w-full px-8 py-4 max-[480px]:px-4">
+        <OrderReference />
+        <Greeting />
+        <Text className="m-0 mt-2 text-sm">
+          <Trans id="payment.approved" />
+        </Text>
+        <Vtex.IfCond operator="==" path="items.length" right={1}>
           <Text className="m-0 mt-2 text-sm">
-            <Trans id="payment.approved" />
+            <Trans id="payment.preparingShippingOneProduct" />
           </Text>
-          <Vtex.IfCond operator="==" path="items.length" right={1}>
-            <Text className="m-0 mt-2 text-sm">
-              <Trans id="payment.preparingShippingOneProduct" />
-            </Text>
-          </Vtex.IfCond>
-          <Vtex.IfCond operator=">" path="items.length" right={1}>
-            <Text className="m-0 mt-2 text-sm">
-              <Trans id="payment.preparingShippingManyProducts" />
-            </Text>
-          </Vtex.IfCond>
+        </Vtex.IfCond>
+        <Vtex.IfCond operator=">" path="items.length" right={1}>
+          <Text className="m-0 mt-2 text-sm">
+            <Trans id="payment.preparingShippingManyProducts" />
+          </Text>
+        </Vtex.IfCond>
+        <Vtex.Unless path="split">
           <Text className="mt-4 text-xl">
             <Trans id="payment.title" />
           </Text>
           <Vtex.Each path="paymentData.transactions">
             <PaymentList />
           </Vtex.Each>
-        </Section>
-      </Vtex.Each>
+        </Vtex.Unless>
+      </Section>
       <Section className="border-t border-[#dddddd] px-8 py-3 max-[480px]:px-4">
         <Regards />
       </Section>
