@@ -20,6 +20,13 @@ export {
 export { errorDiagnostic, warningDiagnostic, type Diagnostic, type DiagnosticSource, type Failure } from './diagnostics'
 export { emitPath, parentHops, parsePath, type Expression, type PathResult } from './expression/path'
 export { checkFixture, schemaMutates } from './fixture/check'
+export {
+  fixtureFileJsonSchema,
+  fixtureFileSchema,
+  fixtureMetaSchema,
+  type FixtureFile,
+  type FixtureMeta,
+} from './fixture/file'
 export { readPathValue, withForcedLocale } from './fixture/locale-path'
 export { emitBlockClose, emitBlockOpen, emitHelperCall, emitInterpolation, emitLiteral } from './hbs/source'
 export { checkCatalogs } from './i18n/catalog'

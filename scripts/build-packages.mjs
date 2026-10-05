@@ -2,7 +2,7 @@ import * as esbuild from 'esbuild'
 import { execFileSync } from 'node:child_process'
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 
@@ -90,6 +90,13 @@ for (const pkg of packages) {
       stdio: 'inherit',
     },
   )
+  if (pkg.name === 'core') {
+    const { fixtureFileJsonSchema } = await import(pathToFileURL(path.join(dir, 'dist/index.js')).href)
+    await writeFile(
+      path.join(dir, 'dist/fixture.schema.json'),
+      `${JSON.stringify(fixtureFileJsonSchema(), null, 2)}\n`,
+    )
+  }
 }
 
 const { build } = await import('vite')

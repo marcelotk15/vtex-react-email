@@ -103,10 +103,14 @@ describe('golden path order-confirmed', () => {
       'pt-BR': await readJson<Record<string, string>>(path.join(fixturesRoot, 'locales/pt-BR.json')),
       'en-US': await readJson<Record<string, string>>(path.join(fixturesRoot, 'locales/en-US.json')),
     }
-    const delivery = await readJson<FixtureFile>(path.join(fixturesRoot, 'fixtures/order-confirmed/delivery.json'))
-    const pickup = await readJson<FixtureFile>(path.join(fixturesRoot, 'fixtures/order-confirmed/pickup.json'))
-    await readJson(path.join(fixturesRoot, 'fixtures/order-confirmed/delivery.meta.json'))
-    await readJson(path.join(fixturesRoot, 'fixtures/order-confirmed/pickup.meta.json'))
+    const deliveryFile = await readJson<{ data: FixtureFile }>(
+      path.join(fixturesRoot, 'fixtures/order-confirmed/delivery.json'),
+    )
+    const pickupFile = await readJson<{ data: FixtureFile }>(
+      path.join(fixturesRoot, 'fixtures/order-confirmed/pickup.json'),
+    )
+    const delivery = deliveryFile.data
+    const pickup = pickupFile.data
 
     expect(checkFixture(OrderConfirmedSchema, delivery)).toBeNull()
     expect(checkFixture(OrderConfirmedSchema, pickup)).toBeNull()

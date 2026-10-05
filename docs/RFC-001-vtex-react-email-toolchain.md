@@ -158,7 +158,7 @@ Modules should be small by responsibility, without imposing a class or interface
 | `tests/golden/`         | Regression artifacts                     |
 | `docs/`                 | Guide, reference, decisions, limitations |
 
-A consumer project contains `vtex-email.config.ts`, `emails/`, `components/`, `schemas/`, `fixtures/`, `locales/`, `assets/`, and `dist/`. Example names: `emails/order-confirmed.email.tsx`, `fixtures/order-confirmed/default.json` (or `.jsonc` with sidecar `default.meta.json`), `locales/pt-BR.json`.
+A consumer project contains `vtex-email.config.ts`, `emails/`, `components/`, `schemas/`, `fixtures/`, `locales/`, `assets/`, and `dist/`. Example names: `emails/order-confirmed.email.tsx`, `fixtures/order-confirmed/default.json` (or `.jsonc`) with `{ meta, data }`, `locales/pt-BR.json`.
 
 `dist/` and cache are generated. Configuration files, sanitized fixtures, schemas, translations, and components are versioned. No secret file is required.
 
@@ -250,7 +250,7 @@ For `auth-code.email.tsx`, the key is `auth-code`: default `id`/`event`, fixture
 
 The component does not receive the fixture JSON as props. It may receive approved static configuration — theme, brand, and composition parameters — but not locally resolved order data.
 
-Fixtures accept `.json` (strict) and `.jsonc` (comments and trailing commas). Both require the `{id}.meta.json` sidecar. Collision between `default.json` and `default.jsonc` is an error.
+Fixtures accept `.json` (strict) and `.jsonc` (comments and trailing commas). Each file is an envelope `{ meta, data }` (optional `$schema` pointing at `@vtex-email/core/fixture.schema.json`). Collision between `default.json` and `default.jsonc` is an error.
 
 A subject may be defined as a separate textual expression in a later phase. The HTML body must never be reused as the subject. Helper support in that field requires its own target verification.
 

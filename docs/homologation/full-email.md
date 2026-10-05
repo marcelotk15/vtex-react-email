@@ -2,7 +2,7 @@
 
 This case gathers, in a single template, the behaviors of the cases under [cases/](cases/). It does not replace the record for each behavior. What this payload does not exercise stays out of scope.
 
-The JSON is synthetic. [packages/react/golden-fixtures/fixtures/order-confirmed/delivery.meta.json](../../packages/react/golden-fixtures/fixtures/order-confirmed/delivery.meta.json) already states it is not the real VTEX envelope. Using it in Message Center does not confirm the event contract.
+The JSON is synthetic. The `meta` block in [packages/react/golden-fixtures/fixtures/order-confirmed/delivery.json](../../packages/react/golden-fixtures/fixtures/order-confirmed/delivery.json) already states it is not the real VTEX envelope. Using it in Message Center does not confirm the event contract.
 
 ## Template
 

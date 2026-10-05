@@ -1,19 +1,19 @@
-import type { Diagnostic, EmailDefinition, EmissionProfile, LocalSimulator, ScopeNode } from '@vtex-email/core'
+import type {
+  Diagnostic,
+  EmailDefinition,
+  EmissionProfile,
+  FixtureMeta,
+  LocalSimulator,
+  ScopeNode,
+} from '@vtex-email/core'
 import type { BuildManifest } from '@vtex-email/react'
 import type { ZodType } from 'zod'
+
+export type { FixtureMeta }
 
 export const exitOk = 0
 export const exitValidation = 1
 export const exitUsage = 2
-
-export interface FixtureMeta {
-  description: string
-  origin: string
-  event: string
-  purpose: string
-  expectedLocale?: string
-  expect: 'valid' | 'invalid'
-}
 
 export interface LoadedFixture {
   id: string

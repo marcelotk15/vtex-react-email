@@ -1,7 +1,0 @@
-{
-  "description": "Pickup with no address and no locale. Synthetic fixture.",
-  "origin": "synthetic",
-  "event": "order-confirmed",
-  "purpose": "alternative conditional and locale fallback",
-  "expectedLocale": "pt-BR"
-}

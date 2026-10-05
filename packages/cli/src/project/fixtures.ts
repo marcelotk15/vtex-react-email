@@ -1,11 +1,17 @@
 import type { ZodType } from 'zod'
 
-import { checkFixture, errorDiagnostic, type Diagnostic } from '@vtex-email/core'
+import {
+  checkFixture,
+  errorDiagnostic,
+  fixtureFileSchema,
+  type Diagnostic,
+  type FixtureMeta,
+} from '@vtex-email/core'
 import { parse as parseJsonc, printParseErrorCode, type ParseError } from 'jsonc-parser'
 import { access, readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 
-import type { FixtureMeta, LoadedFixture } from './types'
+import type { LoadedFixture } from './types'
 
 const PAYLOAD_EXTENSIONS = ['.json', '.jsonc'] as const
 
@@ -27,6 +33,20 @@ export async function readFixtures(
   }
 
   const entries = await readdir(directory, { withFileTypes: true })
+  for (const entry of entries) {
+    if (!entry.isFile()) continue
+    const lower = entry.name.toLowerCase()
+    if (lower.endsWith('.meta.json') || lower.endsWith('.meta.jsonc')) {
+      diagnostics.push(
+        errorDiagnostic(
+          'CFG001',
+          `Legacy fixture sidecar "${entry.name}" is not supported. Put meta and data in one .json or .jsonc file.`,
+          { templateId: emailId, source: { file: path.join(directory, entry.name) } },
+        ),
+      )
+    }
+  }
+
   const payloads = entries.filter((entry) => entry.isFile() && isPayloadFile(entry.name))
   const byId = new Map<string, string[]>()
   for (const entry of payloads) {
@@ -51,7 +71,6 @@ export async function readFixtures(
     }
     const name = names[0]!
     const file = path.join(directory, name)
-    const metaFile = path.join(directory, `${id}.meta.json`)
     const parsed = await parseFixtureFile(file)
     if (!parsed.ok) {
       diagnostics.push({
@@ -61,32 +80,19 @@ export async function readFixtures(
       })
       continue
     }
-    let metaRaw: unknown
-    try {
-      metaRaw = JSON.parse(await readFile(metaFile, 'utf8'))
-    } catch (error) {
-      const message = error instanceof Error ? error.message : `Failed to read fixture meta ${id}.`
+    const envelope = fixtureFileSchema.safeParse(parsed.data)
+    if (!envelope.success) {
       diagnostics.push(
-        errorDiagnostic('CFG001', message, {
+        errorDiagnostic('CFG001', `Fixture ${id} must be an object with meta and data.`, {
           templateId: emailId,
           fixtureId: id,
-          source: { file: metaFile },
+          source: { file },
         }),
       )
       continue
     }
-    const meta = parseMeta(metaRaw)
-    if (!meta) {
-      diagnostics.push(
-        errorDiagnostic('CFG001', `Fixture ${id} has an invalid sidecar.`, {
-          templateId: emailId,
-          fixtureId: id,
-          source: { file: metaFile },
-        }),
-      )
-      continue
-    }
-    fixtures.push({ id, file, data: parsed.data, meta, negative: meta.expect === 'invalid' })
+    const meta: FixtureMeta = envelope.data.meta
+    fixtures.push({ id, file, data: envelope.data.data, meta, negative: meta.expect === 'invalid' })
   }
   return fixtures
 }
@@ -168,32 +174,6 @@ async function parseFixtureFile(
         source: { file, ...position },
       }),
     }
-  }
-}
-
-function parseMeta(value: unknown): FixtureMeta | null {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
-  const record = value as Record<string, unknown>
-  const allowed = new Set(['description', 'origin', 'event', 'purpose', 'expectedLocale', 'expect'])
-  if (Object.keys(record).some((key) => !allowed.has(key))) return null
-  if (
-    typeof record.description !== 'string' ||
-    typeof record.origin !== 'string' ||
-    typeof record.event !== 'string' ||
-    typeof record.purpose !== 'string'
-  ) {
-    return null
-  }
-  if (record.expectedLocale !== undefined && typeof record.expectedLocale !== 'string') return null
-  const expect = record.expect ?? 'valid'
-  if (expect !== 'valid' && expect !== 'invalid') return null
-  return {
-    description: record.description,
-    origin: record.origin,
-    event: record.event,
-    purpose: record.purpose,
-    expect,
-    ...(typeof record.expectedLocale === 'string' ? { expectedLocale: record.expectedLocale } : {}),
   }
 }
 

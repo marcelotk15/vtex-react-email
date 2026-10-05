@@ -15,7 +15,7 @@ The API `export default defineEmail({ id, event, template, schema, fixtures, i18
    - `schemasDir` (default `schemas`); schema at `{schemasDir}/{fileKey}.ts` with Zod `export default`
    - `i18n.localePath` (project default; optional)
 4. Precedence per field: `settings` → project config/defaults → file convention. `i18n` merge is shallow; arrays and `aliases` replace. An invalid value produces a diagnostic; there is no silent fallback.
-5. Fixtures: non-recursive listing of `.json` and `.jsonc` in the resolved folder; mandatory sidecar `{id}.meta.json` (strict JSON) for both; `.json`/`.jsonc` collision with the same id → error. Missing folder → error; empty folder → zero fixtures.
+5. Fixtures: non-recursive listing of `.json` and `.jsonc` in the resolved folder; each file is an envelope `{ meta, data }` (optional `$schema`); legacy `{id}.meta.json` sidecars and bare payloads are errors; `.json`/`.jsonc` collision with the same id → error. Missing folder → error; empty folder → zero fixtures.
 6. `defineEmail` is removed. The internal normalized shape (`EmailDefinition`) remains in the CLI after resolution.
 7. The compiler still receives only `{ id, event, template }`. It does not read fixtures, directories, or settings.
 
