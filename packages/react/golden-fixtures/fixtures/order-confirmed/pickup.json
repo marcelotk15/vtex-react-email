@@ -1,18 +1,30 @@
 {
-  "orders": [
-    {
-      "orderId": "ORD-P",
-      "orderUrl": "https://example.com/orders/ORD-P",
-      "clientProfileData": { "firstName": "Rita" },
-      "items": [
-        {
-          "name": "Copo",
-          "quantity": 1,
-          "sellingPrice": 20000,
-          "imageUrl": "https://example.com/images/copo.png",
-          "shippingEstimate": "8bd"
-        }
-      ]
-    }
-  ]
+  "$schema": "../../../node_modules/@vtex-email/core/dist/fixture.schema.json",
+  "meta": {
+    "description": "Pickup with no address and no locale. Synthetic fixture.",
+    "origin": "synthetic",
+    "event": "order-confirmed",
+    "purpose": "alternative conditional and locale fallback",
+    "expectedLocale": "pt-BR"
+  },
+  "data": {
+    "orders": [
+      {
+        "orderId": "ORD-P",
+        "orderUrl": "https://example.com/orders/ORD-P",
+        "clientProfileData": {
+          "firstName": "Rita"
+        },
+        "items": [
+          {
+            "name": "Copo",
+            "quantity": 1,
+            "sellingPrice": 20000,
+            "imageUrl": "https://example.com/images/copo.png",
+            "shippingEstimate": "8bd"
+          }
+        ]
+      }
+    ]
+  }
 }

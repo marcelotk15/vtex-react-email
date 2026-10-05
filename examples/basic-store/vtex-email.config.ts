@@ -6,7 +6,6 @@ export default defineConfig({
   outDir: 'dist',
   fixturesDir: 'fixtures',
   schemasDir: 'schemas',
-  target: { profile: './vtex-target.ts' },
   i18n: {
     locales: ['pt-BR', 'en-US'],
     defaultLocale: 'pt-BR',

@@ -24,6 +24,21 @@ Improve preview shell.
     })
   })
 
+  it('parses single-quoted package names written by the formatter', () => {
+    const parsed = parseChangesetMarkdown(`---
+'@vtex-email/core': minor
+'@vtex-email/react': minor
+---
+
+Helpers.
+`)
+    expect(parsed.empty).toBe(false)
+    expect(parsed.packages).toEqual({
+      '@vtex-email/core': 'minor',
+      '@vtex-email/react': 'minor',
+    })
+  })
+
   it('detects empty changesets', () => {
     expect(parseChangesetMarkdown('---\n---\n\nNo release.\n').empty).toBe(true)
   })
@@ -34,7 +49,7 @@ describe('packagesFromChangedFiles', () => {
     const affected = packagesFromChangedFiles([
       'packages/preview/src/ui/sheet.tsx',
       'packages/cli/src/index.ts',
-      'examples/basic-store/emails/auth-code.email.tsx',
+      'examples/basic-store/emails/payment-approved.email.tsx',
       'docs/release.md',
     ])
     expect([...affected].sort()).toEqual(['@vtex-email/cli', '@vtex-email/preview'])

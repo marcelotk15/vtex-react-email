@@ -37,7 +37,7 @@ describe('vtex-email executable', () => {
     expect(unknown.code).toBe(2)
     expect(unknown.stderr).toContain('Unknown command')
 
-    const preview = await runNode(script, ['preview', 'order-confirmed'], root)
+    const preview = await runNode(script, ['preview', 'order-confirmed-store'], root)
     expect(preview.code).toBe(2)
     expect(preview.stderr).toContain('--fixture')
 
@@ -76,51 +76,52 @@ describe('vtex-email executable', () => {
       expect(validated.stdout.includes(project)).toBe(false)
       expect(
         report.unverifiedCapabilities.some(
-          (item) => item.templateId === 'order-confirmed' && item.name === 'eq' && item.evidence === 'experimental',
+          (item) =>
+            item.templateId === 'order-confirmed-store' && item.name === 'eq' && item.evidence === 'experimental',
         ),
       ).toBe(true)
-      expect(report.unverifiedCapabilities.some((item) => item.templateId === 'auth-code' && item.name === 'eq')).toBe(
-        false,
-      )
+      expect(
+        report.unverifiedCapabilities.some((item) => item.templateId === 'payment-approved' && item.name === 'eq'),
+      ).toBe(false)
       expect(validated.stderr).toContain('homologation experimental')
       expect(await missing(path.join(project, 'dist'))).toBe(true)
 
       const built = await runNode(script, ['build', '--config', configPath], elsewhere)
       expect(built).toMatchObject({ code: 0 })
       expect(built.stdout).toContain('TARGET001')
-      const orderFile = path.join(project, 'dist', 'order-confirmed.html')
-      const authFile = path.join(project, 'dist', 'locales', 'pt-BR', 'auth-code.html')
+      const orderFile = path.join(project, 'dist', 'order-confirmed-store.html')
+      const paymentFile = path.join(project, 'dist', 'locales', 'pt-BR', 'payment-approved.html')
       const orderBytes = await readFile(orderFile, 'utf8')
-      const authBytes = await readFile(authFile, 'utf8')
+      const paymentBytes = await readFile(paymentFile, 'utf8')
       expect(orderBytes).toContain('{{#eq')
 
-      const partial = await runNode(script, ['build', 'order-confirmed', '--config', configPath], elsewhere)
+      const partial = await runNode(script, ['build', 'order-confirmed-store', '--config', configPath], elsewhere)
       expect(partial).toMatchObject({ code: 0 })
-      expect(await readFile(authFile, 'utf8')).toBe(authBytes)
+      expect(await readFile(paymentFile, 'utf8')).toBe(paymentBytes)
 
-      const english = path.join(project, 'dist', 'locales', 'en-US', 'order-confirmed.html')
+      const english = path.join(project, 'dist', 'locales', 'en-US', 'order-confirmed-store.html')
       const englishBytes = await readFile(english, 'utf8')
       const locale = await runNode(
         script,
-        ['build', 'order-confirmed', '--locale', 'pt-BR', '--config', configPath],
+        ['build', 'order-confirmed-store', '--locale', 'pt-BR', '--config', configPath],
         elsewhere,
       )
       expect(locale).toMatchObject({ code: 0 })
       expect(await readFile(orderFile, 'utf8')).toBe(orderBytes)
       expect(await readFile(english, 'utf8')).toBe(englishBytes)
-      expect(await readFile(authFile, 'utf8')).toBe(authBytes)
+      expect(await readFile(paymentFile, 'utf8')).toBe(paymentBytes)
 
       const previewDir = path.join(project, 'preview')
       const preview = await runNode(
         script,
-        ['preview', 'order-confirmed', '--fixture', 'delivery', '--out', previewDir, '--config', configPath],
+        ['preview', 'order-confirmed-store', '--fixture', 'full', '--out', previewDir, '--config', configPath],
         elsewhere,
       )
       expect(preview).toMatchObject({ code: 0 })
-      const resolved = await readFile(path.join(previewDir, 'order-confirmed.delivery.html'), 'utf8')
+      const resolved = await readFile(path.join(previewDir, 'order-confirmed-store.full.html'), 'utf8')
       expect(resolved.includes('{{')).toBe(false)
-      expect(resolved.includes('Hello,')).toBe(true)
-      expect(await missing(path.join(project, 'dist', 'order-confirmed.delivery.html'))).toBe(true)
+      expect(resolved.includes('Hi,')).toBe(true)
+      expect(await missing(path.join(project, 'dist', 'order-confirmed-store.full.html'))).toBe(true)
 
       const promoted = await runNode(
         script,
@@ -131,7 +132,7 @@ describe('vtex-email executable', () => {
       expect((JSON.parse(promoted.stdout) as { ok: boolean; wrote: string[] }).wrote).toEqual([])
       expect(await readFile(orderFile, 'utf8')).toBe(orderBytes)
 
-      const stale = path.join(project, 'dist', 'locales', 'fr-FR', 'order-confirmed.html')
+      const stale = path.join(project, 'dist', 'locales', 'fr-FR', 'order-confirmed-store.html')
       await mkdir(path.dirname(stale), { recursive: true })
       await writeFile(stale, 'stale', 'utf8')
       const manifestPath = path.join(project, 'dist', 'manifest.json')
@@ -139,9 +140,9 @@ describe('vtex-email executable', () => {
         emails: Array<{ id: string; files: Array<{ name: string; sha256: string; role: string; locale?: string }> }>
       }
       manifest.emails
-        .find((email) => email.id === 'order-confirmed')
+        .find((email) => email.id === 'order-confirmed-store')
         ?.files.push({
-          name: 'locales/fr-FR/order-confirmed.html',
+          name: 'locales/fr-FR/order-confirmed-store.html',
           sha256: 'stale',
           role: 'locale',
           locale: 'fr-FR',
@@ -150,7 +151,7 @@ describe('vtex-email executable', () => {
       const cleaned = await runNode(script, ['build', '--config', configPath], elsewhere)
       expect(cleaned).toMatchObject({ code: 0 })
       expect(await missing(stale)).toBe(true)
-      expect(await readFile(authFile, 'utf8')).toBe(authBytes)
+      expect(await readFile(paymentFile, 'utf8')).toBe(paymentBytes)
 
       await writeFile(path.join(project, 'locales', 'pt-BR.json'), '{', 'utf8')
       const failed = await runNode(script, ['build', '--config', configPath, '--format', 'json'], elsewhere)
@@ -159,7 +160,7 @@ describe('vtex-email executable', () => {
       expect(failure.ok).toBe(false)
       expect(failure.wrote).toEqual([])
       expect(await readFile(orderFile, 'utf8')).toBe(orderBytes)
-      expect(await readFile(authFile, 'utf8')).toBe(authBytes)
+      expect(await readFile(paymentFile, 'utf8')).toBe(paymentBytes)
     } finally {
       await rm(project, { recursive: true, force: true })
       await rm(elsewhere, { recursive: true, force: true })
@@ -177,10 +178,9 @@ async function binScript(): Promise<string> {
 
 async function copyStore(destination: string): Promise<string> {
   await mkdir(destination, { recursive: true })
-  for (const name of ['emails', 'schemas', 'locales', 'fixtures']) {
+  for (const name of ['emails', 'schemas', 'locales', 'fixtures', 'components']) {
     await cp(path.join(root, name), path.join(destination, name), { recursive: true })
   }
-  await cp(path.join(root, 'vtex-target.ts'), path.join(destination, 'vtex-target.ts'))
   await cp(path.join(root, 'vtex-email.config.ts'), path.join(destination, 'vtex-email.config.ts'))
   return path.join(destination, 'vtex-email.config.ts')
 }

@@ -2,6 +2,11 @@ export type Evidence = 'documented' | 'verified' | 'experimental'
 
 export type ArgKind = 'path' | 'literal'
 
+export interface HashArg {
+  name: string
+  kind: ArgKind
+}
+
 export interface EmissionCapability {
   name: string
   form: 'inline' | 'block' | 'path'
@@ -9,6 +14,8 @@ export interface EmissionCapability {
   note: string
   arity?: { min: number; max: number }
   args?: readonly ArgKind[]
+  hash?: readonly HashArg[]
+  literals?: ReadonlyArray<{ index: number; values: readonly string[] }>
   context?: 'preserve' | 'item'
   elseContext?: 'preserve' | 'outer'
 }
@@ -30,6 +37,7 @@ export interface InlineHelper {
 export interface BlockOptions {
   fn: (context: unknown) => string
   inverse: (context: unknown) => string
+  hash: Readonly<Record<string, unknown>>
 }
 
 export interface BlockHelper {

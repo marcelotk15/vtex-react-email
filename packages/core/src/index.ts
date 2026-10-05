@@ -20,6 +20,13 @@ export {
 export { errorDiagnostic, warningDiagnostic, type Diagnostic, type DiagnosticSource, type Failure } from './diagnostics'
 export { emitPath, parentHops, parsePath, type Expression, type PathResult } from './expression/path'
 export { checkFixture, schemaMutates } from './fixture/check'
+export {
+  fixtureFileJsonSchema,
+  fixtureFileSchema,
+  fixtureMetaSchema,
+  type FixtureFile,
+  type FixtureMeta,
+} from './fixture/file'
 export { readPathValue, withForcedLocale } from './fixture/locale-path'
 export { emitBlockClose, emitBlockOpen, emitHelperCall, emitInterpolation, emitLiteral } from './hbs/source'
 export { checkCatalogs } from './i18n/catalog'
@@ -27,7 +34,7 @@ export { mergeLocaleDocuments } from './i18n/merge'
 export { parseMessage, placeholderSignature, type MessagePart, type ParsedMessage } from './i18n/message'
 export { bindSites, type BindResult } from './markers/bind'
 export { restoreHandlebars, type RestoreResult } from './markers/restore'
-export type { BlockName, DynamicAttribute, ResolvedPath, SiteArgument, SiteRecord } from './markers/sites'
+export type { BlockName, DynamicAttribute, ResolvedPath, SiteArgument, SiteHash, SiteRecord } from './markers/sites'
 export {
   mintToken,
   opaqueTokenIssue,
@@ -50,6 +57,7 @@ export {
   type EmissionCapability,
   type EmissionProfile,
   type Evidence,
+  type HashArg,
   type InlineHelper,
   type LocalSimulator,
   type Profile,

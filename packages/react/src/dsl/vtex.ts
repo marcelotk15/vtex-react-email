@@ -1,5 +1,5 @@
 import { DynamicButton, DynamicImg, DynamicLink } from './attributes'
-import { Each, If, Unless } from './blocks'
+import { Each, Eq, Group, HasSubStr, If, IfCond, Unless } from './blocks'
 import { expr } from './expr'
 import { Trans } from './trans'
 import { Helper, Value } from './values'
@@ -8,6 +8,10 @@ export const Vtex = {
   Each,
   If,
   Unless,
+  IfCond,
+  HasSubStr,
+  Group,
+  Eq,
   Value,
   Helper,
   Link: DynamicLink,
@@ -15,4 +19,4 @@ export const Vtex = {
   Button: DynamicButton,
 }
 
-export { Each, expr, Helper, If, Trans, Unless, Value }
+export { Each, Eq, expr, Group, HasSubStr, Helper, If, IfCond, Trans, Unless, Value }

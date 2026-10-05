@@ -70,9 +70,19 @@ function checkCapabilities(sites: ReadonlyMap<string, SiteRecord>, profile: Emis
       if (capability.context === undefined || capability.elseContext === undefined) {
         diagnostics.push(errorDiagnostic('HBS002', `Block ${site.block ?? ''} does not declare its context.`))
       }
+      diagnostics.push(...checkArguments(capability, site))
+      diagnostics.push(...checkHash(capability, site))
+      diagnostics.push(...checkLiterals(capability, site))
+    }
+    if (site.path?.emitted === '@index') {
+      const capability = findCapability(profile, '@index', 'path')
+      if (!capability) {
+        diagnostics.push(errorDiagnostic('HBS002', 'The profile does not enable the @index path.', { path: '@index' }))
+      }
     }
     diagnostics.push(...checkParentCapability(site.path, profile))
     for (const arg of site.args ?? []) diagnostics.push(...checkParentCapability(arg.path, profile))
+    for (const arg of Object.values(site.hash ?? {})) diagnostics.push(...checkParentCapability(arg.path, profile))
   }
   return diagnostics
 }
@@ -100,6 +110,72 @@ function checkArguments(capability: EmissionCapability, site: SiteRecord): Diagn
   return diagnostics
 }
 
+function checkHash(capability: EmissionCapability, site: SiteRecord): Diagnostic[] {
+  if (!capability.hash) {
+    if (site.hash && Object.keys(site.hash).length > 0) {
+      return [errorDiagnostic('HBS002', `Helper ${capability.name} does not accept named arguments.`)]
+    }
+    return []
+  }
+  const diagnostics: Diagnostic[] = []
+  const provided = site.hash ?? {}
+  for (const expected of capability.hash) {
+    const actual = provided[expected.name]
+    if (!actual) {
+      diagnostics.push(errorDiagnostic('HBS002', `Helper ${capability.name} requires named argument ${expected.name}.`))
+      continue
+    }
+    if (actual.kind !== expected.kind) {
+      diagnostics.push(
+        errorDiagnostic(
+          'HBS002',
+          `Helper ${capability.name} named argument ${expected.name} must be a ${expected.kind}.`,
+        ),
+      )
+    }
+    if (expected.name === 'by' && actual.kind === 'literal') {
+      const raw = unwrapQuotedLiteral(actual.emitted)
+      if (raw === null || !/^[A-Za-z_][A-Za-z0-9_]*$/.test(raw)) {
+        diagnostics.push(
+          errorDiagnostic('HBS002', `Helper ${capability.name} named argument by must be an identifier literal.`),
+        )
+      }
+    }
+  }
+  for (const name of Object.keys(provided)) {
+    if (!capability.hash.some((item) => item.name === name)) {
+      diagnostics.push(errorDiagnostic('HBS002', `Helper ${capability.name} does not accept named argument ${name}.`))
+    }
+  }
+  return diagnostics
+}
+
+function checkLiterals(capability: EmissionCapability, site: SiteRecord): Diagnostic[] {
+  if (!capability.literals) return []
+  const diagnostics: Diagnostic[] = []
+  for (const rule of capability.literals) {
+    const actual = site.args?.[rule.index]
+    if (!actual || actual.kind !== 'literal') continue
+    const raw = unwrapQuotedLiteral(actual.emitted)
+    if (raw === null || !rule.values.includes(raw)) {
+      diagnostics.push(
+        errorDiagnostic(
+          'HBS002',
+          `Helper ${capability.name} argument ${rule.index + 1} must be one of ${rule.values.join(', ')}.`,
+        ),
+      )
+    }
+  }
+  return diagnostics
+}
+
+function unwrapQuotedLiteral(emitted: string): string | null {
+  if (emitted.length >= 2 && emitted.startsWith('"') && emitted.endsWith('"')) {
+    return emitted.slice(1, -1).replaceAll('\\"', '"').replaceAll('\\\\', '\\')
+  }
+  return null
+}
+
 function checkParentCapability(path: ResolvedPath | undefined, profile: EmissionProfile): Diagnostic[] {
   if (!path || path.parentHops === 0) return []
   const capability = findCapability(profile, '../', 'path')
@@ -121,9 +197,11 @@ function checkScope(
       diagnostics.push(errorDiagnostic('TOK001', `Marker ${id} was not located for scope validation.`))
       continue
     }
-    const depth = depthAt(anchor.start, id, regions)
-    diagnostics.push(...checkDepth(site.path, depth))
-    for (const arg of site.args ?? []) diagnostics.push(...checkDepth(arg.path, depth))
+    const depth = depthAt(anchor.start, id, regions, 'item')
+    const eachDepth = depthAt(anchor.start, id, regions, 'each')
+    diagnostics.push(...checkDepth(site.path, depth, eachDepth))
+    for (const arg of site.args ?? []) diagnostics.push(...checkDepth(arg.path, depth, eachDepth))
+    for (const arg of Object.values(site.hash ?? {})) diagnostics.push(...checkDepth(arg.path, depth, eachDepth))
   }
   return diagnostics
 }
@@ -132,29 +210,48 @@ function regionsFrom(
   sites: ReadonlyMap<string, SiteRecord>,
   anchors: ReadonlyMap<string, Anchor>,
   profile: EmissionProfile,
-): Array<Anchor & { pushes: boolean }> {
-  const regions: Array<Anchor & { pushes: boolean }> = []
+): Array<Anchor & { pushes: boolean; each: boolean }> {
+  const regions: Array<Anchor & { pushes: boolean; each: boolean }> = []
   for (const [id, site] of sites) {
     if (site.kind !== 'block' || !site.block) continue
     const anchor = anchors.get(id)
     const capability = findCapability(profile, site.block)
     if (!anchor || !capability) continue
-    regions.push({ ...anchor, id, pushes: capability.context === 'item' })
+    regions.push({
+      ...anchor,
+      id,
+      pushes: capability.context === 'item',
+      each: site.block === 'each',
+    })
   }
   return regions
 }
 
-function depthAt(offset: number, selfId: string, regions: ReadonlyArray<Anchor & { pushes: boolean }>): number {
+function depthAt(
+  offset: number,
+  selfId: string,
+  regions: ReadonlyArray<Anchor & { pushes: boolean; each: boolean }>,
+  mode: 'item' | 'each',
+): number {
   let depth = 0
   for (const region of regions) {
-    if (!region.pushes || region.id === selfId) continue
+    if (region.id === selfId) continue
+    if (mode === 'item' && !region.pushes) continue
+    if (mode === 'each' && !region.each) continue
     if (offset > region.start && offset < region.end) depth += 1
   }
   return depth
 }
 
-function checkDepth(path: ResolvedPath | undefined, depth: number): Diagnostic[] {
-  if (!path || path.parentHops <= depth) return []
+function checkDepth(path: ResolvedPath | undefined, depth: number, eachDepth: number): Diagnostic[] {
+  if (!path) return []
+  if (path.emitted === '@index') {
+    if (eachDepth < 1) {
+      return [errorDiagnostic('HBS001', 'Path "@index" is only available inside each.', { path: '@index' })]
+    }
+    return []
+  }
+  if (path.parentHops <= depth) return []
   return [errorDiagnostic('HBS001', `Path "${path.emitted}" goes beyond the root context.`, { path: path.emitted })]
 }
 
@@ -163,8 +260,14 @@ function usedCapabilities(sites: ReadonlyMap<string, SiteRecord>, profile: Emiss
   for (const site of sites.values()) {
     if (site.kind === 'block' && site.block) names.add(site.block)
     if (site.kind === 'helper' && site.helper) names.add(site.helper)
+    if (site.path?.emitted === '@index') names.add('@index')
     if (site.path && site.path.parentHops > 0) names.add('../')
     for (const arg of site.args ?? []) {
+      if (arg.path?.emitted === '@index') names.add('@index')
+      if (arg.path && arg.path.parentHops > 0) names.add('../')
+    }
+    for (const arg of Object.values(site.hash ?? {})) {
+      if (arg.path?.emitted === '@index') names.add('@index')
       if (arg.path && arg.path.parentHops > 0) names.add('../')
     }
   }
@@ -203,11 +306,15 @@ function materialize(
     if (literal) return { ok: true, marker: { ...marker, replacement: emitInterpolation(literal.emitted) } }
   }
   if (marker.kind === 'open' && site.kind === 'block' && site.block && site.path) {
+    const parts = [site.path.emitted, ...(site.args ?? []).map((arg) => arg.emitted)]
+    for (const [name, arg] of Object.entries(site.hash ?? {})) {
+      parts.push(`${name}=${arg.emitted}`)
+    }
     return {
       ok: true,
       marker: {
         ...marker,
-        open: emitBlockOpen(site.block, [site.path.emitted]),
+        open: emitBlockOpen(site.block, parts),
         close: emitBlockClose(site.block),
       },
     }

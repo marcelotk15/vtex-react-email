@@ -283,7 +283,6 @@ function paths(root: string, emailsDir = path.join(root, 'emails')): SessionPath
   return {
     configDir: root,
     configFile: path.join(root, 'vtex-email.config.ts'),
-    profilePath: path.join(root, 'vtex-target.ts'),
     catalogFiles: [path.join(root, 'locales', 'pt-BR.json')],
     emailRoots: [emailsDir],
     schemasDir: path.join(root, 'schemas'),

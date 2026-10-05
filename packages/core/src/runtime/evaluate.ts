@@ -26,8 +26,16 @@ export function renderTemplate(source: string, data: unknown, simulator: LocalSi
     } else {
       const apply = helper.apply
       instance.registerHelper(helper.name, function (this: unknown, ...args: unknown[]) {
-        const blockOptions = args.at(-1) as Parameters<typeof apply>[2]
-        return apply(this, args.slice(0, -1), blockOptions)
+        const raw = args.at(-1) as {
+          fn: (context: unknown) => string
+          inverse: (context: unknown) => string
+          hash?: Readonly<Record<string, unknown>>
+        }
+        return apply(this, args.slice(0, -1), {
+          fn: raw.fn,
+          inverse: raw.inverse,
+          hash: raw.hash ?? {},
+        })
       } as never)
     }
   }

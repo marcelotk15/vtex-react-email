@@ -1,8 +1,0 @@
-{
-  "description": "A valid authentication code.",
-  "origin": "synthetic",
-  "event": "auth-code",
-  "purpose": "different payload from the order email",
-  "expectedLocale": "pt-BR",
-  "expect": "valid"
-}

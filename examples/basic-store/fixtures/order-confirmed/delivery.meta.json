@@ -1,8 +1,0 @@
-{
-  "description": "One order with an address and a known locale.",
-  "origin": "synthetic",
-  "event": "order-confirmed",
-  "purpose": "runtime locale selection",
-  "expectedLocale": "en-US",
-  "expect": "valid"
-}

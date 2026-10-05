@@ -6,7 +6,6 @@ import path from 'node:path'
 export interface SessionPaths {
   configDir: string
   configFile: string
-  profilePath: string
   catalogFiles: readonly string[]
   emailRoots: readonly string[]
   schemasDir: string
@@ -41,7 +40,7 @@ export function classifyChange(input: {
   const fixtures = new Set<string>()
   const schemas = new Set<string>()
   for (const file of input.files) {
-    if (samePath(file, input.paths.configFile) || samePath(file, input.paths.profilePath)) {
+    if (samePath(file, input.paths.configFile)) {
       full = true
       continue
     }

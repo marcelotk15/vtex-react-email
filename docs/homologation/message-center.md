@@ -7,7 +7,7 @@ The artifact to paste is the HTML with Handlebars produced by `vtex-email build`
 ## Steps
 
 1. Compile the email on the local machine, on Node `24.21.0`, with green `pnpm typecheck` and `pnpm test`, or with `vtex-email build` in the consumer project.
-2. Open the artifact file, for example `dist/order-confirmed.html`. Confirm that fixture data (`ORD-A`, `200,00`, names) is not frozen in the file.
+2. Open the artifact file, for example `dist/order-confirmed-store.html`. Confirm that fixture data (`ORD-1001`, prices, names) is not frozen in the file.
 3. In the test account Message Center, open the matching transactional template and paste the content into the template field. Do not publish and do not create a campaign.
 4. In the account's own test panel, use the case JSON. The JSON is synthetic. It is not the confirmed VTEX event envelope.
 5. Read the resolved HTML and text. Compare with the case's expected local result, in the indicated excerpt.

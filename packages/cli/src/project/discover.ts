@@ -7,14 +7,12 @@ import {
   type Diagnostic,
   type EmailDefinition,
   type EmailSettings,
-  type EmissionProfile,
-  type LocalSimulator,
 } from '@vtex-email/core'
 import { access, glob } from 'node:fs/promises'
 import path from 'node:path'
 
 import type { ResolvedConfig } from '../config/config'
-import type { LoadedProfile, ResolvedEmail } from './types'
+import type { ResolvedEmail } from './types'
 
 import { importBundled, loadEmailEntry } from './module-loader'
 import { parseEmailSettings } from './settings'
@@ -110,26 +108,6 @@ export function duplicateId(ids: readonly string[]): string | null {
     seen.add(id)
   }
   return null
-}
-
-export function readProfile(module: Record<string, unknown>): LoadedProfile | null {
-  const candidate = module.profile ?? module.default
-  if (!candidate || typeof candidate !== 'object') return null
-  const value = candidate as Partial<EmissionProfile> & { helpers?: LocalSimulator['helpers'] }
-  if (
-    typeof value.id !== 'string' ||
-    typeof value.allowParentSegments !== 'boolean' ||
-    !Array.isArray(value.capabilities)
-  )
-    return null
-  return {
-    emission: {
-      id: value.id,
-      allowParentSegments: value.allowParentSegments,
-      capabilities: value.capabilities,
-    },
-    simulator: { helpers: Array.isArray(value.helpers) ? value.helpers : [] },
-  }
 }
 
 async function discoverFiles(config: ResolvedConfig): Promise<string[]> {

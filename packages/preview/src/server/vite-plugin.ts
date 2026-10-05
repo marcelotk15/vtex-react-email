@@ -14,7 +14,6 @@ export interface PreviewVitePluginOptions {
   clients: Set<ServerResponse>
   configDir: string
   configPath: string
-  profilePath: string
   outDir: string
   cacheDir: string
   clientRoot: string | null
@@ -25,7 +24,7 @@ export interface PreviewVitePluginOptions {
 export function previewVitePlugin(options: PreviewVitePluginOptions): Plugin {
   const batch = createDebouncedBatch(DEBOUNCE_MS, (files) => {
     void options.session.ingest(files)
-    if (files.some((file) => samePath(file, options.configPath) || samePath(file, options.profilePath))) {
+    if (files.some((file) => samePath(file, options.configPath))) {
       options.onConfigPathsChanged(files)
     }
   })

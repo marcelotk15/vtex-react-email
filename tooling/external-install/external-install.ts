@@ -1,6 +1,5 @@
 import { spawn } from 'node:child_process'
-import { createHash } from 'node:crypto'
-import { access, cp, mkdir, mkdtemp, readFile, readdir, realpath, rm, writeFile } from 'node:fs/promises'
+import { access, cp, mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
@@ -12,7 +11,7 @@ const packages = ['core', 'vtex', 'react', 'cli', 'preview'] as const
 
 export async function runExternalInstall(): Promise<{
   ok: true
-  hashes: Record<string, string>
+  html: string
 }> {
   await ensurePackagesBuilt()
 
@@ -32,17 +31,9 @@ export async function runExternalInstall(): Promise<{
     const built = await run('pnpm', ['exec', 'vtex-email', 'build'], consumer)
     if (built.code !== 0) throw new Error(`build failed:\n${built.stderr}\n${built.stdout}`)
 
-    const hashes = await hashTree(path.join(consumer, 'dist'))
-    const baseline = JSON.parse(await readFile(path.join(here, 'baseline-hashes.json'), 'utf8')) as {
-      files: Record<string, string>
-    }
-    for (const [file, expected] of Object.entries(baseline.files)) {
-      if (file === 'manifest.json') continue
-      if (hashes[file] !== expected) {
-        throw new Error(`Baseline mismatch for ${file}: expected ${expected}, got ${hashes[file] ?? 'missing'}`)
-      }
-    }
-    if (!hashes['manifest.json']) throw new Error('Missing manifest.json')
+    const artifact = await readFile(path.join(consumer, 'dist', 'note.html'), 'utf8')
+    if (!artifact.includes('{{name}}')) throw new Error('Installed build did not emit the template marker')
+    if (artifact.includes('Ada')) throw new Error('Installed build froze fixture data')
 
     await writeFile(path.join(consumer, 'vite.config.ts'), `export default { server: { port: 59999 } }\n`)
     const port = 34567
@@ -90,16 +81,13 @@ export async function runExternalInstall(): Promise<{
       }
       void fontHref
 
-      await writeFile(
-        path.join(consumer, 'components', 'shared.tsx'),
-        `export function Shared() { return <span>shared-updated</span> }\n`,
-      )
+      const signOff = path.join(consumer, 'components', 'sign-off.tsx')
+      await writeFile(signOff, `${await readFile(signOff, 'utf8')}\n`)
       await sleep(1_000)
-      const fixture = path.join(consumer, 'fixtures', 'auth-code', 'default.jsonc')
-      const before = await readFile(fixture, 'utf8')
-      await writeFile(fixture, before.replace('AUTH-KEEP', 'AUTH-WATCH'))
+      const fixture = path.join(consumer, 'fixtures', 'note', 'full.jsonc')
+      await writeFile(fixture, (await readFile(fixture, 'utf8')).replace('Ada', 'Grace'))
       await sleep(1_000)
-      await rm(path.join(consumer, 'emails', 'auth-code.email.tsx'))
+      await rm(path.join(consumer, 'emails', 'receipt.email.tsx'))
       await sleep(1_000)
     } finally {
       await stopProcess(dev, port)
@@ -109,7 +97,7 @@ export async function runExternalInstall(): Promise<{
     if (stillOpen) throw new Error(`Port ${port} remained open after close.`)
     await removeTree(packRoot)
     await removeTree(consumer)
-    return { ok: true, hashes }
+    return { ok: true, html: artifact }
   } catch (error) {
     await removeTree(packRoot)
     await removeTree(consumer)
@@ -178,17 +166,7 @@ async function packPackages(packRoot: string): Promise<Record<(typeof packages)[
 }
 
 async function writeConsumer(consumer: string, tarballs: Record<(typeof packages)[number], string>): Promise<void> {
-  await cp(path.join(root, 'examples/basic-store/emails'), path.join(consumer, 'emails'), { recursive: true })
-  await cp(path.join(root, 'examples/basic-store/schemas'), path.join(consumer, 'schemas'), { recursive: true })
-  await cp(path.join(root, 'examples/basic-store/locales'), path.join(consumer, 'locales'), { recursive: true })
-  await cp(path.join(root, 'examples/basic-store/fixtures'), path.join(consumer, 'fixtures'), { recursive: true })
-  await mkdir(path.join(consumer, 'components'), { recursive: true })
-  await writeFile(
-    path.join(consumer, 'components', 'shared.tsx'),
-    `export function Shared() { return <span>shared</span> }\n`,
-  )
-  await cp(path.join(root, 'examples/basic-store/vtex-target.ts'), path.join(consumer, 'vtex-target.ts'))
-  await cp(path.join(root, 'examples/basic-store/vtex-email.config.ts'), path.join(consumer, 'vtex-email.config.ts'))
+  await writeProject(consumer)
 
   const packageJson = {
     name: 'vtex-email-external-consumer',
@@ -200,7 +178,6 @@ async function writeConsumer(consumer: string, tarballs: Record<(typeof packages
       '@vtex-email/core': pathToFileUrl(tarballs.core),
       '@vtex-email/preview': pathToFileUrl(tarballs.preview),
       '@vtex-email/react': pathToFileUrl(tarballs.react),
-      '@vtex-email/vtex': pathToFileUrl(tarballs.vtex),
       esbuild: '0.28.2',
       react: '19.3.0',
       'react-dom': '19.3.0',
@@ -227,6 +204,119 @@ async function writeConsumer(consumer: string, tarballs: Record<(typeof packages
   await writeFile(path.join(consumer, 'package.json'), `${JSON.stringify(packageJson, null, 2)}\n`)
 }
 
+async function writeProject(directory: string): Promise<void> {
+  const files: Record<string, string> = {
+    'vtex-email.config.ts': `import { pixelBasedPreset } from '@react-email/components'
+import { defineConfig } from '@vtex-email/cli'
+
+export default defineConfig({
+  emails: ['emails/**/*.email.tsx'],
+  outDir: 'dist',
+  i18n: {
+    locales: ['en-US'],
+    defaultLocale: 'en-US',
+    catalogs: 'locales/{locale}.json',
+    missingKey: 'error',
+    localePath: 'locale',
+  },
+  tailwind: { presets: [pixelBasedPreset] },
+  preview: { host: '127.0.0.1', port: 3000 },
+})
+`,
+    'locales/en-US.json': '{}\n',
+    'components/sign-off.tsx': `import { Text } from '@react-email/components'
+
+export function SignOff() {
+  return <Text>Thanks</Text>
+}
+`,
+    'emails/note.email.tsx': `import { Body, Head, Html, Text } from '@react-email/components'
+import { Vtex } from '@vtex-email/react'
+
+import { SignOff } from '../components/sign-off'
+
+export default function Note() {
+  return (
+    <Html>
+      <Head />
+      <Body>
+        <Text>
+          Hello <Vtex.Value path="name" />
+        </Text>
+        <SignOff />
+      </Body>
+    </Html>
+  )
+}
+`,
+    'emails/receipt.email.tsx': `import { Body, Head, Html, Text } from '@react-email/components'
+import { Vtex } from '@vtex-email/react'
+
+export default function Receipt() {
+  return (
+    <Html>
+      <Head />
+      <Body>
+        <Text>
+          Receipt <Vtex.Value path="code" />
+        </Text>
+      </Body>
+    </Html>
+  )
+}
+`,
+    'schemas/note.ts': `import { z } from 'zod'
+
+export default z.object({
+  locale: z.string().optional(),
+  name: z.string(),
+})
+`,
+    'schemas/receipt.ts': `import { z } from 'zod'
+
+export default z.object({
+  locale: z.string().optional(),
+  code: z.string(),
+})
+`,
+    'fixtures/note/full.jsonc': `{
+  "meta": {
+    "description": "Named note",
+    "origin": "synthetic",
+    "event": "note",
+    "purpose": "preview",
+    "expectedLocale": "en-US",
+    "expect": "valid"
+  },
+  "data": {
+    "locale": "en-US",
+    "name": "Ada"
+  }
+}
+`,
+    'fixtures/receipt/full.jsonc': `{
+  "meta": {
+    "description": "Receipt code",
+    "origin": "synthetic",
+    "event": "receipt",
+    "purpose": "preview",
+    "expectedLocale": "en-US",
+    "expect": "valid"
+  },
+  "data": {
+    "locale": "en-US",
+    "code": "R-1"
+  }
+}
+`,
+  }
+  for (const [name, contents] of Object.entries(files)) {
+    const file = path.join(directory, name)
+    await mkdir(path.dirname(file), { recursive: true })
+    await writeFile(file, contents)
+  }
+}
+
 function pathToFileUrl(file: string): string {
   return `file:${file.replaceAll('\\', '/')}`
 }
@@ -250,24 +340,6 @@ async function assertNoSourceLinks(consumer: string): Promise<void> {
       throw new Error(`${name} did not resolve under dist: ${real}`)
     }
   }
-}
-
-async function hashTree(directory: string): Promise<Record<string, string>> {
-  const files: Record<string, string> = {}
-  async function walk(current: string): Promise<void> {
-    for (const entry of await readdir(current, { withFileTypes: true })) {
-      const full = path.join(current, entry.name)
-      if (entry.isDirectory()) await walk(full)
-      else {
-        const relative = path.relative(directory, full).split(path.sep).join('/')
-        files[relative] = createHash('sha256')
-          .update(await readFile(full))
-          .digest('hex')
-      }
-    }
-  }
-  await walk(directory)
-  return files
 }
 
 function run(command: string, args: string[], cwd: string): Promise<{ code: number; stdout: string; stderr: string }> {

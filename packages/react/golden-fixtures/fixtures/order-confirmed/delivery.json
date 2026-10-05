@@ -1,44 +1,70 @@
 {
-  "sellerNote": "campo extra preservado",
-  "orders": [
-    {
-      "orderId": "ORD-A",
-      "orderUrl": "https://example.com/orders/ORD-A?ref=1&lang=en",
-      "clientProfileData": { "firstName": "Ana & \"Lia\" <João>" },
-      "clientPreferencesData": { "locale": "en-US" },
-      "shippingData": { "address": { "street": "Rua São João 10" } },
-      "items": [
-        {
-          "name": "Camisa & \"Azul\"",
-          "quantity": 2,
-          "sellingPrice": 20000,
-          "imageUrl": "https://example.com/images/camisa.png?x=1&y=2",
-          "shippingEstimate": "8bd"
+  "$schema": "../../../node_modules/@vtex-email/core/dist/fixture.schema.json",
+  "meta": {
+    "description": "Delivery with two orders, an address, locale en-US, and special characters. Synthetic fixture; it is not the real VTEX envelope.",
+    "origin": "synthetic",
+    "event": "order-confirmed",
+    "purpose": "en-US branch, nested loops, and escaping",
+    "expectedLocale": "en-US"
+  },
+  "data": {
+    "sellerNote": "campo extra preservado",
+    "orders": [
+      {
+        "orderId": "ORD-A",
+        "orderUrl": "https://example.com/orders/ORD-A?ref=1&lang=en",
+        "clientProfileData": {
+          "firstName": "Ana & \"Lia\" <João>"
         },
-        {
-          "name": "Meia",
-          "quantity": 1,
-          "sellingPrice": 0,
-          "imageUrl": "https://example.com/images/meia.png",
-          "shippingEstimate": "8bd"
-        }
-      ]
-    },
-    {
-      "orderId": "ORD-B",
-      "orderUrl": "https://example.com/orders/ORD-B",
-      "clientProfileData": { "firstName": "Bruno" },
-      "clientPreferencesData": { "locale": "en-US" },
-      "shippingData": { "address": { "street": "Avenida Central" } },
-      "items": [
-        {
-          "name": "Boné",
-          "quantity": 1,
-          "sellingPrice": 1500,
-          "imageUrl": "https://example.com/images/bone.png",
-          "shippingEstimate": "3bd"
-        }
-      ]
-    }
-  ]
+        "clientPreferencesData": {
+          "locale": "en-US"
+        },
+        "shippingData": {
+          "address": {
+            "street": "Rua São João 10"
+          }
+        },
+        "items": [
+          {
+            "name": "Camisa & \"Azul\"",
+            "quantity": 2,
+            "sellingPrice": 20000,
+            "imageUrl": "https://example.com/images/camisa.png?x=1&y=2",
+            "shippingEstimate": "8bd"
+          },
+          {
+            "name": "Meia",
+            "quantity": 1,
+            "sellingPrice": 0,
+            "imageUrl": "https://example.com/images/meia.png",
+            "shippingEstimate": "8bd"
+          }
+        ]
+      },
+      {
+        "orderId": "ORD-B",
+        "orderUrl": "https://example.com/orders/ORD-B",
+        "clientProfileData": {
+          "firstName": "Bruno"
+        },
+        "clientPreferencesData": {
+          "locale": "en-US"
+        },
+        "shippingData": {
+          "address": {
+            "street": "Avenida Central"
+          }
+        },
+        "items": [
+          {
+            "name": "Boné",
+            "quantity": 1,
+            "sellingPrice": 1500,
+            "imageUrl": "https://example.com/images/bone.png",
+            "shippingEstimate": "3bd"
+          }
+        ]
+      }
+    ]
+  }
 }

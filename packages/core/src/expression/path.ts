@@ -20,6 +20,9 @@ export function parentHops(segments: readonly string[]): number {
 
 export function parsePath(input: string, allowParent: boolean): PathResult {
   if (input.length === 0) return { ok: false, message: 'Empty path.' }
+  if (input === '@index') {
+    return { ok: true, segments: ['@index'], emitted: '@index' }
+  }
   if (input.includes('@') || input.includes('[') || input.includes(']')) {
     return { ok: false, message: `Unsupported path syntax: ${input}` }
   }

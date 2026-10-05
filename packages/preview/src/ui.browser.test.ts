@@ -44,23 +44,23 @@ describe('preview workbench', () => {
       await expectText(page.getByText(project))
 
       const tree = page.getByRole('tree', { name: 'Emails' })
-      await tree.getByRole('treeitem', { name: 'order-confirmed' }).click()
-      await tree.getByRole('treeitem', { name: 'delivery' }).click()
+      await tree.getByRole('treeitem', { name: 'order-confirmed-store', exact: true }).click()
+      await tree.getByRole('treeitem', { name: 'full' }).click()
       const frame = page.frameLocator('[data-testid="email-frame"]')
-      await frame.getByText('Hello,').waitFor()
+      await frame.getByText('Hi,').waitFor()
       const deliveryBox = await page.getByTestId('email-frame').boundingBox()
       expect(deliveryBox?.width).toBe(600)
 
       const search = page.getByRole('textbox', { name: 'Search email or fixture' })
-      await search.fill('pickup')
-      await page.getByText('No results for “pickup”.').waitFor()
+      await search.fill('zzzz-missing')
+      await page.getByText('No results for “zzzz-missing”.').waitFor()
       await page.screenshot({ path: path.join(shots, '1280-empty.png'), fullPage: false })
       await search.press('Escape')
-      await search.fill('address')
-      await tree.getByRole('treeitem', { name: 'delivery' }).waitFor()
-      await expectMissing(tree.getByRole('treeitem', { name: 'auth-code' }))
+      await search.fill('missing-locale')
+      await tree.getByRole('treeitem', { name: 'missing-locale' }).waitFor()
+      await expectMissing(tree.getByRole('treeitem', { name: 'payment-approved' }))
       await search.fill('')
-      await tree.getByRole('treeitem', { name: 'auth-code' }).waitFor()
+      await tree.getByRole('treeitem', { name: 'payment-approved' }).waitFor()
 
       await page.getByRole('tab', { name: 'Handlebars' }).click()
       // Base UI keeps inactive panels mounted; name scopes past Data's <pre> (macOS :visible flake).
@@ -89,8 +89,8 @@ describe('preview workbench', () => {
       await page.getByRole('option', { name: 'pt-BR' }).click()
       await page.getByText('orders.0.clientPreferencesData.locale = pt-BR only on the evaluated copy.').waitFor()
       await page.screenshot({ path: path.join(shots, '1280-forced.png'), fullPage: false })
-      const fixtureFile = path.join(root, 'fixtures', 'order-confirmed', 'delivery.json')
-      const missingFile = path.join(root, 'fixtures', 'order-confirmed', 'missing-locale.json')
+      const fixtureFile = path.join(root, 'fixtures', 'order-confirmed-store', 'full.jsonc')
+      const missingFile = path.join(root, 'fixtures', 'order-confirmed-store', 'missing-locale.jsonc')
       expect(await readFile(missingFile, 'utf8')).not.toContain('Content-Security-Policy')
 
       await page.getByRole('button', { name: 'Mobile' }).click()
@@ -115,7 +115,7 @@ describe('preview workbench', () => {
 
       await page.keyboard.press('Control+K')
       await expect.poll(() => page.evaluate('document.activeElement && document.activeElement.id')).toBe('email-search')
-      await page.getByRole('treeitem', { name: 'order-confirmed' }).focus()
+      await page.getByRole('treeitem', { name: 'order-confirmed-store', exact: true }).focus()
       await page.keyboard.press('ArrowDown')
       await expect
         .poll(() => page.evaluate('document.activeElement && document.activeElement.getAttribute("data-row")'))
@@ -126,15 +126,18 @@ describe('preview workbench', () => {
       const blockedDoc = await frameDocument(page)
       expect(blockedDoc).toContain("img-src 'none'")
       expect(await readFile(fixtureFile, 'utf8')).not.toContain('Content-Security-Policy')
-      const emailFile = path.join(root, 'emails', 'order-confirmed.email.tsx')
+      const emailFile = path.join(root, 'emails', 'order-confirmed-store.email.tsx')
       const originalEmail = await readFile(emailFile, 'utf8')
       await writeFile(
         emailFile,
         originalEmail
-          .replace('import { Section, Text }', 'import { Img, Section, Text }')
           .replace(
-            '<Email className="m-0 bg-white font-sans">',
-            '<Email className="m-0 bg-white font-sans"><Img alt="Camisa" height="12" src="https://cdn.example/shirt.png" width="12" />',
+            "import { Section } from '@react-email/components'",
+            "import { Img, Section } from '@react-email/components'",
+          )
+          .replace(
+            '<StoreShell>',
+            '<StoreShell><Img alt="Camisa" height="12" src="https://cdn.example/shirt.png" width="12" />',
           ),
       )
       await frame.getByRole('img', { name: 'Camisa' }).waitFor({ timeout: 20_000 })
@@ -164,8 +167,8 @@ describe('preview workbench', () => {
       await page.getByRole('button', { name: 'Copied' }).waitFor()
       const stored = await page.evaluate(`window.localStorage.getItem(${JSON.stringify(prefsKey)})`)
       expect(stored).toContain('"tab":"source"')
-      expect(stored ?? '').not.toContain('Ada')
-      expect(stored ?? '').not.toContain('AUTH-KEEP')
+      expect(stored ?? '').not.toContain('Alex')
+      expect(stored ?? '').not.toContain('ORD-1001')
       expect(eventRequests).toHaveLength(1)
 
       await page.context().setOffline(true)
@@ -178,32 +181,32 @@ describe('preview workbench', () => {
       await page.getByRole('button', { name: 'Show remote images' }).click()
       await page.getByLabel('Locale').click()
       await page.getByRole('option', { name: 'Fixture locale' }).click()
-      await tree.getByRole('treeitem', { name: 'delivery' }).click()
-      await frame.getByText('Hello,').waitFor()
+      await tree.getByRole('treeitem', { name: 'full' }).click()
+      await frame.getByText('Hi,').waitFor()
       await page.getByRole('button', { name: 'Copy', exact: true }).waitFor()
 
       const themeLoads = iframeLoads
       const beforeThemeDoc = await frameDocument(page)
       await page.getByRole('button', { name: 'Dark' }).click()
-      await expect.poll(() => page.evaluate(() => document.documentElement.dataset.theme)).toBe('dark')
+      await expect.poll(() => page.evaluate('document.documentElement.dataset.theme')).toBe('dark')
       expect(await page.evaluate(`window.localStorage.getItem(${JSON.stringify(themeKey)})`)).toBe('dark')
       expect(iframeLoads).toBe(themeLoads)
       expect(await frameDocument(page)).toBe(beforeThemeDoc)
       await page.screenshot({ path: path.join(shots, '1280-dark.png'), fullPage: false })
       await page.getByRole('button', { name: 'Light' }).click()
-      await expect.poll(() => page.evaluate(() => document.documentElement.dataset.theme)).toBe('white')
+      await expect.poll(() => page.evaluate('document.documentElement.dataset.theme')).toBe('white')
       expect(iframeLoads).toBe(themeLoads)
       expect(await frameDocument(page)).toBe(beforeThemeDoc)
       await page.emulateMedia({ colorScheme: 'dark' })
-      await expect.poll(() => page.evaluate(() => document.documentElement.dataset.theme)).toBe('white')
+      await expect.poll(() => page.evaluate('document.documentElement.dataset.theme')).toBe('white')
       await page.getByRole('button', { name: 'System' }).click()
-      await expect.poll(() => page.evaluate(() => document.documentElement.dataset.theme)).toBe('dark')
+      await expect.poll(() => page.evaluate('document.documentElement.dataset.theme')).toBe('dark')
       await page.emulateMedia({ colorScheme: 'light' })
-      await expect.poll(() => page.evaluate(() => document.documentElement.dataset.theme)).toBe('white')
+      await expect.poll(() => page.evaluate('document.documentElement.dataset.theme')).toBe('white')
       expect(iframeLoads).toBe(themeLoads)
       await page.reload()
       await page.getByText('Updated').waitFor()
-      await expect.poll(() => page.evaluate(() => document.documentElement.dataset.theme)).toBe('white')
+      await expect.poll(() => page.evaluate('document.documentElement.dataset.theme')).toBe('white')
       expect(await page.evaluate(`window.localStorage.getItem(${JSON.stringify(themeKey)})`)).toBe('system')
 
       await page.screenshot({ path: path.join(shots, '1280.png'), fullPage: false })
@@ -227,17 +230,28 @@ describe('preview workbench', () => {
     } finally {
       await browser.close()
       await started?.close()
-      await rm(root, { recursive: true, force: true })
+      await removeTemp(root)
     }
   }, 240_000)
 })
 
+async function removeTemp(directory: string): Promise<void> {
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    try {
+      await rm(directory, { recursive: true, force: true })
+      return
+    } catch {
+      await new Promise((resolve) => setTimeout(resolve, 200 * (attempt + 1)))
+    }
+  }
+  await rm(directory, { recursive: true, force: true }).catch(() => undefined)
+}
+
 async function copyStore(destination: string): Promise<string> {
   await mkdir(destination, { recursive: true })
-  for (const name of ['emails', 'schemas', 'locales', 'fixtures']) {
+  for (const name of ['emails', 'schemas', 'locales', 'fixtures', 'components']) {
     await cp(path.join(example, name), path.join(destination, name), { recursive: true })
   }
-  await cp(path.join(example, 'vtex-target.ts'), path.join(destination, 'vtex-target.ts'))
   await cp(path.join(example, 'vtex-email.config.ts'), path.join(destination, 'vtex-email.config.ts'))
   return path.join(destination, 'vtex-email.config.ts')
 }

@@ -15,7 +15,8 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
-    }
+    },
+    "./fixture.schema.json": "./dist/fixture.schema.json"
   },
   "dependencies": {
     "handlebars": "4.7.9",

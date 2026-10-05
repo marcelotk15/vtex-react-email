@@ -28,9 +28,6 @@ const ConfigSchema = z.strictObject({
   outDir: z.string().min(1),
   fixturesDir: z.string().min(1).optional(),
   schemasDir: z.string().min(1).optional(),
-  target: z.strictObject({
-    profile: z.string().min(1),
-  }),
   i18n: z.strictObject({
     locales: z.array(z.string().min(1)).min(1),
     defaultLocale: z.string().min(1),
@@ -72,7 +69,6 @@ export interface ResolvedConfig {
   fixturesDir: string
   schemasDir: string
   localePath: string | null
-  profilePath: string
   locales: string[]
   defaultLocale: string
   catalogs: string
@@ -135,7 +131,6 @@ export function validateConfig(
       fixturesDir,
       schemasDir,
       localePath: parsed.data.i18n.localePath ?? null,
-      profilePath: path.resolve(configDir, parsed.data.target.profile),
       locales: parsed.data.i18n.locales,
       defaultLocale: parsed.data.i18n.defaultLocale,
       catalogs: parsed.data.i18n.catalogs,

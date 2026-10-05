@@ -17,7 +17,7 @@ describe('path and literal emission', () => {
     expect(parsePath('__proto__.x', true).ok).toBe(false)
     expect(parsePath('prototype', true).ok).toBe(false)
     expect(parsePath('constructor', true).ok).toBe(false)
-    expect(parsePath('@index', true).ok).toBe(false)
+    expect(parsePath('@index', true)).toMatchObject({ ok: true, emitted: '@index' })
     expect(parsePath('@root', true).ok).toBe(false)
     expect(parsePath('this', true).ok).toBe(false)
     expect(parsePath('items.[0].name', true).ok).toBe(false)

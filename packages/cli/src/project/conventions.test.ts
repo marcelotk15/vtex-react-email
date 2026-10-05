@@ -9,6 +9,20 @@ import { fileKeyFromPath } from './discover'
 import { fixtureIdFromName, isPayloadFile, readFixtures } from './fixtures'
 import { parseEmailSettings } from './settings'
 
+function envelope(data: unknown, meta: Record<string, unknown> = {}) {
+  return JSON.stringify({
+    meta: {
+      description: 'ok',
+      origin: 'test',
+      event: 'demo',
+      purpose: 'test',
+      expect: 'valid',
+      ...meta,
+    },
+    data,
+  })
+}
+
 describe('authoring conventions', () => {
   it('derives the file key by stripping .email.tsx', () => {
     expect(fileKeyFromPath(path.join('emails', 'auth-code.email.tsx'))).toBe('auth-code')
@@ -59,51 +73,38 @@ describe('fixture loading', () => {
     const root = await mkdtemp(path.join(tmpdir(), 'vtex-fixtures-'))
     const directory = path.join(root, 'fixtures', 'demo')
     await mkdir(directory, { recursive: true })
-    await writeFile(path.join(directory, 'valid.jsonc'), `// comment\n{\n  "locale": "pt-BR",\n  "code": "1",\n}\n`)
     await writeFile(
-      path.join(directory, 'valid.meta.json'),
-      JSON.stringify({
-        description: 'ok',
-        origin: 'test',
-        event: 'demo',
-        purpose: 'jsonc',
-        expect: 'valid',
-      }),
+      path.join(directory, 'valid.jsonc'),
+      `// comment\n{\n  "meta": {\n    "description": "ok",\n    "origin": "test",\n    "event": "demo",\n    "purpose": "jsonc",\n    "expect": "valid",\n  },\n  "data": {\n    "locale": "pt-BR",\n    "code": "1",\n  },\n}\n`,
     )
     await writeFile(path.join(directory, 'broken.jsonc'), `{\n  "code":\n}`)
-    await writeFile(
-      path.join(directory, 'broken.meta.json'),
-      JSON.stringify({
-        description: 'broken',
-        origin: 'test',
-        event: 'demo',
-        purpose: 'error',
-        expect: 'valid',
-      }),
-    )
-    await writeFile(path.join(directory, 'clash.json'), '{"code":"a"}')
-    await writeFile(path.join(directory, 'clash.jsonc'), '{"code":"b"}')
-    await writeFile(
-      path.join(directory, 'clash.meta.json'),
-      JSON.stringify({
-        description: 'clash',
-        origin: 'test',
-        event: 'demo',
-        purpose: 'collision',
-        expect: 'valid',
-      }),
-    )
+    await writeFile(path.join(directory, 'clash.json'), envelope({ code: 'a' }, { purpose: 'collision' }))
+    await writeFile(path.join(directory, 'clash.jsonc'), envelope({ code: 'b' }, { purpose: 'collision' }))
+    await writeFile(path.join(directory, 'orphan.meta.json'), '{}')
 
     const diagnostics: Diagnostic[] = []
     const fixtures = await readFixtures(root, 'demo', 'fixtures/demo', diagnostics)
     expect(fixtures.map((item) => item.id)).toEqual(['valid'])
     expect(fixtures[0]?.data).toEqual({ locale: 'pt-BR', code: '1' })
     expect(diagnostics.some((item) => item.message.includes('collides'))).toBe(true)
+    expect(diagnostics.some((item) => item.message.includes('Legacy fixture sidecar'))).toBe(true)
     const broken = diagnostics.find((item) => item.fixtureId === 'broken')
     expect(broken?.source?.file?.endsWith('broken.jsonc')).toBe(true)
     expect(typeof broken?.source?.line).toBe('number')
     expect(typeof broken?.source?.column).toBe('number')
 
+    await rm(root, { recursive: true, force: true })
+  })
+
+  it('rejects a bare payload without meta and data', async () => {
+    const root = await mkdtemp(path.join(tmpdir(), 'vtex-fixtures-bare-'))
+    const directory = path.join(root, 'fixtures', 'demo')
+    await mkdir(directory, { recursive: true })
+    await writeFile(path.join(directory, 'bare.json'), '{"code":"x"}')
+    const diagnostics: Diagnostic[] = []
+    const fixtures = await readFixtures(root, 'demo', 'fixtures/demo', diagnostics)
+    expect(fixtures).toEqual([])
+    expect(diagnostics.some((item) => item.message.includes('must be an object with meta and data'))).toBe(true)
     await rm(root, { recursive: true, force: true })
   })
 
@@ -127,17 +128,7 @@ describe('fixture loading', () => {
     const root = await mkdtemp(path.join(tmpdir(), 'vtex fixtures space '))
     const directory = path.join(root, 'fixtures', 'auth code')
     await mkdir(directory, { recursive: true })
-    await writeFile(path.join(directory, 'default.json'), '{"code":"x"}')
-    await writeFile(
-      path.join(directory, 'default.meta.json'),
-      JSON.stringify({
-        description: 'space',
-        origin: 'test',
-        event: 'demo',
-        purpose: 'path',
-        expect: 'valid',
-      }),
-    )
+    await writeFile(path.join(directory, 'default.json'), envelope({ code: 'x' }, { purpose: 'path' }))
     const diagnostics: Diagnostic[] = []
     const fixtures = await readFixtures(root, 'demo', path.join('fixtures', 'auth code'), diagnostics)
     expect(fixtures).toHaveLength(1)
@@ -164,10 +155,10 @@ describe('schema conventions', () => {
     const discovered = await discoverEmails(loaded.config)
     expect(discovered.ok).toBe(true)
     if (!discovered.ok) return
-    const auth = discovered.emails.find((email) => email.fileKey === 'auth-code')
-    const order = discovered.emails.find((email) => email.fileKey === 'order-confirmed')
-    expect(auth?.definition.schema).toBeTruthy()
+    const payment = discovered.emails.find((email) => email.fileKey === 'payment-approved')
+    const order = discovered.emails.find((email) => email.fileKey === 'order-confirmed-store')
+    expect(payment?.definition.schema).toBeTruthy()
     expect(order?.definition.schema).toBeTruthy()
-    expect(auth?.definition.id).toBe('auth-code')
+    expect(payment?.definition.id).toBe('payment-approved')
   }, 30_000)
 })

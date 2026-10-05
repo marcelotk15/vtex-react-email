@@ -2,6 +2,8 @@
 
 Current states: both are `documented`. The currency pair that VTEX documentation covers, and that the local proof uses as the target criterion, is `20000` to `200,00`, without a symbol. `replace` is one occurrence, path plus two literals, as in `8bd`.
 
+Experimental block helpers (`ifCond`, `hasSubStr`, `group`), DSL `eq`, `formatDate`, and `@index` are covered in [block-helpers.md](./block-helpers.md).
+
 The local simulator does the same cents math for other integers. That is not parity with VTEX. Zero, `1500`, and negative remain simulator observations.
 
 ## Minimal template

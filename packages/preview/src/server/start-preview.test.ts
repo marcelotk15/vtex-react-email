@@ -54,10 +54,14 @@ describe('preview server', () => {
       expect(ready.status).toBe('ready')
       expect(ready.html.length).toBeGreaterThan(0)
       viewKeepsArtifact(ready.html, ready.source)
-      const order = await post(preview.url, { emailId: 'order-confirmed', fixtureId: 'delivery', mode: 'runtime' })
+      const order = await post(preview.url, {
+        emailId: 'order-confirmed-store',
+        fixtureId: 'full',
+        mode: 'runtime',
+      })
       const delivery = await events.next()
       expect(order.html).toBe(delivery.html)
-      expect(delivery.html.includes('Hello,')).toBe(true)
+      expect(delivery.html.includes('Hi,')).toBe(true)
       const deliverySource = digest(delivery.source)
 
       const missingLocale = await post(preview.url, { fixtureId: 'missing-locale', mode: 'runtime' })
@@ -65,29 +69,29 @@ describe('preview server', () => {
       expect(missingLocale.html).not.toBe(delivery.html)
       expect(digest(missingLocale.source)).toBe(deliverySource)
 
-      const fixtureFile = path.join(root, 'fixtures', 'order-confirmed', 'delivery.json')
+      const fixtureFile = path.join(root, 'fixtures', 'order-confirmed-store', 'full.jsonc')
       const fixtureBefore = await readFile(fixtureFile, 'utf8')
-      const forced = await post(preview.url, { fixtureId: 'delivery', mode: 'forced', forcedLocale: 'pt-BR' })
+      const forced = await post(preview.url, { fixtureId: 'full', mode: 'forced', forcedLocale: 'pt-BR' })
       expect(forced.selection.mode).toBe('forced')
       expect(forced.html.includes('Olá,')).toBe(true)
-      expect(forced.html.includes('Hello,')).toBe(false)
+      expect(forced.html.includes('Hi,')).toBe(false)
       expect(await readFile(fixtureFile, 'utf8')).toBe(fixtureBefore)
       expect(forced.project.name).toBe(path.basename(root))
-      expect(forced.emails.find((item) => item.id === 'order-confirmed')?.localePath).toBe(
+      expect(forced.emails.find((item) => item.id === 'order-confirmed-store')?.localePath).toBe(
         'orders.0.clientPreferencesData.locale',
       )
       expect(
-        forced.emails.find((item) => item.id === 'order-confirmed')?.fixtures.find((item) => item.id === 'delivery'),
+        forced.emails.find((item) => item.id === 'order-confirmed-store')?.fixtures.find((item) => item.id === 'full'),
       ).toMatchObject({
-        file: 'fixtures/order-confirmed/delivery.json',
+        file: 'fixtures/order-confirmed-store/full.jsonc',
         origin: 'synthetic',
-        purpose: 'runtime locale selection',
+        purpose: 'preview',
       })
       expect(localeOf(forced.data)).toBe('en-US')
       expect(digest(forced.source)).toBe(deliverySource)
       expect(await missing(path.join(root, 'dist'))).toBe(true)
 
-      const changed = fixtureBefore.replace('Caramujo', 'PreviewName')
+      const changed = fixtureBefore.replace('Alex', 'PreviewName')
       await writeFile(fixtureFile, changed)
       const updated = await waitForState(events, (state) => state.html.includes('PreviewName'))
       expect(updated.status).toBe('ready')
@@ -105,7 +109,7 @@ describe('preview server', () => {
       events.close()
     } finally {
       await started?.close()
-      await rm(root, { recursive: true, force: true })
+      await removeTemp(root)
     }
   }, 180_000)
 
@@ -146,7 +150,7 @@ describe('preview server', () => {
       ).resolves.toBe(false)
     } finally {
       await new Promise<void>((resolve) => blocker.close(() => resolve()))
-      await rm(root, { recursive: true, force: true })
+      await removeTemp(root)
     }
   }, 60_000)
 
@@ -174,7 +178,7 @@ describe('preview server', () => {
       expect(JSON.stringify(notices).includes('banner')).toBe(false)
     } finally {
       await preview.close()
-      await rm(root, { recursive: true, force: true })
+      await removeTemp(root)
     }
   }, 120_000)
 
@@ -197,17 +201,28 @@ describe('preview server', () => {
       expect(await reachable(port)).toBe(false)
     } finally {
       await preview.close()
-      await rm(root, { recursive: true, force: true })
+      await removeTemp(root)
     }
   }, 120_000)
 })
 
+async function removeTemp(directory: string): Promise<void> {
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    try {
+      await rm(directory, { recursive: true, force: true })
+      return
+    } catch {
+      await new Promise((resolve) => setTimeout(resolve, 200 * (attempt + 1)))
+    }
+  }
+  await rm(directory, { recursive: true, force: true }).catch(() => undefined)
+}
+
 async function copyStore(destination: string): Promise<string> {
   await mkdir(destination, { recursive: true })
-  for (const name of ['emails', 'schemas', 'locales', 'fixtures']) {
+  for (const name of ['emails', 'schemas', 'locales', 'fixtures', 'components']) {
     await cp(path.join(example, name), path.join(destination, name), { recursive: true })
   }
-  await cp(path.join(example, 'vtex-target.ts'), path.join(destination, 'vtex-target.ts'))
   await cp(path.join(example, 'vtex-email.config.ts'), path.join(destination, 'vtex-email.config.ts'))
   return path.join(destination, 'vtex-email.config.ts')
 }
