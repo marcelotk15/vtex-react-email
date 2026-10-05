@@ -47,18 +47,18 @@ describe('structural restoration', () => {
     expect(restored.diagnostics[0]?.code).toBe('TOK001')
   })
 
-  it('inserts open, alternative, and close at the element boundaries', () => {
+  it('inserts open, alternative, and close by stripping host tags', () => {
     const open = token('open')
     const alternative = token('else')
     const markers = new Map<string, Marker>([
       [open, { kind: 'open', open: '{{#if shippingData.address}}', close: '{{/if}}', elseId: alternative }],
       [alternative, { kind: 'else', openId: open }],
     ])
-    const html = `<p data-anchor="${open}">street</p><p data-anchor="${alternative}">pickup</p>`
+    const html = `<vtx-anchor data-anchor="${open}">street</vtx-anchor><vtx-anchor data-anchor="${alternative}">pickup</vtx-anchor>`
     const restored = restoreHandlebars(html, markers)
     expect(restored).toMatchObject({ ok: true })
     if (!restored.ok) return
-    expect(restored.html).toBe('{{#if shippingData.address}}<p>street</p>{{else}}<p>pickup</p>{{/if}}')
+    expect(restored.html).toBe('{{#if shippingData.address}}street{{else}}pickup{{/if}}')
   })
 
   it('keeps static neighbors outside sibling and nested regions', () => {
@@ -72,9 +72,9 @@ describe('structural restoration', () => {
     ])
     const html = [
       '<p>before</p>',
-      `<div data-anchor="${outer}">static<p data-anchor="${inner}">item</p>end</div>`,
+      `<vtx-anchor data-anchor="${outer}">static<vtx-anchor data-anchor="${inner}">item</vtx-anchor>end</vtx-anchor>`,
       '<p>middle</p>',
-      `<p data-anchor="${sibling}">two</p>`,
+      `<vtx-anchor data-anchor="${sibling}">two</vtx-anchor>`,
       '<p>after</p>',
     ].join('')
     const restored = restoreHandlebars(html, markers)
@@ -83,12 +83,24 @@ describe('structural restoration', () => {
     expect(restored.html).toBe(
       [
         '<p>before</p>',
-        '{{#each orders}}<div>static{{#each items}}<p>item</p>{{/each}}end</div>{{/each}}',
+        '{{#each orders}}static{{#each items}}item{{/each}}end{{/each}}',
         '<p>middle</p>',
-        '{{#if show}}<p>two</p>{{/if}}',
+        '{{#if show}}two{{/if}}',
         '<p>after</p>',
       ].join(''),
     )
+  })
+
+  it('preserves author layout inside the stripped host', () => {
+    const id = token('block')
+    const markers = new Map<string, Marker>([
+      [id, { kind: 'open', open: '{{#each items}}', close: '{{/each}}', elseId: null }],
+    ])
+    const html = `<vtx-anchor data-anchor="${id}"><p class="row">item</p></vtx-anchor>`
+    const restored = restoreHandlebars(html, markers)
+    expect(restored).toMatchObject({ ok: true })
+    if (!restored.ok) return
+    expect(restored.html).toBe('{{#each items}}<p class="row">item</p>{{/each}}')
   })
 
   it('fails when the parser closes the anchor before the written end', () => {

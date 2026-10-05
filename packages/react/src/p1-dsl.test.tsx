@@ -337,4 +337,57 @@ describe('P1 DSL', () => {
     if (compiled.ok) return
     expect(compiled.diagnostics[0]?.source?.file).toBe('emails/sample.email.tsx')
   })
+
+  it('wraps author components without data-anchor and strips the host from the artifact', async () => {
+    function Line() {
+      return (
+        <Text>
+          <Vtex.Value path="name" />
+        </Text>
+      )
+    }
+    function View() {
+      return (
+        <Email>
+          <Each path="items">
+            <Line />
+          </Each>
+        </Email>
+      )
+    }
+
+    const compiled = await compile(View)
+    expect(compiled).toMatchObject({ ok: true })
+    if (!compiled.ok) return
+    const html = compiled.artifacts[0]?.content ?? ''
+    expect(html).toContain('{{#each items}}')
+    expect(html).toContain('{{name}}')
+    expect(html.includes('data-anchor')).toBe(false)
+    expect(html.includes('vtx-anchor')).toBe(false)
+  })
+
+  it('keeps inline Eq inside Text balanced after restore', async () => {
+    function View() {
+      return (
+        <Email>
+          <Text>
+            before
+            <Eq path="kind" value="a">
+              <span>A</span>
+            </Eq>
+            after
+          </Text>
+        </Email>
+      )
+    }
+
+    const compiled = await compile(View)
+    expect(compiled).toMatchObject({ ok: true })
+    if (!compiled.ok) return
+    const html = compiled.artifacts[0]?.content ?? ''
+    expect(html).toContain('{{#eq kind "a"}}')
+    expect(html).toContain('<span>A</span>')
+    expect(html).toContain('{{/eq}}')
+    expect(html.includes('vtx-anchor')).toBe(false)
+  })
 })

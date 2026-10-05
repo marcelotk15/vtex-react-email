@@ -168,22 +168,32 @@ function openEdits(
   const closed = explicitElement(source, id, located.get(id))
   if (!closed.ok) return closed
   const { location } = closed
+  const startTag = location.startTag
+  const endTag = location.endTag
+  if (!startTag || !endTag) return fail('TOK001', `Opening ${id} has no explicit tags.`)
   const attr = location.attrs?.['data-anchor']
   if (!attr) return fail('TOK001', `Opening ${id} was not located.`)
   const attrText = source.slice(attr.startOffset, attr.endOffset)
   if (attrText !== `data-anchor="${id}"`) return fail('TOK001', `Anchor ${id} was escaped or shifted.`)
 
+  const startExpected = source.slice(startTag.startOffset, startTag.endOffset)
   const edits: Edit[] = [
-    { start: location.startOffset, end: location.startOffset, text: marker.open, expected: '', rank: 0 },
-    anchorRemoval(source, attr.startOffset, attr.endOffset, attrText),
+    {
+      start: startTag.startOffset,
+      end: startTag.endOffset,
+      text: marker.open,
+      expected: startExpected,
+      rank: 0,
+    },
   ]
 
   if (!marker.elseId) {
+    const endExpected = source.slice(endTag.startOffset, endTag.endOffset)
     edits.push({
-      start: location.endOffset,
-      end: location.endOffset,
+      start: endTag.startOffset,
+      end: endTag.endOffset,
       text: marker.close,
-      expected: '',
+      expected: endExpected,
       rank: 1,
     })
     return { ok: true, edits }
@@ -193,6 +203,15 @@ function openEdits(
   if (!alternative || alternative.kind !== 'else' || alternative.openId !== id) {
     return fail('TOK001', `Alternative for block ${id} is not balanced.`)
   }
+  // With an else branch the closing tag is removed without emitting close; elseEdits emits it.
+  const endExpected = source.slice(endTag.startOffset, endTag.endOffset)
+  edits.push({
+    start: endTag.startOffset,
+    end: endTag.endOffset,
+    text: '',
+    expected: endExpected,
+    rank: 1,
+  })
   return { ok: true, edits }
 }
 
@@ -210,6 +229,9 @@ function elseEdits(
   }
   if (!closed.ok) return closed
   const { location } = closed
+  const startTag = location.startTag
+  const endTag = location.endTag
+  if (!startTag || !endTag) return fail('TOK001', `Alternative for block ${id} is not balanced.`)
   const attr = location.attrs?.['data-anchor']
   if (!attr) return fail('TOK001', `Closing for block ${id} is not balanced.`)
   const attrText = source.slice(attr.startOffset, attr.endOffset)
@@ -217,9 +239,20 @@ function elseEdits(
   return {
     ok: true,
     edits: [
-      { start: location.startOffset, end: location.startOffset, text: '{{else}}', expected: '', rank: 0 },
-      anchorRemoval(source, attr.startOffset, attr.endOffset, attrText),
-      { start: location.endOffset, end: location.endOffset, text: opener.close, expected: '', rank: 1 },
+      {
+        start: startTag.startOffset,
+        end: startTag.endOffset,
+        text: '{{else}}',
+        expected: source.slice(startTag.startOffset, startTag.endOffset),
+        rank: 0,
+      },
+      {
+        start: endTag.startOffset,
+        end: endTag.endOffset,
+        text: opener.close,
+        expected: source.slice(endTag.startOffset, endTag.endOffset),
+        rank: 1,
+      },
     ],
   }
 }
@@ -262,17 +295,6 @@ function isImagePreload(element: ElementNode, attribute: string): boolean {
   const rel = element.attrs.find((attr) => attr.name === 'rel')?.value
   const as = element.attrs.find((attr) => attr.name === 'as')?.value
   return rel === 'preload' && as === 'image'
-}
-
-function anchorRemoval(source: string, start: number, end: number, attrText: string): Edit {
-  const withSpace = start > 0 && source[start - 1] === ' '
-  return {
-    start: withSpace ? start - 1 : start,
-    end,
-    text: '',
-    expected: withSpace ? ` ${attrText}` : attrText,
-    rank: 2,
-  }
 }
 
 function fail(code: string, message: string): { ok: false; diagnostics: Diagnostic[] } {

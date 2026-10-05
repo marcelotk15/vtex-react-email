@@ -1,23 +1,16 @@
 import type { BlockName, OpenMarker, SiteArgument, SiteHash } from '@vtex-email/core'
 
-import { Children, cloneElement, Fragment, isValidElement, type ReactElement, type ReactNode } from 'react'
+import { createElement, type ReactElement, type ReactNode } from 'react'
 
 import { addMarker, addSite, getSession } from '../compile/session'
 import { expr, type Expression } from './expr'
 import { dslFailure, readArgument, resolvePath } from './resolve'
 
+/** Compiler-owned host for block regions. Authors never see or forward this. */
+export const BLOCK_HOST = 'vtx-anchor'
+
 export function stamp(children: ReactNode, token: string): ReactElement {
-  const session = getSession()
-  let only: ReactElement<{ 'data-anchor'?: string }>
-  try {
-    const child = Children.only(children)
-    if (!isValidElement(child) || child.type === Fragment) throw new Error('not an element')
-    only = child as ReactElement<{ 'data-anchor'?: string }>
-  } catch (error) {
-    if (error instanceof Error && error.name === 'CompileAborted') throw error
-    dslFailure(session, 'DSL002', 'Each DSL block requires a single root element.')
-  }
-  return cloneElement(only, { 'data-anchor': token })
+  return createElement(BLOCK_HOST, { 'data-anchor': token }, children)
 }
 
 export function openRegion(

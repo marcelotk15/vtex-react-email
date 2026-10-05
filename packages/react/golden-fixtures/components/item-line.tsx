@@ -1,9 +1,9 @@
 import { Column, Row, Text } from '@react-email/components'
 import { Trans, Vtex, expr } from '@vtex-email/react'
 
-export function ItemLine(props: { 'data-anchor'?: string }) {
+export function ItemLine() {
   return (
-    <Row className="text-sm text-gray-700" data-anchor={props['data-anchor']}>
+    <Row className="text-sm text-gray-700">
       <Column>
         <Vtex.Img alt={expr.path('name')} height={96} src={expr.path('imageUrl')} width={96} />
         <Text className="text-sm text-gray-700">
