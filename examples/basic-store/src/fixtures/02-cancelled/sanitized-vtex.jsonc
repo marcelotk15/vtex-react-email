@@ -1,0 +1,205 @@
+{
+  "meta": {
+    "description": "02-cancelled sanitized flat envelope from Message Center",
+    "origin": "sanitized",
+    "event": "02-cancelled",
+    "purpose": "preview",
+    "expectedLocale": "pt-BR",
+    "expect": "valid"
+  },
+  "data": {
+    "subjectItemAttachment": {
+      "item": "Stanley Quencher H2....",
+      "totalItems": 1
+    },
+    "cancellationReason": "tretes",
+    "paymentData": {
+      "giftCards": [
+        {
+          "id": "xpto1",
+          "caption": "gift card by id",
+          "value": 0,
+          "balance": 0,
+          "provider": "BemolBonus",
+          "inUse": false,
+          "isSpecialCard": true
+        }
+      ],
+      "transactions": [
+        {
+          "isActive": true,
+          "transactionId": "0DB75E0D2EAF48CE9A850F0A8A9C4370",
+          "merchantName": "Example Store",
+          "payments": [
+            {
+              "id": "59046ADAD536459E947ED05C5A953774",
+              "paymentSystem": "4",
+              "paymentSystemName": "Mastercard",
+              "value": 24500,
+              "installments": 1,
+              "referenceValue": 24500,
+              "firstDigits": "525652",
+              "lastDigits": "5530",
+              "group": "creditCard"
+            }
+          ]
+        }
+      ]
+    },
+    "clientProfileData": {
+      "id": "clientProfileData",
+      "email": "customer@example.com",
+      "firstName": "Maria",
+      "lastName": "Silva",
+      "documentType": "cpf",
+      "isCorporate": false
+    },
+    "shippingData": {
+      "id": "shippingData",
+      "address": {
+        "addressType": "residential",
+        "receiverName": "Maria Silva",
+        "addressId": "a0204124f55a467bb7cb0e8cc6bd6f1f",
+        "postalCode": "01000-000",
+        "city": "Sao Paulo",
+        "state": "SP",
+        "country": "BRA",
+        "street": "Rua Exemplo",
+        "number": "100",
+        "neighborhood": "Centro",
+        "complement": "Apto 1"
+      },
+      "logisticsInfo": [
+        {
+          "itemIndex": 0,
+          "itemId": "115499303",
+          "selectedDeliveryChannel": "delivery",
+          "selectedSla": "Entrega padrão",
+          "price": 500,
+          "listPrice": 500,
+          "sellingPrice": 500,
+          "deliveryWindow": null,
+          "shippingEstimate": "3bd",
+          "shippingEstimateDate": "2026-05-20T17:05:00+00:00",
+          "slas": [
+            {
+              "id": "Entrega padrão",
+              "name": "Entrega padrão",
+              "shippingEstimate": "3bd",
+              "shippingEstimateDate": "2026-05-20T17:05:00+00:00",
+              "deliveryWindow": null,
+              "availableDeliveryWindows": [],
+              "listPrice": 500,
+              "price": 500,
+              "deliveryChannel": "delivery",
+              "pickupStoreInfo": {
+                "isPickupStore": false
+              }
+            }
+          ],
+          "addressId": "a0204124f55a467bb7cb0e8cc6bd6f1f",
+          "transitTime": "3bd"
+        }
+      ],
+      "selectedAddresses": [
+        {
+          "addressId": "a0204124f55a467bb7cb0e8cc6bd6f1f",
+          "addressType": "residential",
+          "receiverName": "Maria Silva",
+          "street": "Rua Exemplo",
+          "number": "100",
+          "complement": "Apto 1",
+          "neighborhood": "Centro",
+          "postalCode": "01000-000",
+          "city": "Sao Paulo",
+          "state": "SP",
+          "country": "BRA"
+        }
+      ],
+      "availableAddresses": [
+        {
+          "addressId": "a0204124f55a467bb7cb0e8cc6bd6f1f",
+          "addressType": "residential",
+          "receiverName": "Maria Silva",
+          "street": "Rua Exemplo",
+          "number": "100",
+          "complement": "Apto 1",
+          "neighborhood": "Centro",
+          "postalCode": "01000-000",
+          "city": "Sao Paulo",
+          "state": "SP",
+          "country": "BRA"
+        }
+      ]
+    },
+    "items": [
+      {
+        "uniqueId": "71B7437960CA4E12830BACC0AAC4FA91",
+        "id": "115499303",
+        "productId": "115499037",
+        "name": "Stanley Quencher H2O FlowState Tumbler 40oz Cream",
+        "skuName": "Stanley Quencher H2O FlowState Tumbler 40oz Cream",
+        "tax": 0,
+        "price": 24000,
+        "listPrice": 24100,
+        "sellingPrice": 24000,
+        "isGift": false,
+        "quantity": 1,
+        "seller": "codebyiglu2703234",
+        "imageUrl": "https://codeby.vteximg.com.br/arquivos/ids/161642-300-800/417zd4EdjBL.jpg?v=638519100680000000",
+        "detailUrl": "/stanley-quencher-h20-flowstate-tumbler-40oz-cream/p",
+        "bundleItems": [],
+        "priceDefinition": {
+          "calculatedSellingPrice": 24000,
+          "total": 24000,
+          "sellingPrices": [{ "value": 24000, "quantity": 1 }]
+        }
+      }
+    ],
+    "sellers": [
+      {
+        "id": "codebyiglu2703234",
+        "name": "Example Seller",
+        "logo": ""
+      }
+    ],
+    "orderId": "1632330510950-01",
+    "orderGroup": "1632330510950",
+    "state": "canceled",
+    "value": 24500,
+    "totals": [
+      { "id": "Items", "name": "Total dos Itens", "value": 24000 },
+      { "id": "Discounts", "name": "Total dos Descontos", "value": 0 },
+      { "id": "Shipping", "name": "Total do Frete", "value": 500 },
+      { "id": "Tax", "name": "Total da Taxa", "value": 0 }
+    ],
+    "clientPreferencesData": {
+      "locale": "pt-BR",
+      "optinNewsLetter": false
+    },
+    "storePreferencesData": {
+      "countryCode": "BRA",
+      "currencyCode": "BRL",
+      "currencySymbol": "R$"
+    },
+    "creationDate": "2026-05-15T17:06:11.5931173Z",
+    "lastChange": "2026-05-15T17:27:36.4368523Z",
+    "isCompleted": true,
+    "package": null,
+    "cancellationData": {
+      "requestedByUser": false,
+      "reason": "tretes",
+      "cancellationDate": "2026-05-15T17:27:33.1566117Z"
+    },
+    "_accountInfo": {
+      "MainAccountName": "example",
+      "AccountName": "example",
+      "TradingName": "Example Store",
+      "CompanyName": "Example Store",
+      "HostName": "example",
+      "Id": "856900d6-9edc-4248-bf4c-05b60375bb4e",
+      "StoreUrl": "https://example.com",
+      "LogoUrl": "https://example.com/logo.png"
+    }
+  }
+}

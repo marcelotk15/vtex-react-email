@@ -56,7 +56,7 @@ const orderItem = z.looseObject({
   bundleItems: z.array(z.looseObject({ name: str, imageUrl: str })).nullish(),
 })
 
-const order = z.looseObject({
+export const order = z.looseObject({
   orderId: z.string(),
   value: num,
   clientProfileData: z.looseObject({ firstName: str, lastName: str }).nullish(),

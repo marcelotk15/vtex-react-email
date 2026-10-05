@@ -9,8 +9,8 @@ import { Logo, OrderReference, Regards, StoreShell } from '../components/shell'
 
 export const settings = {
   i18n: {
-    localePath: 'orders.0.clientPreferencesData.locale',
-    output: 'merged',
+    localePath: 'clientPreferencesData.locale',
+    output: 'per-locale',
     aliases: { 'pt-br': 'pt-BR' },
   },
 } satisfies EmailSettings
@@ -24,19 +24,17 @@ export default function Cancelled() {
           <Trans id="order.titleCancelled" />
         </Text>
       </Section>
-      <Vtex.Each path="orders">
-        <Section className="w-full px-8 py-4 max-[480px]:px-4">
-          <OrderReference />
-          <Totals />
-          <Vtex.RichShippingData path="shippingData">
-            <Section>
-              <Vtex.Group by="packageId" path="logisticsInfo">
-                <PackageItems orderItemsPath="../../../items" />
-              </Vtex.Group>
-            </Section>
-          </Vtex.RichShippingData>
-        </Section>
-      </Vtex.Each>
+      <Section className="w-full px-8 py-4 max-[480px]:px-4">
+        <OrderReference />
+        <Totals />
+        <Vtex.RichShippingData path="shippingData">
+          <Section>
+            <Vtex.Group by="packageId" path="logisticsInfo">
+              <PackageItems orderItemsPath="../../../items" />
+            </Vtex.Group>
+          </Section>
+        </Vtex.RichShippingData>
+      </Section>
       <Section className="border-t border-[#dddddd] px-8 py-3 max-[480px]:px-4">
         <Regards />
       </Section>
