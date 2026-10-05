@@ -27,6 +27,21 @@ describe('isolated runtime', () => {
     expect(() => renderTemplate('{{localOnly price}}', { price: 1 }, p0Profile)).toThrow(/helper/i)
   })
 
+  it('simulates ifCond inequalities, path eq, and dynamic replace', () => {
+    const html = renderTemplate(
+      '{{#ifCond items.length ">" 1}}many{{else}}one{{/ifCond}}|{{#eq left right}}same{{else}}diff{{/eq}}|{{replace url "{Installment}" installments}}',
+      {
+        items: [1, 2],
+        left: 'a',
+        right: 'a',
+        url: 'https://example.com/{Installment}',
+        installments: '3',
+      },
+      p0Profile,
+    )
+    expect(html).toBe('many|same|https://example.com/3')
+  })
+
   it('simulates ifCond, hasSubStr, group, and formatDate', () => {
     const html = renderTemplate(
       '{{#ifCond name "===" "Destinatario"}}yes{{else}}no{{/ifCond}}|{{#hasSubStr categoriesIds "/9293/"}}ticket{{else}}plain{{/hasSubStr}}|{{#group items by="packageId"}}{{#each items}}{{name}}-{{/each}}{{/group}}|{{formatDate dueDate}}',

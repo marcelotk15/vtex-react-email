@@ -8,7 +8,7 @@ React owns layout and typography. Order, customer, and payment data stay in the 
 import { expr, Vtex } from '@vtex-email/react'
 ```
 
-Evidence: `documented` covers the pair seen in VTEX documentation; `experimental` has a local simulator contract and no Message Center record yet.
+Evidence vocabulary: **available** (documented or experimental and usable in the DSL), **experimental** (local simulator, no Message Center record), **planned** / **not supported** (out of scope). `documented` covers the pair seen in VTEX documentation; nothing is `verified` until Message Center records exist.
 
 The example store lives under `examples/basic-store/src` (`emails/`, `components/`, `fixtures/`, `schemas/`, `locales/`). Config paths are relative to the config directory. Official templates `01-confirmed` … `11-let-me-know` compile with Tailwind tokens resolved from Sass values (`.mw6-5` → 640px; `-ns` → 480px).
 
@@ -113,7 +113,7 @@ Evidence: experimental.
 <details>
 <summary><code>group</code> — group an array by a property</summary>
 
-`Vtex.Group`. Emits `{{#group items by="packageId"}}…{{/group}}`. The `by` hash must be an identifier. Item context is `{ index, value, items }`. An empty or missing list uses the outer `fallback`. Does not invent keys. `@index` is not available inside `group` (only inside `each`).
+`Vtex.Group`. Emits `{{#group items by="packageId"}}…{{/group}}`. The `by` hash must be an identifier. Item context is `{ index, value, items }`. An empty or missing list uses the outer `fallback`. Does not invent keys.
 
 ```tsx
 <Vtex.Group by="packageId" fallback={<Text>no items</Text>} path="items">
