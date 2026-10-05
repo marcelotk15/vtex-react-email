@@ -92,10 +92,7 @@ for (const pkg of packages) {
   )
   if (pkg.name === 'core') {
     const { fixtureFileJsonSchema } = await import(pathToFileURL(path.join(dir, 'dist/index.js')).href)
-    await writeFile(
-      path.join(dir, 'dist/fixture.schema.json'),
-      `${JSON.stringify(fixtureFileJsonSchema(), null, 2)}\n`,
-    )
+    await writeFile(path.join(dir, 'dist/fixture.schema.json'), `${JSON.stringify(fixtureFileJsonSchema(), null, 2)}\n`)
   }
 }
 

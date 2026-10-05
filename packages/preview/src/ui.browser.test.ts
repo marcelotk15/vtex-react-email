@@ -131,7 +131,10 @@ describe('preview workbench', () => {
       await writeFile(
         emailFile,
         originalEmail
-          .replace("import { Section } from '@react-email/components'", "import { Img, Section } from '@react-email/components'")
+          .replace(
+            "import { Section } from '@react-email/components'",
+            "import { Img, Section } from '@react-email/components'",
+          )
           .replace(
             '<StoreShell>',
             '<StoreShell><Img alt="Camisa" height="12" src="https://cdn.example/shirt.png" width="12" />',

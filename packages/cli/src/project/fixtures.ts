@@ -1,12 +1,6 @@
 import type { ZodType } from 'zod'
 
-import {
-  checkFixture,
-  errorDiagnostic,
-  fixtureFileSchema,
-  type Diagnostic,
-  type FixtureMeta,
-} from '@vtex-email/core'
+import { checkFixture, errorDiagnostic, fixtureFileSchema, type Diagnostic, type FixtureMeta } from '@vtex-email/core'
 import { parse as parseJsonc, printParseErrorCode, type ParseError } from 'jsonc-parser'
 import { access, readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'

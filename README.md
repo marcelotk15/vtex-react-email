@@ -68,7 +68,11 @@ Evidence: documented.
 
 ```tsx
 <Vtex.IfCond
-  fallback={<Text><Vtex.Value path="paymentSystemName" /></Text>}
+  fallback={
+    <Text>
+      <Vtex.Value path="paymentSystemName" />
+    </Text>
+  }
   operator="=="
   path="paymentSystemName"
   value="Promissory"

@@ -28,8 +28,7 @@ function PaymentRows({ statusMessageId }: { statusMessageId: string }) {
           <Section className="mb-3 border-b border-zinc-100 pb-3">
             <PaymentTypeLabel />
             <Text className="m-0 mt-1 text-sm text-zinc-600">
-              <Vtex.Helper args={[expr.path('value')]} name="formatCurrency" /> $ ·{' '}
-              <Vtex.Value path="installments" />x
+              <Vtex.Helper args={[expr.path('value')]} name="formatCurrency" /> $ · <Vtex.Value path="installments" />x
             </Text>
             <Text className="m-0 mt-2 text-xs font-medium text-emerald-700">
               <Trans id={statusMessageId} />
@@ -49,8 +48,7 @@ function PaymentRowsWithDueDate({ statusMessageId }: { statusMessageId: string }
           <Section className="mb-3 border-b border-zinc-100 pb-3">
             <PaymentTypeLabel />
             <Text className="m-0 mt-1 text-sm text-zinc-600">
-              <Vtex.Helper args={[expr.path('value')]} name="formatCurrency" /> $ ·{' '}
-              <Vtex.Value path="installments" />x
+              <Vtex.Helper args={[expr.path('value')]} name="formatCurrency" /> $ · <Vtex.Value path="installments" />x
             </Text>
             <Vtex.If
               fallback={
@@ -61,8 +59,7 @@ function PaymentRowsWithDueDate({ statusMessageId }: { statusMessageId: string }
               path="dueDate"
             >
               <Text className="m-0 mt-1 text-xs text-zinc-500">
-                <Trans id="store.payment.dueDate" />{' '}
-                <Vtex.Helper args={[expr.path('dueDate')]} name="formatDate" />
+                <Trans id="store.payment.dueDate" /> <Vtex.Helper args={[expr.path('dueDate')]} name="formatDate" />
               </Text>
             </Vtex.If>
             <Text className="m-0 mt-2 text-xs font-medium text-emerald-700">

@@ -81,9 +81,7 @@ describe('preview server', () => {
         'orders.0.clientPreferencesData.locale',
       )
       expect(
-        forced.emails
-          .find((item) => item.id === 'order-confirmed-store')
-          ?.fixtures.find((item) => item.id === 'full'),
+        forced.emails.find((item) => item.id === 'order-confirmed-store')?.fixtures.find((item) => item.id === 'full'),
       ).toMatchObject({
         file: 'fixtures/order-confirmed-store/full.jsonc',
         origin: 'synthetic',

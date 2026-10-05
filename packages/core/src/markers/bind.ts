@@ -127,7 +127,10 @@ function checkHash(capability: EmissionCapability, site: SiteRecord): Diagnostic
     }
     if (actual.kind !== expected.kind) {
       diagnostics.push(
-        errorDiagnostic('HBS002', `Helper ${capability.name} named argument ${expected.name} must be a ${expected.kind}.`),
+        errorDiagnostic(
+          'HBS002',
+          `Helper ${capability.name} named argument ${expected.name} must be a ${expected.kind}.`,
+        ),
       )
     }
     if (expected.name === 'by' && actual.kind === 'literal') {

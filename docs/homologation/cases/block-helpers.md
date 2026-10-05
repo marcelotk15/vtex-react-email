@@ -6,25 +6,25 @@ Current state: all `experimental`. None of these have Message Center verificatio
 
 Used by the eight linked templates and implemented here:
 
-| Helper | Form | DSL | Notes |
-|--------|------|-----|-------|
-| `ifCond` | block | `Vtex.IfCond` | Operators `==`, `===`, `!=` only |
-| `hasSubStr` | block | `Vtex.HasSubStr` | Path plus substring literal |
-| `group` | block | `Vtex.Group` | Hash `by` identifier; item context |
-| `eq` | block | `Vtex.Eq` | Path plus literal; also used by locale merge |
-| `formatDate` | inline | `Vtex.Helper name="formatDate"` | Local `dd/MM/yyyy` |
-| `@index` | path | `Vtex.Value path="@index"` | Only inside `each` |
+| Helper       | Form   | DSL                             | Notes                                        |
+| ------------ | ------ | ------------------------------- | -------------------------------------------- |
+| `ifCond`     | block  | `Vtex.IfCond`                   | Operators `==`, `===`, `!=` only             |
+| `hasSubStr`  | block  | `Vtex.HasSubStr`                | Path plus substring literal                  |
+| `group`      | block  | `Vtex.Group`                    | Hash `by` identifier; item context           |
+| `eq`         | block  | `Vtex.Eq`                       | Path plus literal; also used by locale merge |
+| `formatDate` | inline | `Vtex.Helper name="formatDate"` | Local `dd/MM/yyyy`                           |
+| `@index`     | path   | `Vtex.Value path="@index"`      | Only inside `each`                           |
 
 Already available and reused: `each`, `if`, `../`, `formatCurrency`.
 
 Not emitted (next candidates or rejected):
 
-| Helper | Reason |
-|--------|--------|
-| `compare` | Not a universal VTEX assumption; map to `ifCond` |
-| `eval` | Executes JavaScript; regex in the reference does not match template placeholders |
-| `richShippingData` | Mutates logistics before render; summaries read `totals` / `value` instead |
-| `formatTime`, `formatDiscount`, `math` | Only in unlinked partials or unused |
+| Helper                                 | Reason                                                                           |
+| -------------------------------------- | -------------------------------------------------------------------------------- |
+| `compare`                              | Not a universal VTEX assumption; map to `ifCond`                                 |
+| `eval`                                 | Executes JavaScript; regex in the reference does not match template placeholders |
+| `richShippingData`                     | Mutates logistics before render; summaries read `totals` / `value` instead       |
+| `formatTime`, `formatDiscount`, `math` | Only in unlinked partials or unused                                              |
 
 ## Minimal template
 

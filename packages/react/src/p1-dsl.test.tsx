@@ -2,13 +2,13 @@ import type { ReactNode } from 'react'
 
 import { pixelBasedPreset, Section, Text } from '@react-email/components'
 import { type EmissionProfile } from '@vtex-email/core'
+import { evaluateArtifact } from '@vtex-email/core'
 import { p0Profile } from '@vtex-email/vtex'
 import { describe, expect, it } from 'vitest'
 
 import { Email } from './adapter/email'
 import { compileEmail } from './compile/compile-email'
 import { Each, Eq, expr, Group, HasSubStr, If, IfCond, Unless, Vtex } from './dsl/vtex'
-import { evaluateArtifact } from '@vtex-email/core'
 
 function compile(component: () => ReactNode, profile: EmissionProfile = p0Profile) {
   return compileEmail({

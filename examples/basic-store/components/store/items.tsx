@@ -27,8 +27,8 @@ export function OrderItemRows() {
             </Text>
             <DiscountRows />
             <Text className="m-0 mt-3 text-sm text-zinc-900">
-              x<Vtex.Value path="quantity" /> ·{' '}
-              <Vtex.Helper args={[expr.path('sellingPrice')]} name="formatCurrency" /> $
+              x<Vtex.Value path="quantity" /> · <Vtex.Helper args={[expr.path('sellingPrice')]} name="formatCurrency" />{' '}
+              $
             </Text>
           </Section>
         </Section>
@@ -57,8 +57,8 @@ export function OrderItemRowsWithTicket() {
             </Text>
             <DiscountRows />
             <Text className="m-0 mt-3 text-sm text-zinc-900">
-              x<Vtex.Value path="quantity" /> ·{' '}
-              <Vtex.Helper args={[expr.path('sellingPrice')]} name="formatCurrency" /> $
+              x<Vtex.Value path="quantity" /> · <Vtex.Helper args={[expr.path('sellingPrice')]} name="formatCurrency" />{' '}
+              $
             </Text>
             <Vtex.HasSubStr path="additionalInfo.categoriesIds" value="/9293/">
               <Section className="mt-3">
@@ -98,8 +98,7 @@ export function SimpleItemRows() {
           </Section>
         </Vtex.Each>
         <Text className="m-0 mt-3 text-sm text-zinc-900">
-          x<Vtex.Value path="quantity" /> ·{' '}
-          <Vtex.Helper args={[expr.path('sellingPrice')]} name="formatCurrency" /> $
+          x<Vtex.Value path="quantity" /> · <Vtex.Helper args={[expr.path('sellingPrice')]} name="formatCurrency" /> $
         </Text>
       </Section>
     </Vtex.Each>
@@ -114,8 +113,7 @@ export function CartItemRows() {
           <Vtex.Value path="productName" />
         </Text>
         <Text className="m-0 mt-3 text-sm text-zinc-900">
-          x<Vtex.Value path="quantity" /> · ${' '}
-          <Vtex.Helper args={[expr.path('sellingPrice')]} name="formatCurrency" />
+          x<Vtex.Value path="quantity" /> · $ <Vtex.Helper args={[expr.path('sellingPrice')]} name="formatCurrency" />
         </Text>
       </Section>
     </Vtex.Each>
@@ -131,8 +129,7 @@ export function TicketItemRows() {
           <Vtex.Value path="name" />
         </Text>
         <Text className="m-0 mt-2 text-sm text-zinc-900">
-          x<Vtex.Value path="quantity" /> ·{' '}
-          <Vtex.Helper args={[expr.path('sellingPrice')]} name="formatCurrency" /> $
+          x<Vtex.Value path="quantity" /> · <Vtex.Helper args={[expr.path('sellingPrice')]} name="formatCurrency" /> $
         </Text>
         <Section className="mt-3">
           <Vtex.Button
