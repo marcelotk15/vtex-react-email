@@ -1,0 +1,197 @@
+{
+  "meta": {
+    "description": "03-payment-approved full synthetic payload",
+    "origin": "synthetic",
+    "event": "03-payment-approved",
+    "purpose": "preview",
+    "expectedLocale": "pt-BR",
+    "expect": "valid"
+  },
+  "data": {
+    "locale": "pt-BR",
+    "split": false,
+    "ordersUrl": "https://example.com/orders",
+    "_accountInfo": {
+      "TradingName": "Loja Exemplo",
+      "HostName": "loja-exemplo",
+      "Id": "example-account",
+      "StoreUrl": "https://example.com",
+      "LogoUrl": "https://example.com/logo.png"
+    },
+    "orders": [
+      {
+        "orderId": "803551859492-01",
+        "value": 34295,
+        "clientProfileData": {
+          "firstName": "Maria",
+          "lastName": "Silva"
+        },
+        "clientPreferencesData": {
+          "locale": "pt-BR"
+        },
+        "sellers": [
+          {
+            "name": "qamarketplace"
+          }
+        ],
+        "items": [
+          {
+            "id": "15",
+            "name": "Novalgina",
+            "imageUrl": "https://example.com/images/product.png",
+            "quantity": 1,
+            "sellingPrice": 4264,
+            "itemIndex": 0,
+            "bundleItems": [],
+            "additionalInfo": {
+              "categoriesIds": "/4/5/"
+            }
+          },
+          {
+            "id": "1",
+            "name": "Produto Simples 2 Sku Simples 2",
+            "imageUrl": "https://example.com/images/product.png",
+            "quantity": 1,
+            "sellingPrice": 7123,
+            "itemIndex": 1,
+            "bundleItems": [],
+            "additionalInfo": {
+              "categoriesIds": "/4/7/"
+            }
+          },
+          {
+            "id": "2",
+            "name": "Produto Variação SKU Variação 1 Azul",
+            "imageUrl": "https://example.com/images/product.png",
+            "quantity": 1,
+            "sellingPrice": 8775,
+            "itemIndex": 2,
+            "bundleItems": [],
+            "additionalInfo": {
+              "categoriesIds": "/4/6/"
+            }
+          }
+        ],
+        "totals": [
+          {
+            "id": "Items",
+            "value": 21662
+          },
+          {
+            "id": "Discounts",
+            "value": -1500
+          },
+          {
+            "id": "Shipping",
+            "value": 14133
+          },
+          {
+            "id": "Tax",
+            "value": 0
+          }
+        ],
+        "paymentData": {
+          "transactions": [
+            {
+              "payments": [
+                {
+                  "paymentSystemName": "Mastercard",
+                  "lastDigits": "5100",
+                  "value": 34295,
+                  "installments": 1,
+                  "url": "https://example.com/boleto/{Installment}"
+                }
+              ]
+            }
+          ]
+        },
+        "shippingData": {
+          "addressId": "8ef6004da7bc4962b515c34283124ace",
+          "logisticsInfo": [
+            {
+              "itemIndex": 0,
+              "itemId": "15",
+              "selectedSla": "Normal",
+              "selectedDeliveryChannel": "delivery",
+              "addressId": "8ef6004da7bc4962b515c34283124ace",
+              "deliveryChannel": "delivery",
+              "slas": [
+                {
+                  "id": "Normal",
+                  "shippingEstimate": "7d",
+                  "shippingEstimateDate": "2018-01-22T16:31:15.9308237Z",
+                  "deliveryWindow": null,
+                  "availableDeliveryWindows": [],
+                  "pickupStoreInfo": {
+                    "isPickupStore": false,
+                    "friendlyName": null,
+                    "address": null,
+                    "additionalInfo": null,
+                    "dockId": null
+                  }
+                }
+              ]
+            },
+            {
+              "itemIndex": 1,
+              "itemId": "1",
+              "selectedSla": "PAC",
+              "selectedDeliveryChannel": "delivery",
+              "addressId": "8ef6004da7bc4962b515c34283124ace",
+              "deliveryChannel": "delivery",
+              "slas": [
+                {
+                  "id": "PAC",
+                  "shippingEstimate": "4bd",
+                  "shippingEstimateDate": "2018-01-19T14:31:15.9328237Z",
+                  "deliveryWindow": null,
+                  "availableDeliveryWindows": [],
+                  "pickupStoreInfo": {
+                    "isPickupStore": false,
+                    "friendlyName": null,
+                    "address": null,
+                    "additionalInfo": null,
+                    "dockId": null
+                  }
+                }
+              ]
+            }
+          ],
+          "availableAddresses": [
+            {
+              "addressId": "8ef6004da7bc4962b515c34283124ace",
+              "AddressId": "8ef6004da7bc4962b515c34283124ace",
+              "street": "Praia de Botafogo",
+              "number": "100",
+              "complement": "",
+              "neighborhood": "Botafogo",
+              "postalCode": "22250-040",
+              "city": "Rio de Janeiro",
+              "state": "RJ"
+            }
+          ],
+          "selectedAddresses": [
+            {
+              "addressType": "residential",
+              "receiverName": "asda sd",
+              "addressId": "8ef6004da7bc4962b515c34283124ace",
+              "postalCode": "22250-040",
+              "city": "Rio de Janeiro",
+              "state": "RJ",
+              "country": "BRA",
+              "street": "Praia de Botafogo",
+              "number": "100",
+              "neighborhood": "Botafogo",
+              "complement": "",
+              "reference": null,
+              "geoCoordinates": []
+            }
+          ],
+          "pickupPoints": []
+        },
+        "package": null,
+        "giftRegistryData": null
+      }
+    ]
+  }
+}

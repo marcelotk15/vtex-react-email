@@ -10,6 +10,8 @@ import { expr, Vtex } from '@vtex-email/react'
 
 Evidence: `documented` covers the pair seen in VTEX documentation; `experimental` has a local simulator contract and no Message Center record yet.
 
+The example store lives under `examples/basic-store/src` (`emails/`, `components/`, `fixtures/`, `schemas/`, `locales/`). Config paths are relative to the config directory. Official templates `01-confirmed` … `11-let-me-know` compile with Tailwind tokens resolved from Sass values (`.mw6-5` → 640px; `-ns` → 480px).
+
 ## Helpers
 
 <details>

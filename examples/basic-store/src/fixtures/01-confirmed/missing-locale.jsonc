@@ -1,0 +1,261 @@
+{
+  "meta": {
+    "description": "01-confirmed missing locale",
+    "origin": "synthetic",
+    "event": "01-confirmed",
+    "purpose": "preview",
+    "expectedLocale": "pt-BR",
+    "expect": "valid"
+  },
+  "data": {
+    "locale": null,
+    "split": false,
+    "ordersUrl": "https://example.com/orders",
+    "_accountInfo": {
+      "TradingName": "Loja Exemplo",
+      "HostName": "loja-exemplo",
+      "Id": "example-account",
+      "StoreUrl": "https://example.com",
+      "LogoUrl": "https://example.com/logo.png"
+    },
+    "orders": [
+      {
+        "orderId": "802810590387-01",
+        "value": 25099,
+        "clientProfileData": {
+          "firstName": "Maria",
+          "lastName": "Silva"
+        },
+        "clientPreferencesData": {},
+        "sellers": [
+          {
+            "name": "vtexgame3"
+          }
+        ],
+        "items": [
+          {
+            "id": "249",
+            "name": "Camisa Flamengo Branca",
+            "imageUrl": "https://example.com/images/product.png",
+            "quantity": 1,
+            "sellingPrice": 24900,
+            "itemIndex": 0,
+            "bundleItems": [],
+            "additionalInfo": {
+              "categoriesIds": "/1/2/3/"
+            }
+          }
+        ],
+        "totals": [
+          {
+            "id": "Items",
+            "value": 24900
+          },
+          {
+            "id": "Discounts",
+            "value": 0
+          },
+          {
+            "id": "Shipping",
+            "value": 199
+          },
+          {
+            "id": "Tax",
+            "value": 0
+          }
+        ],
+        "paymentData": {
+          "transactions": [
+            {
+              "payments": [
+                {
+                  "paymentSystemName": "Boleto Bancário",
+                  "lastDigits": "1234",
+                  "value": 51599,
+                  "installments": 1,
+                  "url": "https://example.com/boleto/{Installment}"
+                }
+              ]
+            }
+          ]
+        },
+        "shippingData": {
+          "addressId": "e7f1f88a76ec409c87e45d8b5badd8c4",
+          "logisticsInfo": [
+            {
+              "itemIndex": 0,
+              "itemId": "249",
+              "selectedSla": "normal",
+              "selectedDeliveryChannel": "delivery",
+              "addressId": "e7f1f88a76ec409c87e45d8b5badd8c4",
+              "deliveryChannel": "delivery",
+              "slas": [
+                {
+                  "id": "pickup (128fcc8)",
+                  "shippingEstimate": "0bd",
+                  "shippingEstimateDate": null,
+                  "deliveryWindow": null,
+                  "availableDeliveryWindows": [
+                    {
+                      "startDateUtc": "2018-01-15T09:00:00+00:00",
+                      "endDateUtc": "2018-01-15T19:00:00+00:00",
+                      "price": 0,
+                      "lisPrice": 0,
+                      "tax": 0
+                    },
+                    {
+                      "startDateUtc": "2018-01-16T09:00:00+00:00",
+                      "endDateUtc": "2018-01-16T19:00:00+00:00",
+                      "price": 0,
+                      "lisPrice": 0,
+                      "tax": 0
+                    }
+                  ],
+                  "pickupStoreInfo": {
+                    "isPickupStore": true,
+                    "friendlyName": "Loja oficial do flamengo",
+                    "address": {
+                      "addressType": "pickup",
+                      "receiverName": null,
+                      "addressId": "128fcc8",
+                      "postalCode": "22060002",
+                      "city": "Rio de Janeiro",
+                      "state": "RJ",
+                      "country": "BRA",
+                      "street": "Avenida Nossa Senhora de Copacabana",
+                      "number": "",
+                      "neighborhood": "Copacabana",
+                      "complement": "",
+                      "reference": null,
+                      "geoCoordinates": [-43.19089889526367, -22.979047775268555]
+                    },
+                    "additionalInfo": "Levar documento e comprovante de pagamento",
+                    "dockId": "10c4d1c"
+                  }
+                },
+                {
+                  "id": "pickup (1c553cc)",
+                  "shippingEstimate": "0bd",
+                  "shippingEstimateDate": null,
+                  "deliveryWindow": null,
+                  "availableDeliveryWindows": [
+                    {
+                      "startDateUtc": "2018-01-13T10:00:00+00:00",
+                      "endDateUtc": "2018-01-13T19:00:00+00:00",
+                      "price": 0,
+                      "lisPrice": 0,
+                      "tax": 0
+                    },
+                    {
+                      "startDateUtc": "2018-01-14T10:00:00+00:00",
+                      "endDateUtc": "2018-01-14T19:00:00+00:00",
+                      "price": 0,
+                      "lisPrice": 0,
+                      "tax": 0
+                    }
+                  ],
+                  "pickupStoreInfo": {
+                    "isPickupStore": true,
+                    "friendlyName": "ESTADIO DO MARACANÃ",
+                    "address": {
+                      "addressType": "pickup",
+                      "receiverName": null,
+                      "addressId": "1c553cc",
+                      "postalCode": "20271130",
+                      "city": "Rio de Janeiro",
+                      "state": "RJ",
+                      "country": "BRA",
+                      "street": "Avenida Presidente Castelo Branco",
+                      "number": "3",
+                      "neighborhood": "Maracanã",
+                      "complement": "portao 3",
+                      "reference": null,
+                      "geoCoordinates": [-43.22951126098633, -22.910478591918945]
+                    },
+                    "additionalInfo": "",
+                    "dockId": "1664733"
+                  }
+                },
+                {
+                  "id": "normal",
+                  "shippingEstimate": "11bd",
+                  "shippingEstimateDate": null,
+                  "deliveryWindow": null,
+                  "availableDeliveryWindows": [],
+                  "pickupStoreInfo": {
+                    "isPickupStore": false,
+                    "friendlyName": null,
+                    "address": null,
+                    "additionalInfo": null,
+                    "dockId": null
+                  }
+                },
+                {
+                  "id": "PAC",
+                  "shippingEstimate": "13bd",
+                  "shippingEstimateDate": null,
+                  "deliveryWindow": null,
+                  "availableDeliveryWindows": [],
+                  "pickupStoreInfo": {
+                    "isPickupStore": false,
+                    "friendlyName": null,
+                    "address": null,
+                    "additionalInfo": null,
+                    "dockId": null
+                  }
+                },
+                {
+                  "id": "Expressa",
+                  "shippingEstimate": "14bd",
+                  "shippingEstimateDate": null,
+                  "deliveryWindow": null,
+                  "availableDeliveryWindows": [],
+                  "pickupStoreInfo": {
+                    "isPickupStore": false,
+                    "friendlyName": null,
+                    "address": null,
+                    "additionalInfo": null,
+                    "dockId": null
+                  }
+                }
+              ]
+            }
+          ],
+          "availableAddresses": [
+            {
+              "addressId": "e7f1f88a76ec409c87e45d8b5badd8c4",
+              "AddressId": "e7f1f88a76ec409c87e45d8b5badd8c4",
+              "street": "Rua General Azevedo Pimentel",
+              "number": "4",
+              "complement": "",
+              "neighborhood": "Copacabana",
+              "postalCode": "22011-050",
+              "city": "Rio de Janeiro",
+              "state": "RJ"
+            }
+          ],
+          "selectedAddresses": [
+            {
+              "addressType": "residential",
+              "receiverName": "Ellen Silva",
+              "addressId": "e7f1f88a76ec409c87e45d8b5badd8c4",
+              "postalCode": "22011-050",
+              "city": "Rio de Janeiro",
+              "state": "RJ",
+              "country": "BRA",
+              "street": "Rua General Azevedo Pimentel",
+              "number": "4",
+              "neighborhood": "Copacabana",
+              "complement": null,
+              "reference": null,
+              "geoCoordinates": []
+            }
+          ],
+          "pickupPoints": []
+        },
+        "package": null,
+        "giftRegistryData": null
+      }
+    ]
+  }
+}

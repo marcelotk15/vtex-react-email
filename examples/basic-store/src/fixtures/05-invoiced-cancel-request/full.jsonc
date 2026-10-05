@@ -1,0 +1,199 @@
+{
+  "meta": {
+    "description": "05-invoiced-cancel-request full synthetic payload",
+    "origin": "synthetic",
+    "event": "05-invoiced-cancel-request",
+    "purpose": "preview",
+    "expectedLocale": "pt-BR",
+    "expect": "valid"
+  },
+  "data": {
+    "locale": "pt-BR",
+    "split": false,
+    "ordersUrl": "https://example.com/orders",
+    "_accountInfo": {
+      "TradingName": "Loja Exemplo",
+      "HostName": "loja-exemplo",
+      "Id": "example-account",
+      "StoreUrl": "https://example.com",
+      "LogoUrl": "https://example.com/logo.png"
+    },
+    "orders": [
+      {
+        "orderId": "628951651545-01",
+        "value": 78105,
+        "clientProfileData": {
+          "firstName": "Maria",
+          "lastName": "Silva"
+        },
+        "clientPreferencesData": {
+          "locale": "pt-BR"
+        },
+        "sellers": [
+          {
+            "name": "VTEX GAME1"
+          }
+        ],
+        "items": [
+          {
+            "id": "26",
+            "name": "Bota Feminina Macboot Killa Carajas Babaçu 35",
+            "imageUrl": "https://example.com/images/product.png",
+            "quantity": 1,
+            "sellingPrice": 28652,
+            "itemIndex": 0,
+            "bundleItems": [],
+            "additionalInfo": {
+              "categoriesIds": "/8/12/"
+            }
+          },
+          {
+            "id": "365",
+            "name": "Cueca Lupo Sunga Microfibra Azul P",
+            "imageUrl": "https://example.com/images/product.png",
+            "quantity": 1,
+            "sellingPrice": 47999,
+            "itemIndex": 1,
+            "bundleItems": [],
+            "additionalInfo": {
+              "categoriesIds": "/4/16/"
+            }
+          }
+        ],
+        "totals": [
+          {
+            "id": "Items",
+            "value": 76651
+          },
+          {
+            "id": "Discounts",
+            "value": 0
+          },
+          {
+            "id": "Shipping",
+            "value": 1454
+          },
+          {
+            "id": "Tax",
+            "value": 0
+          }
+        ],
+        "paymentData": {
+          "transactions": [
+            {
+              "payments": [
+                {
+                  "paymentSystemName": "Visa",
+                  "lastDigits": "0879",
+                  "value": 78105,
+                  "installments": 1,
+                  "url": "https://example.com/boleto/{Installment}"
+                }
+              ]
+            }
+          ]
+        },
+        "shippingData": {
+          "addressId": "addr-1",
+          "logisticsInfo": [
+            {
+              "itemIndex": 0,
+              "itemId": "26",
+              "selectedSla": "Normal",
+              "selectedDeliveryChannel": "delivery",
+              "addressId": "addr-1",
+              "deliveryChannel": "delivery",
+              "slas": [
+                {
+                  "id": "Normal",
+                  "shippingEstimate": "8bd",
+                  "shippingEstimateDate": "2016-05-11T15:28:04.6882291Z",
+                  "deliveryWindow": null,
+                  "availableDeliveryWindows": [],
+                  "pickupStoreInfo": null
+                },
+                {
+                  "id": "Expressa",
+                  "shippingEstimate": "5bd",
+                  "shippingEstimateDate": null,
+                  "deliveryWindow": null,
+                  "availableDeliveryWindows": [],
+                  "pickupStoreInfo": null
+                }
+              ]
+            },
+            {
+              "itemIndex": 1,
+              "itemId": "365",
+              "selectedSla": "Normal",
+              "selectedDeliveryChannel": "delivery",
+              "addressId": "addr-1",
+              "deliveryChannel": "delivery",
+              "slas": [
+                {
+                  "id": "Normal",
+                  "shippingEstimate": "8bd",
+                  "shippingEstimateDate": "2016-05-11T15:28:04.6882291Z",
+                  "deliveryWindow": null,
+                  "availableDeliveryWindows": [],
+                  "pickupStoreInfo": null
+                },
+                {
+                  "id": "Expressa",
+                  "shippingEstimate": "5bd",
+                  "shippingEstimateDate": null,
+                  "deliveryWindow": null,
+                  "availableDeliveryWindows": [],
+                  "pickupStoreInfo": null
+                }
+              ]
+            }
+          ],
+          "availableAddresses": [
+            {
+              "addressId": "-1462026434628",
+              "AddressId": "-1462026434628",
+              "street": "Avenida Rainha Elizabeth da Bélgica",
+              "number": "43",
+              "complement": "543",
+              "neighborhood": "Ipanema",
+              "postalCode": "22081-041",
+              "city": "Rio de Janeiro",
+              "state": "RJ"
+            }
+          ],
+          "selectedAddresses": [],
+          "pickupPoints": []
+        },
+        "package": {
+          "items": [
+            {
+              "itemIndex": 0,
+              "quantity": 1,
+              "price": 28652,
+              "description": null
+            },
+            {
+              "itemIndex": 1,
+              "quantity": 1,
+              "price": 47999,
+              "description": null
+            }
+          ],
+          "courier": "PAC",
+          "invoiceNumber": "093092093",
+          "invoiceValue": 78105,
+          "invoiceUrl": null,
+          "issuanceDate": "2016-04-30T03:00:00Z",
+          "trackingNumber": "0329392",
+          "invoiceKey": null,
+          "trackingUrl": null,
+          "embeddedInvoice": null,
+          "type": "Output",
+          "courierStatus": null
+        },
+        "giftRegistryData": null
+      }
+    ]
+  }
+}

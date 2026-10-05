@@ -1,0 +1,149 @@
+{
+  "meta": {
+    "description": "02-cancelled full synthetic payload",
+    "origin": "synthetic",
+    "event": "02-cancelled",
+    "purpose": "preview",
+    "expectedLocale": "pt-BR",
+    "expect": "valid"
+  },
+  "data": {
+    "locale": "pt-BR",
+    "split": false,
+    "ordersUrl": "https://example.com/orders",
+    "_accountInfo": {
+      "TradingName": "Loja Exemplo",
+      "HostName": "loja-exemplo",
+      "Id": "example-account",
+      "StoreUrl": "https://example.com",
+      "LogoUrl": "https://example.com/logo.png"
+    },
+    "orders": [
+      {
+        "orderId": "803152678623-01",
+        "value": 5765,
+        "clientProfileData": {
+          "firstName": "Maria",
+          "lastName": "Silva"
+        },
+        "clientPreferencesData": {
+          "locale": "pt-BR"
+        },
+        "sellers": [
+          {
+            "name": "qamarketplace"
+          }
+        ],
+        "items": [
+          {
+            "id": "15",
+            "name": "Novalgina",
+            "imageUrl": "https://example.com/images/product.png",
+            "quantity": 1,
+            "sellingPrice": 4264,
+            "itemIndex": 0,
+            "bundleItems": [],
+            "additionalInfo": {
+              "categoriesIds": "/4/5/"
+            }
+          }
+        ],
+        "totals": [
+          {
+            "id": "Items",
+            "value": 5764
+          },
+          {
+            "id": "Discounts",
+            "value": -1500
+          },
+          {
+            "id": "Shipping",
+            "value": 1501
+          },
+          {
+            "id": "Tax",
+            "value": 0
+          }
+        ],
+        "paymentData": {
+          "transactions": [
+            {
+              "payments": [
+                {
+                  "paymentSystemName": "Mastercard",
+                  "lastDigits": "5100",
+                  "value": 5765,
+                  "installments": 1,
+                  "url": "https://example.com/boleto/{Installment}"
+                }
+              ]
+            }
+          ]
+        },
+        "shippingData": {
+          "addressId": "-1476460151082",
+          "logisticsInfo": [
+            {
+              "itemIndex": 0,
+              "itemId": "15",
+              "selectedSla": "Normal",
+              "selectedDeliveryChannel": "delivery",
+              "addressId": "-1476460151082",
+              "deliveryChannel": "delivery",
+              "slas": [
+                {
+                  "id": "Normal",
+                  "shippingEstimate": "7d",
+                  "shippingEstimateDate": null,
+                  "deliveryWindow": null,
+                  "availableDeliveryWindows": [],
+                  "pickupStoreInfo": {
+                    "isPickupStore": false,
+                    "friendlyName": null,
+                    "address": null,
+                    "additionalInfo": null,
+                    "dockId": null
+                  }
+                }
+              ]
+            }
+          ],
+          "availableAddresses": [
+            {
+              "addressId": "-1476460151082",
+              "AddressId": "-1476460151082",
+              "street": "Rua da passagem",
+              "number": "4",
+              "complement": "",
+              "neighborhood": "Botafogo",
+              "postalCode": "22222-222",
+              "city": "Rio de Janeiro",
+              "state": "RJ"
+            }
+          ],
+          "selectedAddresses": [
+            {
+              "addressType": "residential",
+              "receiverName": "Freds Da Bahia",
+              "addressId": "-1476460151082",
+              "postalCode": "22222-222",
+              "city": "Rio de Janeiro",
+              "state": "RJ",
+              "country": "BRA",
+              "street": "Rua da passagem",
+              "number": "4",
+              "neighborhood": "Botafogo",
+              "complement": null,
+              "reference": null,
+              "geoCoordinates": []
+            }
+          ],
+          "pickupPoints": []
+        },
+        "package": null,
+        "giftRegistryData": null
+      }
+    ]
+  }
+}

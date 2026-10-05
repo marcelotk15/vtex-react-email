@@ -1,0 +1,227 @@
+{
+  "meta": {
+    "description": "10-delivered full synthetic payload",
+    "origin": "synthetic",
+    "event": "10-delivered",
+    "purpose": "preview",
+    "expectedLocale": "pt-BR",
+    "expect": "valid"
+  },
+  "data": {
+    "locale": "pt-BR",
+    "split": false,
+    "ordersUrl": "https://example.com/orders",
+    "_accountInfo": {
+      "TradingName": "Loja Exemplo",
+      "HostName": "loja-exemplo",
+      "Id": "example-account",
+      "StoreUrl": "https://example.com",
+      "LogoUrl": "https://example.com/logo.png"
+    },
+    "orders": [
+      {
+        "orderId": "834081519069-01",
+        "value": 6798,
+        "clientProfileData": {
+          "firstName": "Maria",
+          "lastName": "Silva"
+        },
+        "clientPreferencesData": {
+          "locale": "pt-BR"
+        },
+        "sellers": [
+          {
+            "name": "vtexgame1"
+          }
+        ],
+        "items": [
+          {
+            "id": "31",
+            "name": "Camisa Seleção Brasileira",
+            "imageUrl": "https://example.com/images/product.png",
+            "quantity": 1,
+            "sellingPrice": 3999,
+            "itemIndex": 0,
+            "bundleItems": [],
+            "additionalInfo": {
+              "categoriesIds": "/1/2/3/"
+            }
+          }
+        ],
+        "totals": [
+          {
+            "id": "Items",
+            "value": 6298
+          },
+          {
+            "id": "Discounts",
+            "value": 0
+          },
+          {
+            "id": "Shipping",
+            "value": 500
+          },
+          {
+            "id": "Tax",
+            "value": 0
+          }
+        ],
+        "paymentData": {
+          "transactions": [
+            {
+              "payments": [
+                {
+                  "paymentSystemName": "Visa",
+                  "lastDigits": "1111",
+                  "value": 6798,
+                  "installments": 1,
+                  "url": "https://example.com/boleto/{Installment}"
+                }
+              ]
+            }
+          ]
+        },
+        "shippingData": {
+          "addressId": "-4564401032532",
+          "logisticsInfo": [
+            {
+              "itemIndex": 0,
+              "itemId": "31",
+              "selectedSla": "PAC",
+              "selectedDeliveryChannel": "delivery",
+              "addressId": "-4564401032532",
+              "deliveryChannel": "delivery",
+              "slas": [
+                {
+                  "id": "PAC",
+                  "shippingEstimate": "8bd",
+                  "shippingEstimateDate": "2018-06-02T00:26:44.4700669Z",
+                  "deliveryWindow": null,
+                  "availableDeliveryWindows": [],
+                  "pickupStoreInfo": {
+                    "isPickupStore": false,
+                    "friendlyName": null,
+                    "address": null,
+                    "additionalInfo": null,
+                    "dockId": null,
+                    "businessHours": null
+                  }
+                }
+              ]
+            },
+            {
+              "itemIndex": 1,
+              "itemId": "33",
+              "selectedSla": "Econômica",
+              "selectedDeliveryChannel": "delivery",
+              "addressId": "-4564401032532",
+              "deliveryChannel": "delivery",
+              "slas": [
+                {
+                  "id": "Econômica",
+                  "shippingEstimate": "10bd",
+                  "shippingEstimateDate": "2018-06-06T00:26:44.4700669Z",
+                  "deliveryWindow": null,
+                  "availableDeliveryWindows": [],
+                  "pickupStoreInfo": {
+                    "isPickupStore": false,
+                    "friendlyName": null,
+                    "address": null,
+                    "additionalInfo": null,
+                    "dockId": null,
+                    "businessHours": null
+                  }
+                },
+                {
+                  "id": "normal",
+                  "shippingEstimate": "11bd",
+                  "shippingEstimateDate": null,
+                  "deliveryWindow": null,
+                  "availableDeliveryWindows": [],
+                  "pickupStoreInfo": {
+                    "isPickupStore": false,
+                    "friendlyName": null,
+                    "address": null,
+                    "additionalInfo": null,
+                    "dockId": null,
+                    "businessHours": null
+                  }
+                }
+              ]
+            }
+          ],
+          "availableAddresses": [
+            {
+              "addressId": "-4564401032532",
+              "AddressId": "-4564401032532",
+              "street": "Praia de Botafogo",
+              "number": "260",
+              "complement": "",
+              "neighborhood": "Botafogo",
+              "postalCode": "22225-800",
+              "city": "Rio de Janeiro",
+              "state": "RJ"
+            }
+          ],
+          "selectedAddresses": [
+            {
+              "addressType": "residential",
+              "receiverName": "Ana Luiza Gomes",
+              "addressId": "-4564401032532",
+              "postalCode": "22225-800",
+              "city": "Rio de Janeiro",
+              "state": "RJ",
+              "country": "BRA",
+              "street": "Praia de Botafogo",
+              "number": "260",
+              "neighborhood": "Botafogo",
+              "complement": null,
+              "reference": null,
+              "geoCoordinates": []
+            }
+          ],
+          "pickupPoints": []
+        },
+        "package": {
+          "items": [
+            {
+              "itemIndex": 0,
+              "quantity": 1,
+              "price": 3999,
+              "description": null
+            }
+          ],
+          "courier": "PAC",
+          "invoiceNumber": "1234",
+          "invoiceValue": 4499,
+          "invoiceUrl": "www.uol.com.br",
+          "issuanceDate": "2018-07-27T03:00:00Z",
+          "trackingNumber": "2222",
+          "invoiceKey": null,
+          "trackingUrl": "www.visa.com.br",
+          "embeddedInvoice": "",
+          "type": "Output",
+          "courierStatus": {
+            "status": "ok",
+            "finished": true,
+            "data": [
+              {
+                "lastChange": "2015-06-24T00:00:00",
+                "city": "Sao Paulo",
+                "state": "SP",
+                "description": "A caminho de Curitiba"
+              },
+              {
+                "lastChange": "2015-06-23T00:00:00",
+                "city": "Rio de Janeiro",
+                "state": "RJ",
+                "description": "Coletado pela transportadora"
+              }
+            ]
+          }
+        },
+        "giftRegistryData": null
+      }
+    ]
+  }
+}

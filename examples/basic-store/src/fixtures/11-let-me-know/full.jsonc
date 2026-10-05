@@ -1,0 +1,25 @@
+{
+  "meta": {
+    "description": "11-let-me-know full synthetic payload",
+    "origin": "synthetic",
+    "event": "11-let-me-know",
+    "purpose": "preview",
+    "expectedLocale": "pt-BR",
+    "expect": "valid"
+  },
+  "data": {
+    "locale": "pt-BR",
+    "_accountInfo": {
+      "TradingName": "Loja Exemplo",
+      "HostName": "loja-exemplo",
+      "Id": "example-account",
+      "StoreUrl": "https://example.com",
+      "LogoUrl": "https://example.com/logo.png"
+    },
+    "clientProfileData": {
+      "firstName": "Maria"
+    },
+    "name": "Camisa Exemplo",
+    "productLink": "https://example.com/p/camisa"
+  }
+}

@@ -24,6 +24,7 @@ Do not substitute classic Outlook with Outlook on the web.
 - Missing optional data: the pickup fixture, without address.
 - Images blocked by the client.
 - Languages supported by the example: `pt-BR` and `en-US`.
+- Official store templates under `examples/basic-store/src`: desktop content max-width 640px (`.mw6-5`), mobile 375px, break at 480px (`30em` / `ns`). Compare section order, colors (`#f1f1f1`, white, `#2ecc71`), tables, buttons, and images against the compiled artifact. The `dist` keeps Handlebars expressions. Local preview does not homologate Message Center.
 
 ## Criterion
 
