@@ -24,6 +24,21 @@ Improve preview shell.
     })
   })
 
+  it('parses single-quoted package names written by the formatter', () => {
+    const parsed = parseChangesetMarkdown(`---
+'@vtex-email/core': minor
+'@vtex-email/react': minor
+---
+
+Helpers.
+`)
+    expect(parsed.empty).toBe(false)
+    expect(parsed.packages).toEqual({
+      '@vtex-email/core': 'minor',
+      '@vtex-email/react': 'minor',
+    })
+  })
+
   it('detects empty changesets', () => {
     expect(parseChangesetMarkdown('---\n---\n\nNo release.\n').empty).toBe(true)
   })

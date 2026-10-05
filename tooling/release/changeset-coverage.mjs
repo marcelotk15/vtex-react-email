@@ -22,7 +22,7 @@ export function parseChangesetMarkdown(content) {
   /** @type {Record<string, 'patch' | 'minor' | 'major'>} */
   const packages = {}
   for (const line of frontmatter.split(/\r?\n/)) {
-    const match = /^\s*"?(@?[^":\s]+)"?\s*:\s*(patch|minor|major)\s*$/.exec(line)
+    const match = /^\s*['"]?(@?[^"':\s]+)['"]?\s*:\s*(patch|minor|major)\s*$/.exec(line)
     if (match) packages[match[1]] = /** @type {'patch' | 'minor' | 'major'} */ (match[2])
   }
   return { empty: Object.keys(packages).length === 0, packages }
