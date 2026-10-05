@@ -1,7 +1,7 @@
 import type { EmailSettings } from '@vtex-email/core'
 
 import { Section, Text } from '@react-email/components'
-import { Trans, Vtex } from '@vtex-email/react'
+import { expr, Trans, Vtex } from '@vtex-email/react'
 
 import { AddressDelivery, AddressPickup } from '../components/address'
 import { PackageBlock, PackageItems } from '../components/package'
@@ -15,22 +15,58 @@ export const settings = {
   },
 } satisfies EmailSettings
 
-function QuantityMessage({ fullOne, fullMany }: { fullOne: string; fullMany: string }) {
+function QuantityMessage({
+  fullOne,
+  fullMany,
+  partialOne,
+  partialMany,
+}: {
+  fullOne: string
+  fullMany: string
+  partialOne?: string
+  partialMany?: string
+}) {
+  const fullMessage = (
+    <Vtex.IfCond
+      fallback={
+        <Text className="m-0 text-sm">
+          <Trans id={fullOne} />
+        </Text>
+      }
+      operator=">"
+      path="items.length"
+      right={1}
+    >
+      <Text className="m-0 text-sm">
+        <Trans id={fullMany} />
+      </Text>
+    </Vtex.IfCond>
+  )
+
+  if (!partialOne || !partialMany) {
+    return <Section>{fullMessage}</Section>
+  }
+
   return (
     <Section>
-      <Vtex.IfCond
-        fallback={
+      <Vtex.IfCond operator="==" path="items.length" right={expr.path('shippingData.logisticsInfo.length')}>
+        {fullMessage}
+      </Vtex.IfCond>
+      <Vtex.IfCond operator="!=" path="items.length" right={expr.path('shippingData.logisticsInfo.length')}>
+        <Vtex.IfCond
+          fallback={
+            <Text className="m-0 text-sm">
+              <Trans id={partialOne} />
+            </Text>
+          }
+          operator=">"
+          path="items.length"
+          right={1}
+        >
           <Text className="m-0 text-sm">
-            <Trans id={fullOne} />
+            <Trans id={partialMany} />
           </Text>
-        }
-        operator=">"
-        path="items.length"
-        right={1}
-      >
-        <Text className="m-0 text-sm">
-          <Trans id={fullMany} />
-        </Text>
+        </Vtex.IfCond>
       </Vtex.IfCond>
     </Section>
   )
