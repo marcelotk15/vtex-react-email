@@ -62,6 +62,21 @@ function walk(nodes: readonly ScopeNode[], stack: Frame[], guards: readonly stri
       diagnostics.push(...walk(node.fallback, outer, guards))
       continue
     }
+    if (node.block === 'group') {
+      const elements = arrayElements(lookup.schema)
+      if (!elements) {
+        diagnostics.push(errorDiagnostic('PATH001', `Path "${node.path}" is not an array.`, { path: node.path }))
+        continue
+      }
+      const child: Frame = {
+        schema: groupFrameSchema(elements),
+        prefix: [...absolute.segments, 'group'],
+      }
+      const outer = framesAt(stack, node.parentHops)
+      diagnostics.push(...walk(node.children, [...outer, child], guards))
+      diagnostics.push(...walk(node.fallback, outer, guards))
+      continue
+    }
     const nextGuards = [...guards, absolute.segments]
     diagnostics.push(...walk(node.children, stack, nextGuards))
     diagnostics.push(...walk(node.fallback, stack, nextGuards))
@@ -83,6 +98,7 @@ function inspectRef(
 }
 
 function inspectPath(path: string, hops: number, stack: Frame[], guards: readonly string[][]): Diagnostic[] {
+  if (path === '@index') return []
   const absolute = absoluteSegments(path, hops, stack)
   if (!absolute) {
     const missing = contractDiagnostic(path, 'missing')
@@ -186,4 +202,17 @@ function arrayElements(schema: ZodNode): ZodNode | null {
     return combineSchemas(elements)
   }
   return null
+}
+
+function groupFrameSchema(element: ZodNode): ZodNode {
+  return {
+    def: {
+      type: 'object',
+      shape: {
+        index: { def: { type: 'number' } },
+        value: {},
+        items: { def: { type: 'array', element } },
+      },
+    },
+  }
 }

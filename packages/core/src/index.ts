@@ -34,7 +34,7 @@ export { mergeLocaleDocuments } from './i18n/merge'
 export { parseMessage, placeholderSignature, type MessagePart, type ParsedMessage } from './i18n/message'
 export { bindSites, type BindResult } from './markers/bind'
 export { restoreHandlebars, type RestoreResult } from './markers/restore'
-export type { BlockName, DynamicAttribute, ResolvedPath, SiteArgument, SiteRecord } from './markers/sites'
+export type { BlockName, DynamicAttribute, ResolvedPath, SiteArgument, SiteHash, SiteRecord } from './markers/sites'
 export {
   mintToken,
   opaqueTokenIssue,
@@ -57,6 +57,7 @@ export {
   type EmissionCapability,
   type EmissionProfile,
   type Evidence,
+  type HashArg,
   type InlineHelper,
   type LocalSimulator,
   type Profile,

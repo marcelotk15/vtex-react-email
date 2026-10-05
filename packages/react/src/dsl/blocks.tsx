@@ -1,9 +1,10 @@
-import type { BlockName, OpenMarker } from '@vtex-email/core'
+import type { BlockName, OpenMarker, SiteArgument, SiteHash } from '@vtex-email/core'
 
 import { Children, cloneElement, Fragment, isValidElement, type ReactElement, type ReactNode } from 'react'
 
 import { addMarker, addSite, getSession } from '../compile/session'
-import { dslFailure, resolvePath } from './resolve'
+import { expr, type Expression } from './expr'
+import { dslFailure, readArgument, resolvePath } from './resolve'
 
 export function stamp(children: ReactNode, token: string): ReactElement {
   const session = getSession()
@@ -23,6 +24,7 @@ export function openRegion(
   path: string,
   block: BlockName,
   hasElse: boolean,
+  extras: { args?: readonly SiteArgument[]; hash?: SiteHash } = {},
 ): { openId: string; elseId: string | null } {
   const session = getSession()
   const resolved = resolvePath(path, session)
@@ -33,7 +35,13 @@ export function openRegion(
     elseId: null,
   }
   const openId = addMarker(session, { kind: 'open', path: resolved.emitted, detail: block }, marker)
-  addSite(session, openId, { kind: 'block', block, path: resolved })
+  addSite(session, openId, {
+    kind: 'block',
+    block,
+    path: resolved,
+    ...(extras.args ? { args: extras.args } : {}),
+    ...(extras.hash ? { hash: extras.hash } : {}),
+  })
   if (!hasElse) return { openId, elseId: null }
   const elseId = addMarker(
     session,
@@ -52,8 +60,9 @@ export function blockRegion(
   block: BlockName,
   children: ReactNode,
   fallback: ReactNode | undefined,
+  extras: { args?: readonly SiteArgument[]; hash?: SiteHash } = {},
 ): ReactNode {
-  const region = openRegion(path, block, fallback !== undefined)
+  const region = openRegion(path, block, fallback !== undefined, extras)
   const thenNode = stamp(children, region.openId)
   if (!region.elseId || fallback === undefined) return thenNode
   return (
@@ -75,3 +84,78 @@ export function If({ path, children, fallback }: { path: string; children: React
 export function Unless({ path, children, fallback }: { path: string; children: ReactNode; fallback?: ReactNode }) {
   return blockRegion(path, 'unless', children, fallback)
 }
+
+export function IfCond({
+  path,
+  operator,
+  value,
+  children,
+  fallback,
+}: {
+  path: string
+  operator: '==' | '===' | '!='
+  value: string | number | boolean | null
+  children: ReactNode
+  fallback?: ReactNode
+}) {
+  const session = getSession()
+  return blockRegion(path, 'ifCond', children, fallback, {
+    args: [readArgument(expr.literal(operator), session), readArgument(expr.literal(value), session)],
+  })
+}
+
+export function HasSubStr({
+  path,
+  value,
+  children,
+  fallback,
+}: {
+  path: string
+  value: string
+  children: ReactNode
+  fallback?: ReactNode
+}) {
+  const session = getSession()
+  return blockRegion(path, 'hasSubStr', children, fallback, {
+    args: [readArgument(expr.literal(value), session)],
+  })
+}
+
+export function Eq({
+  path,
+  value,
+  children,
+  fallback,
+}: {
+  path: string
+  value: string | number | boolean | null
+  children: ReactNode
+  fallback?: ReactNode
+}) {
+  const session = getSession()
+  return blockRegion(path, 'eq', children, fallback, {
+    args: [readArgument(expr.literal(value), session)],
+  })
+}
+
+export function Group({
+  path,
+  by,
+  children,
+  fallback,
+}: {
+  path: string
+  by: string
+  children: ReactNode
+  fallback?: ReactNode
+}) {
+  const session = getSession()
+  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(by)) {
+    dslFailure(session, 'HBS002', 'Group by must be an identifier.')
+  }
+  return blockRegion(path, 'group', children, fallback, {
+    hash: { by: readArgument(expr.literal(by), session) },
+  })
+}
+
+export type { Expression }

@@ -7,7 +7,8 @@ import { describe, expect, it } from 'vitest'
 
 import { Email } from './adapter/email'
 import { compileEmail } from './compile/compile-email'
-import { Each, expr, If, Unless, Vtex } from './dsl/vtex'
+import { Each, Eq, expr, Group, HasSubStr, If, IfCond, Unless, Vtex } from './dsl/vtex'
+import { evaluateArtifact } from '@vtex-email/core'
 
 function compile(component: () => ReactNode, profile: EmissionProfile = p0Profile) {
   return compileEmail({
@@ -188,6 +189,131 @@ describe('P1 DSL', () => {
     expect(compiled.ok).toBe(false)
     if (compiled.ok) return
     expect(compiled.diagnostics[0]?.code).toBe('HBS002')
+  })
+
+  it('emits ifCond, hasSubStr, group, eq, formatDate, and @index', async () => {
+    function View() {
+      return (
+        <Email>
+          <Section>
+            <IfCond fallback={<Text>other</Text>} operator="==" path="paymentSystemName" value="Promissory">
+              <Text>cash</Text>
+            </IfCond>
+            <HasSubStr fallback={<Text>no</Text>} path="categoriesIds" value="/9293/">
+              <Text>ticket</Text>
+            </HasSubStr>
+            <Group by="packageId" path="items">
+              <Section>
+                <Each path="items">
+                  <Text>
+                    <Vtex.Value path="@index" />
+                    <Vtex.Helper args={[expr.path('../../dueDate')]} name="formatDate" />
+                  </Text>
+                </Each>
+              </Section>
+            </Group>
+            <Each path="totals">
+              <Section>
+                <Eq fallback={<Text>skip</Text>} path="id" value="Items">
+                  <Text>
+                    <Vtex.Helper args={[expr.path('value')]} name="formatCurrency" />
+                  </Text>
+                </Eq>
+              </Section>
+            </Each>
+          </Section>
+        </Email>
+      )
+    }
+    const compiled = await compile(View)
+    expect(compiled).toMatchObject({ ok: true })
+    if (!compiled.ok) return
+    const html = compiled.artifacts[0]?.content ?? ''
+    expect(html).toContain('{{#ifCond paymentSystemName "==" "Promissory"}}')
+    expect(html).toContain('{{#hasSubStr categoriesIds "/9293/"}}')
+    expect(html).toContain('{{#group items by="packageId"}}')
+    expect(html).toContain('{{#eq id "Items"}}')
+    expect(html).toContain('{{formatDate ../../dueDate}}')
+    expect(html).toContain('{{@index}}')
+    expect(html.includes('20000')).toBe(false)
+  })
+
+  it('rejects an invalid ifCond operator, @index outside each, and a bad group by', async () => {
+    function BadOperator() {
+      return (
+        <Email>
+          <IfCond operator={'>' as '=='} path="a" value="1">
+            <Text>x</Text>
+          </IfCond>
+        </Email>
+      )
+    }
+    function IndexAtRoot() {
+      return (
+        <Email>
+          <Text>
+            <Vtex.Value path="@index" />
+          </Text>
+        </Email>
+      )
+    }
+    function BadBy() {
+      return (
+        <Email>
+          <Group by="package-id" path="items">
+            <Text>x</Text>
+          </Group>
+        </Email>
+      )
+    }
+    for (const [component, code] of [
+      [BadOperator, 'HBS002'],
+      [IndexAtRoot, 'HBS001'],
+      [BadBy, 'HBS002'],
+    ] as const) {
+      const compiled = await compile(component)
+      expect(compiled.ok).toBe(false)
+      if (compiled.ok) continue
+      expect(compiled.diagnostics.some((item) => item.code === code)).toBe(true)
+    }
+  })
+
+  it('preserves parent context inside ifCond and evaluates two fixtures differently', async () => {
+    function View() {
+      return (
+        <Email>
+          <Each path="payments">
+            <Section>
+              <IfCond fallback={<Text>card</Text>} operator="==" path="paymentSystemName" value="Promissory">
+                <Text>
+                  <Vtex.Value path="../orderId" />
+                </Text>
+              </IfCond>
+            </Section>
+          </Each>
+        </Email>
+      )
+    }
+    const compiled = await compile(View)
+    expect(compiled).toMatchObject({ ok: true })
+    if (!compiled.ok) return
+    const source = compiled.artifacts[0]?.content ?? ''
+    expect(source).toContain('{{../orderId}}')
+    const first = evaluateArtifact({
+      source,
+      data: { orderId: 'ORD-A', payments: [{ paymentSystemName: 'Promissory' }] },
+      profile: p0Profile,
+      simulator: p0Profile,
+    })
+    const second = evaluateArtifact({
+      source,
+      data: { orderId: 'ORD-B', payments: [{ paymentSystemName: 'Visa' }] },
+      profile: p0Profile,
+      simulator: p0Profile,
+    })
+    expect(first).toContain('ORD-A')
+    expect(second).toContain('card')
+    expect(first.includes('ORD-B')).toBe(false)
   })
 
   it('records the template file when a static URL is rejected', async () => {
