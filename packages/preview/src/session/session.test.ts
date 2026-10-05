@@ -277,6 +277,144 @@ describe('preview session', () => {
     expect(session.state().emails.map((email) => email.id)).toEqual([])
     await rm(root, { recursive: true, force: true })
   })
+
+  it('applies BuiltEmail updates from a failed compile when emails are returned', async () => {
+    const root = await mkdtemp(path.join(tmpdir(), 'vtex-session-'))
+    const shared = path.join(root, 'components', 'shared.tsx')
+    const email = fakeEmail(root, 'alpha', ['one'], [shared])
+    email.localePath = 'orders.0.clientPreferencesData.locale'
+    const updated = {
+      ...email,
+      localePath: 'clientPreferencesData.locale',
+      diagnostics: [{ code: 'DATA001', severity: 'error' as const, message: 'fixture mismatch', templateId: 'alpha' }],
+    }
+    const session = createPreviewSession({
+      paths: paths(root),
+      emails: [email],
+      diagnostics: [],
+      ok: true,
+      services: services({
+        compile: async () => ({
+          ok: false,
+          exitCode: 1,
+          diagnostics: updated.diagnostics,
+          manifest: null,
+          emails: [updated],
+          wrote: [],
+          preserved: [],
+        }),
+        evaluate: (input) => evaluated(input.email.files[0]?.content ?? '', 'SOURCE'),
+      }),
+    })
+    await session.open()
+    expect(session.state().emails[0]?.localePath).toBe('orders.0.clientPreferencesData.locale')
+    await session.ingest([shared])
+    expect(session.state().status).toBe('stale')
+    expect(session.state().emails[0]?.localePath).toBe('clientPreferencesData.locale')
+    expect(session.state().diagnostics.some((item) => item.code === 'DATA001')).toBe(true)
+    await rm(root, { recursive: true, force: true })
+  })
+
+  it('clears sticky PATH001 after a successful compile without restart', async () => {
+    const root = await mkdtemp(path.join(tmpdir(), 'vtex-session-'))
+    const shared = path.join(root, 'components', 'shared.tsx')
+    const email = fakeEmail(root, 'alpha', ['one'], [shared])
+    email.localePath = 'orders.0.clientPreferencesData.locale'
+    let phase: 'schema' | 'compile' = 'schema'
+    const session = createPreviewSession({
+      paths: paths(root),
+      emails: [email],
+      diagnostics: [],
+      ok: true,
+      services: services({
+        revalidateSchema: async (current) => ({
+          ...current,
+          diagnostics: [
+            {
+              code: 'PATH001',
+              severity: 'error',
+              message: 'Path "orders.0.clientPreferencesData.locale" does not exist in the contract.',
+              templateId: current.id,
+              path: 'orders.0.clientPreferencesData.locale',
+            },
+          ],
+        }),
+        compile: async () => {
+          phase = 'compile'
+          return okResult([
+            {
+              ...email,
+              localePath: 'clientPreferencesData.locale',
+              diagnostics: [],
+            },
+          ])
+        },
+        evaluate: (input) => evaluated(input.email.files[0]?.content ?? '', 'SOURCE'),
+      }),
+    })
+    await session.open()
+    await session.ingest([path.join(root, 'schemas', 'alpha.ts')])
+    expect(session.state().diagnostics.some((item) => item.code === 'PATH001')).toBe(true)
+    expect(session.state().status).toBe('stale')
+    await session.ingest([shared])
+    expect(phase).toBe('compile')
+    expect(session.state().status).toBe('ready')
+    expect(session.state().emails[0]?.localePath).toBe('clientPreferencesData.locale')
+    expect(session.state().diagnostics.some((item) => item.code === 'PATH001')).toBe(false)
+    await rm(root, { recursive: true, force: true })
+  })
+
+  it('refreshes fixtures after a schema revalidate error', async () => {
+    const root = await mkdtemp(path.join(tmpdir(), 'vtex-session-'))
+    const email = fakeEmail(root, 'alpha', ['one'])
+    let refreshed = 0
+    const session = createPreviewSession({
+      paths: paths(root),
+      emails: [email],
+      diagnostics: [],
+      ok: true,
+      services: services({
+        revalidateSchema: async (current) => ({
+          ...current,
+          diagnostics: [{ code: 'PATH001', severity: 'error', message: 'bad path', templateId: current.id }],
+        }),
+        refreshFixtures: async (current) => {
+          refreshed += 1
+          return {
+            ...current,
+            fixtures: [
+              ...current.fixtures,
+              {
+                id: 'two',
+                file: path.join(root, 'fixtures', 'alpha', 'two.json'),
+                data: { locale: 'pt-BR', item: 'new' },
+                meta: {
+                  description: 'two',
+                  origin: 'sanitized',
+                  event: 'alpha',
+                  purpose: 'preview',
+                  expect: 'valid',
+                  expectedLocale: 'pt-BR',
+                },
+                negative: false,
+              },
+            ],
+          }
+        },
+        evaluate: (input) => evaluated(input.email.files[0]?.content ?? '', 'SOURCE'),
+      }),
+    })
+    await session.open()
+    await session.ingest([
+      path.join(root, 'schemas', 'alpha.ts'),
+      path.join(root, 'fixtures', 'alpha', 'two.json'),
+    ])
+    expect(refreshed).toBe(1)
+    expect(session.state().status).toBe('stale')
+    expect(session.state().diagnostics.some((item) => item.code === 'PATH001')).toBe(true)
+    expect(session.state().emails[0]?.fixtures.map((fixture) => fixture.id)).toEqual(['one', 'two'])
+    await rm(root, { recursive: true, force: true })
+  })
 })
 
 function paths(root: string, emailsDir = path.join(root, 'emails')): SessionPaths {
