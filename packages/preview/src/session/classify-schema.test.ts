@@ -11,7 +11,6 @@ describe('schema change plan', () => {
     const paths: SessionPaths = {
       configDir: root,
       configFile: path.join(root, 'vtex-email.config.ts'),
-      profilePath: path.join(root, 'vtex-target.ts'),
       catalogFiles: [],
       emailRoots: [path.join(root, 'emails')],
       schemasDir: path.join(root, 'schemas'),

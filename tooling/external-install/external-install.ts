@@ -187,7 +187,6 @@ async function writeConsumer(consumer: string, tarballs: Record<(typeof packages
     path.join(consumer, 'components', 'shared.tsx'),
     `export function Shared() { return <span>shared</span> }\n`,
   )
-  await cp(path.join(root, 'examples/basic-store/vtex-target.ts'), path.join(consumer, 'vtex-target.ts'))
   await cp(path.join(root, 'examples/basic-store/vtex-email.config.ts'), path.join(consumer, 'vtex-email.config.ts'))
 
   const packageJson = {
@@ -200,7 +199,6 @@ async function writeConsumer(consumer: string, tarballs: Record<(typeof packages
       '@vtex-email/core': pathToFileUrl(tarballs.core),
       '@vtex-email/preview': pathToFileUrl(tarballs.preview),
       '@vtex-email/react': pathToFileUrl(tarballs.react),
-      '@vtex-email/vtex': pathToFileUrl(tarballs.vtex),
       esbuild: '0.28.2',
       react: '19.3.0',
       'react-dom': '19.3.0',

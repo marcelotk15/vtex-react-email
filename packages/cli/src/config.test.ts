@@ -10,7 +10,6 @@ function projectConfig(extra: Record<string, unknown> = {}) {
   return {
     emails: ['emails/**/*.email.tsx'],
     outDir: 'dist',
-    target: { profile: './vtex-target.ts' },
     i18n: {
       locales: ['pt-BR', 'en-US'],
       defaultLocale: 'pt-BR',
@@ -41,7 +40,6 @@ describe('project config', () => {
     expect(validated.ok).toBe(true)
     if (!validated.ok) return
     expect(validated.config.outDir).toBe(path.resolve(root, 'dist'))
-    expect(validated.config.profilePath).toBe(path.resolve(root, 'vtex-target.ts'))
     expect(validated.config.fixturesDir).toBe('fixtures')
     expect(validated.config.schemasDir).toBe('schemas')
     expect(validated.config.localePath).toBe('locale')

@@ -111,7 +111,6 @@ export async function startPreview(input: {
   const portLocked = input.port !== undefined
   let host = input.host ?? loaded.config.preview.host
   let port = input.port ?? loaded.config.preview.port
-  let profilePath = loaded.config.profilePath
   let server: ViteDevServer | null = null
   let url = ''
   const clients = new Set<ServerResponse>()
@@ -164,11 +163,10 @@ export async function startPreview(input: {
   async function onConfigFiles(files: readonly string[]): Promise<void> {
     const token = ++watchGeneration
     if (stopped || (hostLocked && portLocked)) return
-    if (!files.some((file) => samePath(file, configPath) || samePath(file, profilePath))) return
+    if (!files.some((file) => samePath(file, configPath))) return
     const next = await loadPreviewConfig(configPath)
     if (!next.ok || stopped || token !== watchGeneration) return
     resolvedConfig = next.config
-    profilePath = next.config.profilePath
     session.updatePaths(previewPaths(next.config, configPath))
     const nextHost = hostLocked ? host : next.config.preview.host
     const nextPort = portLocked ? port : next.config.preview.port
@@ -215,7 +213,6 @@ export async function startPreview(input: {
           clients,
           configDir: resolvedConfig.configDir,
           configPath,
-          profilePath,
           outDir: path.resolve(resolvedConfig.configDir, resolvedConfig.outDir),
           cacheDir,
           clientRoot,

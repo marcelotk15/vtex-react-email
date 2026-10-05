@@ -210,7 +210,6 @@ async function copyStore(destination: string, unverified: 'error' | 'warning'): 
   for (const name of ['emails', 'schemas', 'locales', 'fixtures']) {
     await cp(path.join(root, name), path.join(destination, name), { recursive: true })
   }
-  await cp(path.join(root, 'vtex-target.ts'), path.join(destination, 'vtex-target.ts'))
   const source = await readFile(configPath, 'utf8')
   const config = source.replace("unverifiedCapability: 'warning'", `unverifiedCapability: '${unverified}'`)
   const copied = path.join(destination, 'vtex-email.config.ts')

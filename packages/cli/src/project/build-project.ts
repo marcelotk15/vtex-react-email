@@ -1,12 +1,12 @@
 import { errorDiagnostic, syntaxHelperNames } from '@vtex-email/core'
+import { p0Profile } from '@vtex-email/vtex'
 
 import type { ResolvedConfig } from '../config/config'
 
 import { loadProjectConfig } from '../config/load-config'
 import { compileOne } from './compile-email'
-import { discoverEmails, readProfile } from './discover'
+import { discoverEmails } from './discover'
 import { projectManifest } from './manifest'
-import { importBundled } from './module-loader'
 import {
   emptyProject,
   exitOk,
@@ -86,16 +86,14 @@ async function prepareResolved(
   config: ResolvedConfig,
   onlyId: string | undefined,
 ): Promise<{ ok: true; profile: LoadedProfile; emails: ResolvedEmail[] } | { ok: false; result: ProjectResult }> {
-  let profileModule: Record<string, unknown>
-  try {
-    profileModule = await importBundled(config.profilePath)
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to load the profile.'
-    return { ok: false, result: emptyProject(exitUsage, [errorDiagnostic('CFG001', message)]) }
+  const profile: LoadedProfile = {
+    emission: {
+      id: p0Profile.id,
+      allowParentSegments: p0Profile.allowParentSegments,
+      capabilities: p0Profile.capabilities,
+    },
+    simulator: { helpers: p0Profile.helpers },
   }
-  const profile = readProfile(profileModule)
-  if (!profile)
-    return { ok: false, result: emptyProject(exitUsage, [errorDiagnostic('CFG001', 'The target profile is invalid.')]) }
   const discovered = await discoverEmails(config)
   if (!discovered.ok) return { ok: false, result: emptyProject(exitUsage, discovered.diagnostics) }
   const selected = onlyId ? discovered.emails.filter((email) => email.definition.id === onlyId) : discovered.emails

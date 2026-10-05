@@ -9,10 +9,10 @@ Each folder has one responsibility. There is no barrel per folder. The only `ind
 - `@vtex-email/core` holds contracts (`define-email` / `EmailSettings`, `diagnostics`, `profile`), `expression/`, `hbs/`, `markers/`, `schema/`, `scope/`, `compile/`, `i18n/`, `fixture/`, `runtime/`, and `output/`. Compilation does not read fixtures, evaluate, or write files. `runtime/` does not import `compile/` or `output/`. `node:fs` lives in `output/`.
 - `@vtex-email/react` has `dsl/`, `compile/` (session and `compileEmail`), and `adapter/`. It does not use esbuild, CLI, or preview.
 - `@vtex-email/vtex` separates `capabilities.ts` from `simulator.ts`. `index.ts` only composes `p0Profile`. The id remains `p0-message-center-experimental`.
-- `@vtex-email/cli` separates `commands/` (process and output), `config/`, and `project/` (esbuild only in `project/module-loader.ts`). `project/` does not use `process` or stdout. Publication emits `dist/index.js` (`defineConfig`) and `dist/project.js` (orchestration).
+- `@vtex-email/cli` separates `commands/` (process and output), `config/`, and `project/` (esbuild only in `project/module-loader.ts`). `project/` does not use `process` or stdout. Publication emits `dist/index.js` (`defineConfig`) and `dist/project.js` (orchestration). The CLI depends on `@vtex-email/vtex` and uses the installed `p0Profile` as the Message Center target; projects do not declare a profile file.
 - `@vtex-email/preview` separates `shared/` (no Node and no DOM), `server/` (includes `vite-plugin.ts`), `session/`, `assets/`, and `ui/`. Only `server/project-services.ts` imports values from `@vtex-email/cli/project`. `session/` imports types only. The UI imports UI and `shared/`. The published runtime is `dist/index.js` with the UI in `dist/client`.
 
-Package order is `vtex → core`, `react → core`, `cli → react` and `core`, `preview → cli`.
+Package order is `vtex → core`, `react → core`, `cli → react` / `core` / `vtex`, `preview → cli`.
 
 ## Contract
 

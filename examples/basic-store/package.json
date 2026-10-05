@@ -14,7 +14,6 @@
     "@vtex-email/core": "workspace:*",
     "@vtex-email/preview": "workspace:*",
     "@vtex-email/react": "workspace:*",
-    "@vtex-email/vtex": "workspace:*",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "zod": "4.6.5"

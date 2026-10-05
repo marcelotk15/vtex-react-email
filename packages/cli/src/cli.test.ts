@@ -180,7 +180,6 @@ async function copyStore(destination: string): Promise<string> {
   for (const name of ['emails', 'schemas', 'locales', 'fixtures']) {
     await cp(path.join(root, name), path.join(destination, name), { recursive: true })
   }
-  await cp(path.join(root, 'vtex-target.ts'), path.join(destination, 'vtex-target.ts'))
   await cp(path.join(root, 'vtex-email.config.ts'), path.join(destination, 'vtex-email.config.ts'))
   return path.join(destination, 'vtex-email.config.ts')
 }

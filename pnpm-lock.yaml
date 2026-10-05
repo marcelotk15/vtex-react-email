@@ -232,9 +232,6 @@ importers:
       '@vtex-email/react':
         specifier: workspace:*
         version: link:../../packages/react
-      '@vtex-email/vtex':
-        specifier: workspace:*
-        version: link:../../packages/vtex
       react:
         specifier: 19.3.0
         version: 19.3.0
@@ -256,6 +253,9 @@ importers:
       '@vtex-email/react':
         specifier: workspace:*
         version: link:../react
+      '@vtex-email/vtex':
+        specifier: workspace:*
+        version: link:../vtex
       esbuild:
         specifier: 0.28.2
         version: 0.28.2

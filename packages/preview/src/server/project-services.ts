@@ -20,7 +20,6 @@ export function previewPaths(config: ResolvedConfig, configPath: string): Sessio
   return {
     configDir: config.configDir,
     configFile: configPath,
-    profilePath: config.profilePath,
     catalogFiles: config.locales.map((locale) =>
       path.resolve(config.configDir, config.catalogs.replaceAll('{locale}', locale)),
     ),
