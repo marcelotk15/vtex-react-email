@@ -5,6 +5,8 @@ import { createElement, type ReactElement, type ReactNode } from 'react'
 import { addMarker, addSite, getSession } from '../compile/session'
 import { expr, type Expression } from './expr'
 import { dslFailure, readArgument, resolvePath } from './resolve'
+import { Helper } from './values'
+
 /** Compiler-owned host for block regions. Authors never see or forward this. */
 export const BLOCK_HOST = 'vtx-anchor'
 
@@ -168,6 +170,55 @@ export function Group({
   return blockRegion(path, 'group', children, fallback, {
     hash: { by: readArgument(expr.literal(by), session) },
   })
+}
+
+export function With({ path, children, fallback }: { path: string; children: ReactNode; fallback?: ReactNode }) {
+  return blockRegion(path, 'with', children, fallback)
+}
+
+type MathOperator = '+' | '-' | '*' | '/' | '%'
+
+export function Math({
+  path,
+  left,
+  operator,
+  right,
+  form = 'inline',
+  children,
+}: {
+  path?: string
+  left?: Expression | string | number
+  operator: MathOperator
+  right: Expression | string | number
+  form?: 'inline' | 'block'
+  children?: ReactNode
+}) {
+  const session = getSession()
+  const rightArg = asExpression(right, session)
+  if (form === 'block') {
+    let leftPath: string | null = path ?? null
+    if (!leftPath && typeof left === 'string') leftPath = left
+    if (!leftPath && left && typeof left === 'object' && left.kind === 'path') leftPath = left.value
+    if (!leftPath) dslFailure(session, 'HBS002', 'Block math requires a left path.')
+    return blockRegion(leftPath, 'math', children ?? <span>{'\u200b'}</span>, undefined, {
+      args: [readArgument(expr.literal(operator), session), readArgument(rightArg, session)],
+    })
+  }
+  const leftArg = left !== undefined ? asExpression(left, session) : path ? expr.path(path) : null
+  if (!leftArg) dslFailure(session, 'HBS002', 'Inline math requires a left operand.')
+  return <Helper args={[leftArg, expr.literal(operator), rightArg]} name="math" />
+}
+
+export function RichShippingData({
+  path,
+  children,
+  fallback,
+}: {
+  path: string
+  children: ReactNode
+  fallback?: ReactNode
+}) {
+  return blockRegion(path, 'richShippingData', children, fallback)
 }
 
 export type { Expression }

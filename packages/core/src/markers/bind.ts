@@ -54,15 +54,16 @@ function checkCapabilities(sites: ReadonlyMap<string, SiteRecord>, profile: Emis
   const diagnostics: Diagnostic[] = []
   for (const site of sites.values()) {
     if (site.kind === 'helper') {
-      const capability = findCapability(profile, site.helper ?? '')
+      const capability = findCapability(profile, site.helper ?? '', 'inline')
       if (!capability || capability.form !== 'inline') {
         diagnostics.push(errorDiagnostic('HBS002', `Helper is not enabled: ${site.helper ?? ''}`))
         continue
       }
       diagnostics.push(...checkArguments(capability, site))
+      diagnostics.push(...checkLiterals(capability, site))
     }
     if (site.kind === 'block') {
-      const capability = findCapability(profile, site.block ?? '')
+      const capability = findCapability(profile, site.block ?? '', 'block')
       if (!capability || capability.form !== 'block') {
         diagnostics.push(errorDiagnostic('HBS002', `Block is not enabled: ${site.block ?? ''}`))
         continue
@@ -231,7 +232,7 @@ function regionsFrom(
   for (const [id, site] of sites) {
     if (site.kind !== 'block' || !site.block) continue
     const anchor = anchors.get(id)
-    const capability = findCapability(profile, site.block)
+    const capability = findCapability(profile, site.block, 'block')
     if (!anchor || !capability) continue
     regions.push({
       ...anchor,

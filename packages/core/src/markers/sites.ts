@@ -1,4 +1,14 @@
-export type BlockName = 'each' | 'if' | 'unless' | 'ifCond' | 'hasSubStr' | 'group' | 'eq'
+export type BlockName =
+  | 'each'
+  | 'if'
+  | 'unless'
+  | 'ifCond'
+  | 'hasSubStr'
+  | 'group'
+  | 'eq'
+  | 'with'
+  | 'math'
+  | 'richShippingData'
 
 export type DynamicAttribute = 'href' | 'src' | 'alt' | 'title'
 

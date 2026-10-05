@@ -130,9 +130,58 @@ Evidence: experimental.
 </details>
 
 <details>
+<summary><code>with</code> — nested object context</summary>
+
+`Vtex.With`. Emits `{{#with shippingData}}…{{else}}…{{/with}}`. The positive branch uses the object; fallback uses the outer context.
+
+```tsx
+<Vtex.With fallback={<Text>missing</Text>} path="shippingData">
+  <Text>
+    <Vtex.Value path="addressId" />
+  </Text>
+</Vtex.With>
+```
+
+Evidence: experimental.
+
+</details>
+
+<details>
+<summary><code>math</code> — arithmetic</summary>
+
+`Vtex.Math`. Inline `{{math index "+" 1}}` or block form. Operators `+ - * / %`. Non-finite results fail preview.
+
+```tsx
+<Vtex.Math left={expr.path('index')} operator="+" right={1} />
+```
+
+Evidence: experimental.
+
+</details>
+
+<details>
+<summary><code>richShippingData</code> — derive SLA fields on a clone</summary>
+
+`Vtex.RichShippingData`. Emits `{{#richShippingData shippingData}}…{{/richShippingData}}`. Simulator clones before deriving `packageId`, estimates, and windows from the selected SLA. See ADR 0010 for deviations (`addressId` vs `addessId`, `items.length` vs `item.length`).
+
+```tsx
+<Vtex.RichShippingData path="shippingData">
+  <Vtex.Group by="packageId" path="logisticsInfo">
+    <Section>
+      <Vtex.Value path="packageId" />
+    </Section>
+  </Vtex.Group>
+</Vtex.RichShippingData>
+```
+
+Evidence: experimental.
+
+</details>
+
+<details>
 <summary><code>formatCurrency</code> — integer cents, no symbol</summary>
 
-`Vtex.Helper` with one path. Emits `{{formatCurrency sellingPrice}}`. The documented pair is `20000` → `200,00`, with no currency symbol and no thousands separator. Other integers follow the same local simulator (divide by 100, two cent digits).
+`Vtex.Helper` with one path. Emits `{{formatCurrency sellingPrice}}`. The documented pair is `20000` → `200,00`, with no currency symbol and no thousands separator.
 
 ```tsx
 <Vtex.Helper args={[expr.path('sellingPrice')]} name="formatCurrency" />
@@ -143,12 +192,14 @@ Evidence: documented for the pair `20000` → `200,00`.
 </details>
 
 <details>
-<summary><code>formatDate</code> — local date <code>dd/MM/yyyy</code></summary>
+<summary><code>formatDate</code> / <code>formatTime</code> / <code>formatDateTime</code></summary>
 
-`Vtex.Helper` with a `Date`-parseable path. Emits `{{formatDate dueDate}}`. Local output is `dd/MM/yyyy`. Timezone follows the host `Date`; there is no verified Message Center parity.
+Inline helpers with one path. Local contracts: `dd/MM/yyyy`, `HH:mm`, `dd/MM/yyyy HH:mm:ss`. ISO offsets honored; invalid values are diagnostics.
 
 ```tsx
 <Vtex.Helper args={[expr.path('dueDate')]} name="formatDate" />
+<Vtex.Helper args={[expr.path('dueDate')]} name="formatTime" />
+<Vtex.Helper args={[expr.path('dueDate')]} name="formatDateTime" />
 ```
 
 Evidence: experimental.

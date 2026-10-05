@@ -1,14 +1,13 @@
 import type { ReactNode } from 'react'
 
 import { pixelBasedPreset, Section, Text } from '@react-email/components'
-import { type EmissionProfile } from '@vtex-email/core'
-import { evaluateArtifact } from '@vtex-email/core'
+import { evaluateArtifact, type EmissionProfile } from '@vtex-email/core'
 import { p0Profile } from '@vtex-email/vtex'
 import { describe, expect, it } from 'vitest'
 
 import { Email } from './adapter/email'
 import { compileEmail } from './compile/compile-email'
-import { Each, Eq, expr, Group, HasSubStr, If, IfCond, Unless, Vtex } from './dsl/vtex'
+import { Each, Eq, expr, Group, HasSubStr, If, IfCond, Math, RichShippingData, Unless, Vtex, With } from './dsl/vtex'
 
 function compile(component: () => ReactNode, profile: EmissionProfile = p0Profile) {
   return compileEmail({
@@ -280,12 +279,55 @@ describe('P1 DSL', () => {
     expect(html).toContain('{{replace url "{Installment}" installments}}')
   })
 
+  it('emits with, math, formatTime, formatDateTime, and richShippingData', async () => {
+    function View() {
+      return (
+        <Email>
+          <Section>
+            <With fallback={<Text>missing</Text>} path="pickupStoreInfo.address">
+              <Text>
+                <Vtex.Value path="street" />
+              </Text>
+            </With>
+            <Math form="block" operator="+" path="index" right={expr.literal(1)} />
+            <Text>
+              <Vtex.Helper args={[expr.path('dueDate')]} name="formatTime" />
+              <Vtex.Helper args={[expr.path('dueDate')]} name="formatDateTime" />
+              <Math left={expr.path('index')} operator="+" right={1} />
+            </Text>
+            <RichShippingData path="shippingData">
+              <Section>
+                <Group by="packageId" path="logisticsInfo">
+                  <Text>
+                    <Vtex.Value path="value" />
+                  </Text>
+                </Group>
+              </Section>
+            </RichShippingData>
+          </Section>
+        </Email>
+      )
+    }
+    const compiled = await compile(View)
+    if (!compiled.ok) {
+      // oxlint-disable-next-line vitest/no-conditional-expect
+      expect.fail(compiled.diagnostics.map((d) => `${d.code}: ${d.message}`).join('\n'))
+    }
+    const html = compiled.artifacts[0]?.content ?? ''
+    expect(html).toContain('{{#with pickupStoreInfo.address}}')
+    expect(html).toContain('{{#math index "+" 1}}')
+    expect(html).toContain('{{math index "+" 1}}')
+    expect(html).toContain('{{formatTime dueDate}}')
+    expect(html).toContain('{{formatDateTime dueDate}}')
+    expect(html).toContain('{{#richShippingData shippingData}}')
+    expect(html).toContain('{{#group logisticsInfo by="packageId"}}')
+  })
 
   it('rejects an invalid ifCond operator, @index outside each, and a bad group by', async () => {
     function BadOperator() {
       return (
         <Email>
-          <IfCond operator={'>' as '=='} path="a" value="1">
+          <IfCond operator={'&&' as '=='} path="a" value="1">
             <Text>x</Text>
           </IfCond>
         </Email>

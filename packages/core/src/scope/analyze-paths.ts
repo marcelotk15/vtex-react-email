@@ -80,6 +80,21 @@ function walk(nodes: readonly ScopeNode[], stack: Frame[], guards: readonly stri
       diagnostics.push(...walk(node.fallback, stack, guards))
       continue
     }
+    if (node.block === 'with') {
+      const child: Frame = { schema: lookup.schema, prefix: absolute.segments }
+      diagnostics.push(...walk(node.children, [...stack, child], guards))
+      diagnostics.push(...walk(node.fallback, stack, guards))
+      continue
+    }
+    if (node.block === 'richShippingData') {
+      const child: Frame = {
+        schema: enrichShippingSchema(lookup.schema),
+        prefix: absolute.segments,
+      }
+      diagnostics.push(...walk(node.children, [...stack, child], guards))
+      diagnostics.push(...walk(node.fallback, stack, guards))
+      continue
+    }
     const nextGuards = [...guards, absolute.segments]
     diagnostics.push(...walk(node.children, stack, nextGuards))
     diagnostics.push(...walk(node.fallback, stack, nextGuards))
@@ -219,8 +234,69 @@ function groupFrameSchema(element: ZodNode): ZodNode {
       type: 'object',
       shape: {
         index: { def: { type: 'number' } },
-        value: {},
+        value: { def: { type: 'string' } },
         items: { def: { type: 'array', element } },
+      },
+    },
+  }
+}
+
+const derivedLogisticsFields: Record<string, ZodNode> = {
+  packageId: { def: { type: 'string' } },
+  shippingEstimate: { def: { type: 'string' } },
+  shippingEstimateDate: { def: { type: 'string' } },
+  shippingEstimateDays: { def: { type: 'string' } },
+  shippingEstimateDaysType: { def: { type: 'string' } },
+  deliveryWindow: {
+    def: {
+      type: 'object',
+      shape: {
+        startDateUtc: { def: { type: 'string' } },
+        endDateUtc: { def: { type: 'string' } },
+      },
+    },
+  },
+  availableDeliveryWindows: {
+    def: {
+      type: 'array',
+      element: {
+        def: {
+          type: 'object',
+          shape: {
+            startDateUtc: { def: { type: 'string' } },
+            endDateUtc: { def: { type: 'string' } },
+          },
+        },
+      },
+    },
+  },
+}
+
+function enrichShippingSchema(schema: ZodNode): ZodNode {
+  const peeled = peelSchema(schema)
+  if (peeled.status !== 'ready') return schema
+  const current = schemaDef(peeled.schema)
+  if (!current || current.type !== 'object' || !current.shape) return schema
+  const logistics = current.shape.logisticsInfo
+  if (!logistics) return schema
+  const elements = arrayElements(logistics)
+  if (!elements) return schema
+  const elementPeeled = peelSchema(elements)
+  const elementDef = elementPeeled.status === 'ready' ? schemaDef(elementPeeled.schema) : null
+  const baseShape =
+    elementDef?.type === 'object' && elementDef.shape ? { ...elementDef.shape } : ({} as Record<string, ZodNode>)
+  const enrichedElement: ZodNode = {
+    def: {
+      type: 'object',
+      shape: { ...baseShape, ...derivedLogisticsFields },
+    },
+  }
+  return {
+    def: {
+      type: 'object',
+      shape: {
+        ...current.shape,
+        logisticsInfo: { def: { type: 'array', element: enrichedElement } },
       },
     },
   }
