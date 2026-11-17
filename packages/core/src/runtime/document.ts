@@ -1,3 +1,7 @@
+/**
+ * The resolved string must be one document. A doctype is optional (Email `doctype={null}` writes none), but a
+ * second doctype, html, head, or body means the template duplicated the document.
+ */
 export function singleDocumentIssue(html: string): string | null {
   const counts = {
     doctype: countNeedle(html, '<!doctype'),
@@ -5,7 +9,7 @@ export function singleDocumentIssue(html: string): string | null {
     head: countTag(html, 'head'),
     body: countTag(html, 'body'),
   }
-  if (counts.doctype === 1 && counts.html === 1 && counts.head === 1 && counts.body === 1) return null
+  if (counts.doctype <= 1 && counts.html === 1 && counts.head === 1 && counts.body === 1) return null
   return `Resolved document has structure ${JSON.stringify(counts)}.`
 }
 
