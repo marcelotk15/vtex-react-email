@@ -103,6 +103,20 @@ describe('structural restoration', () => {
     expect(restored.html).toBe('{{#each items}}<p class="row">item</p>{{/each}}')
   })
 
+  it('restores block anchors written between table rows', () => {
+    const each = token('rows')
+    const value = token('cell')
+    const markers = new Map<string, Marker>([
+      [each, { kind: 'open', open: '{{#each items}}', close: '{{/each}}', elseId: null }],
+      [value, { kind: 'text', replacement: '{{name}}' }],
+    ])
+    const html = `<table><tbody><vtx-anchor data-anchor="${each}"><tr><td><span data-anchor="${value}">\u200b</span></td></tr></vtx-anchor></tbody></table>`
+    const restored = restoreHandlebars(html, markers)
+    expect(restored).toMatchObject({ ok: true })
+    if (!restored.ok) return
+    expect(restored.html).toBe('<table><tbody>{{#each items}}<tr><td>{{name}}</td></tr>{{/each}}</tbody></table>')
+  })
+
   it('fails when the parser closes the anchor before the written end', () => {
     const id = token('implicit')
     const markers = new Map<string, Marker>([

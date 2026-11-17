@@ -1,4 +1,4 @@
-export { Email } from './adapter/email'
+export { Email, type EmailProps } from './adapter/email'
 export { diagnoseStyles } from './adapter/style-diagnostics'
 export {
   compileEmail,
@@ -7,10 +7,12 @@ export {
   type CompileEmailInput,
   type CompileEmailResult,
 } from './compile/compile-email'
+export { attributeToken, type AttributeValue } from './dsl/attributes'
 export { isExpression, type Expression } from './dsl/expr'
 export {
   Each,
   Eq,
+  Eval,
   expr,
   Group,
   HasSubStr,

@@ -221,4 +221,61 @@ Evidence: documented.
 
 </details>
 
+<details>
+<summary><code>formatDiscount</code> — integer cents, no symbol, no sign</summary>
+
+`Vtex.Helper` with one path. Emits `{{formatDiscount value}}`. `-150050` → `1500,50`; a missing or non-numeric value prints `0,00`.
+
+```tsx
+<Vtex.Helper args={[expr.path('value')]} name="formatDiscount" />
+```
+
+Evidence: experimental.
+
+</details>
+
+<details>
+<summary><code>eval</code> — evaluate a JavaScript expression on the destination</summary>
+
+`Vtex.Eval`. Emits `{{#eval "code" name=path}}{{/eval}}`. Each `${name}` in the code is replaced with the named argument as plain text, then the code runs and its result is printed unescaped (it may carry markup). Named arguments must be identifiers and resolve to paths or literals. The local simulator runs the code in an isolated VM context (no `require`, `process`, or host globals) with a 100 ms timeout.
+
+```tsx
+<Vtex.Eval
+  code={'"${Agreements}".split(",").map(function (a) { return a.split("|")[2] }).join(", ")'}
+  vars={{ Agreements: expr.path('content.BusinessAgreement') }}
+/>
+```
+
+`Vtex.Helper` also accepts `hash` for named arguments of helpers that declare them.
+
+Evidence: experimental.
+
+</details>
+
+## Paths
+
+Paths are dot-separated identifiers and indexes, `../` prefixes, and `@index`. Keys that are not identifiers use the Handlebars segment literal: `content.[Tipo Documento]` emits as written and reads the key `Tipo Documento`. Brackets are emitted only when needed (`items.[0]` emits `items.0`). `this`, `@root`, prototype keys, and paths above the template root are rejected.
+
+## Attributes and document
+
 Composite `href` / `src` attributes may mix literals and paths while preserving escaping and image preload. Fully static URLs stay as `https`, `mailto`, and `tel`.
+
+`Vtex.attr(name, value)` returns the value for a dynamic `href`, `src`, `alt`, or `title` on any element, so templates are not limited to `Vtex.Link` / `Vtex.Img` (which use the React Email components and their default styles):
+
+```tsx
+<a href={Vtex.attr('href', ['https://store.com/orders/', expr.path('orderId')])} style={{ color: '#18A8A2' }}>
+  <img alt={Vtex.attr('alt', expr.path('name'))} src={Vtex.attr('src', expr.path('imageUrl'))} />
+</a>
+```
+
+Blocks may wrap table rows (`<tbody><Vtex.Each path="items"><tr>…</tr></Vtex.Each></tbody>`); anchors are located on the HTML as React wrote it, without the table rules of the HTML tree builder.
+
+`Email` accepts, besides `className`:
+
+| Prop             | Effect                                                                                                              |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `head`           | Extra `<head>` nodes (`<title>`, `<style>` with media queries, font `<link>`s)                                      |
+| `htmlAttributes` | Extra `<html>` attributes such as `xmlns:o`                                                                         |
+| `bodyStyle`      | Inline style for `<body>`                                                                                           |
+| `bodyTable`      | `false` writes a plain `<body>` instead of React Email's full-width wrapper table                                   |
+| `doctype`        | Replaces the XHTML 1.0 Transitional doctype; `null` writes none (quirks mode), only to keep legacy rendering intact |

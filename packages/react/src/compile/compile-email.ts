@@ -57,6 +57,7 @@ export async function compileEmail(input: CompileEmailInput): Promise<CompileEma
   }
 
   if (session.diagnostics.length > 0) return fail(session.diagnostics)
+  if (session.doctype !== undefined) html = replaceDoctype(html, session.doctype)
   return assembleDocument({
     html,
     markers: session.markers,
@@ -66,6 +67,13 @@ export async function compileEmail(input: CompileEmailInput): Promise<CompileEma
     event: email.event,
     locale: input.locale,
   })
+}
+
+const LEADING_DOCTYPE = /^\s*<!DOCTYPE[^>]*>/i
+
+function replaceDoctype(html: string, doctype: string | null): string {
+  const body = html.replace(LEADING_DOCTYPE, '')
+  return doctype === null ? body : `${doctype}${body}`
 }
 
 function fail(diagnostics: Diagnostic[]): CompileEmailResult {

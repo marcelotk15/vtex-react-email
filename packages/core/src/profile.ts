@@ -15,6 +15,17 @@ export interface EmissionCapability {
   arity?: { min: number; max: number }
   args?: readonly ArgKind[]
   hash?: readonly HashArg[]
+  /**
+   * Named arguments with author-chosen names (identifiers), each of this kind. Used by helpers such as eval whose
+   * hash carries variables. Mutually exclusive with hash.
+   */
+  freeHash?: ArgKind
+  /**
+   * How an inline capability is written. 'call' (default) is {{name args}}. 'empty-block' is
+   * {{#name args}}{{/name}}, for helpers that the destination only documents in block form and whose output is the
+   * helper return value (eval).
+   */
+  emit?: 'call' | 'empty-block'
   literals?: ReadonlyArray<{ index: number; values: readonly string[] }>
   context?: 'preserve' | 'item'
   elseContext?: 'preserve' | 'outer'

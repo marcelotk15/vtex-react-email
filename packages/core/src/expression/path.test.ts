@@ -20,8 +20,37 @@ describe('path and literal emission', () => {
     expect(parsePath('@index', true)).toMatchObject({ ok: true, emitted: '@index' })
     expect(parsePath('@root', true).ok).toBe(false)
     expect(parsePath('this', true).ok).toBe(false)
-    expect(parsePath('items.[0].name', true).ok).toBe(false)
     expect(parsePath('../orderId', false).ok).toBe(false)
+  })
+
+  it('accepts Handlebars segment literals and emits brackets only when needed', () => {
+    expect(parsePath('content.[Tipo Documento]', true)).toMatchObject({
+      ok: true,
+      segments: ['content', 'Tipo Documento'],
+      emitted: 'content.[Tipo Documento]',
+    })
+    expect(parsePath('../content.[Primer Nombre]', true)).toMatchObject({
+      ok: true,
+      emitted: '../content.[Primer Nombre]',
+    })
+    expect(parsePath('[Sede]', true)).toMatchObject({ ok: true, emitted: 'Sede' })
+    expect(parsePath('items.[0].name', true)).toMatchObject({ ok: true, emitted: 'items.0.name' })
+    expect(parsePath('a.[b-c].d', true)).toMatchObject({ ok: true, emitted: 'a.[b-c].d' })
+  })
+
+  it.each([
+    'content.[Tipo',
+    'content.[]',
+    'content.[ padded ]',
+    'content.[a]b',
+    'content[a]',
+    'content.[a}}]',
+    'content.[..]',
+    'content.[__proto__]',
+    'content.[this]',
+    'content.[a].',
+  ])('rejects the malformed or unsafe segment literal %s', (input) => {
+    expect(parsePath(input, true).ok).toBe(false)
   })
 
   it('serializes quotes and backslashes in a stable way', () => {

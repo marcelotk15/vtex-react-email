@@ -1,5 +1,7 @@
 import type { LocalSimulator } from '@vtex-email/core'
 
+import { runInNewContext } from 'node:vm'
+
 function formatCurrency(value: unknown): string {
   if (typeof value !== 'number' || !Number.isInteger(value)) {
     throw new Error('formatCurrency: the local simulator expects integer cents.')
@@ -9,6 +11,25 @@ function formatCurrency(value: unknown): string {
   const units = Math.trunc(absolute / 100)
   const cents = String(absolute % 100).padStart(2, '0')
   return `${sign}${units},${cents}`
+}
+
+function formatDiscount(value: unknown): string {
+  const number = typeof value === 'number' ? value : Number.NaN
+  const cents = Number.isNaN(number) ? 0 : Math.abs(number)
+  return (cents / 100).toFixed(2).replace('.', ',')
+}
+
+const evalVariable = /\$\{(\S+?)\}/g
+
+/**
+ * Mirrors the destination eval: `${name}` placeholders are replaced with the named arguments as plain text before
+ * evaluation. The code runs in a fresh VM context (no require, process, or host globals) with a short timeout.
+ */
+function evaluateCode(code: unknown, hash: Readonly<Record<string, unknown>>): string {
+  if (typeof code !== 'string') throw new Error('eval: the local simulator expects a code string.')
+  const compiled = code.replace(evalVariable, (_match, name: string) => String(hash[name] ?? ''))
+  const result: unknown = runInNewContext(compiled, Object.create(null), { timeout: 100 })
+  return result == null ? '' : String(result)
 }
 
 function parseDate(value: unknown, helper: string): Date {
@@ -153,6 +174,20 @@ export const messageCenterSimulator: LocalSimulator = {
       evidence: 'verified',
       note: 'Cents to decimal without a symbol. Message Center verified pairs include 24000, 24500, 500, 196500, and 197000.',
       apply: formatCurrency,
+    },
+    {
+      name: 'formatDiscount',
+      kind: 'inline',
+      evidence: 'experimental',
+      note: 'Local cents to decimal without sign. Not verified on VTEX.',
+      apply: formatDiscount,
+    },
+    {
+      name: 'eval',
+      kind: 'block',
+      evidence: 'experimental',
+      note: 'Local evaluation in an isolated VM context after ${name} replacement. Not verified on VTEX.',
+      apply: (_context, values, options) => evaluateCode(values[0], options.hash),
     },
     {
       name: 'formatDate',

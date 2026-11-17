@@ -37,7 +37,7 @@ export function bindSites(
   const next = new Map<string, Marker>()
   for (const [id, marker] of markers) {
     const site = sites.get(id)
-    const filled = materialize(marker, site)
+    const filled = materialize(marker, site, profile)
     if (!filled.ok) return filled
     next.set(id, filled.marker)
   }
@@ -60,6 +60,7 @@ function checkCapabilities(sites: ReadonlyMap<string, SiteRecord>, profile: Emis
         continue
       }
       diagnostics.push(...checkArguments(capability, site))
+      diagnostics.push(...checkHash(capability, site))
       diagnostics.push(...checkLiterals(capability, site))
     }
     if (site.kind === 'block') {
@@ -126,6 +127,29 @@ function checkHashKind(expected: ArgKind, actual: SiteArgument): boolean {
 }
 
 function checkHash(capability: EmissionCapability, site: SiteRecord): Diagnostic[] {
+  if (capability.freeHash) {
+    const expected = capability.freeHash
+    const diagnostics: Diagnostic[] = []
+    for (const [name, actual] of Object.entries(site.hash ?? {})) {
+      if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) {
+        diagnostics.push(
+          errorDiagnostic('HBS002', `Helper ${capability.name} named argument ${name} is not an identifier.`),
+        )
+        continue
+      }
+      if (!checkHashKind(expected, actual)) {
+        diagnostics.push(
+          errorDiagnostic(
+            'HBS002',
+            `Helper ${capability.name} named argument ${name} must be a ${
+              expected === 'expression' ? 'path or literal' : expected
+            }.`,
+          ),
+        )
+      }
+    }
+    return diagnostics
+  }
   if (!capability.hash) {
     if (site.hash && Object.keys(site.hash).length > 0) {
       return [errorDiagnostic('HBS002', `Helper ${capability.name} does not accept named arguments.`)]
@@ -294,6 +318,7 @@ function usedCapabilities(sites: ReadonlyMap<string, SiteRecord>, profile: Emiss
 function materialize(
   marker: Marker,
   site: SiteRecord | undefined,
+  profile: EmissionProfile,
 ): { ok: true; marker: Marker } | { ok: false; diagnostics: Diagnostic[] } {
   if (marker.kind === 'else') return { ok: true, marker: { ...marker } }
   if (!site) return { ok: false, diagnostics: [errorDiagnostic('TOK001', 'A marker has no descriptor.')] }
@@ -301,16 +326,16 @@ function materialize(
     return { ok: true, marker: { ...marker, replacement: emitInterpolation(site.path.emitted) } }
   }
   if (marker.kind === 'text' && site.kind === 'helper' && site.helper) {
-    return {
-      ok: true,
-      marker: {
-        ...marker,
-        replacement: emitHelperCall(
-          site.helper,
-          (site.args ?? []).map((arg) => arg.emitted),
-        ),
-      },
-    }
+    const parts = [
+      ...(site.args ?? []).map((arg) => arg.emitted),
+      ...Object.entries(site.hash ?? {}).map(([name, arg]) => `${name}=${arg.emitted}`),
+    ]
+    const capability = findCapability(profile, site.helper, 'inline')
+    const replacement =
+      capability?.emit === 'empty-block'
+        ? `${emitBlockOpen(site.helper, parts)}${emitBlockClose(site.helper)}`
+        : emitHelperCall(site.helper, parts)
+    return { ok: true, marker: { ...marker, replacement } }
   }
   if (marker.kind === 'text' && site.kind === 'literal') {
     const literal = site.args?.find((arg) => arg.kind === 'literal')

@@ -134,7 +134,7 @@ function siteNode(site: SiteRecord): ScopeNode | null {
 }
 
 function mapArgs(site: SiteRecord): ScopeArg[] {
-  return (site.args ?? []).map((arg) => ({
+  return [...(site.args ?? []), ...Object.values(site.hash ?? {})].map((arg) => ({
     kind: arg.kind,
     emitted: arg.emitted,
     parentHops: arg.path?.parentHops ?? 0,
