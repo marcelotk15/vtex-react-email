@@ -78,7 +78,8 @@ export function Canvas({
                 <EmptyHeader>
                   <EmptyTitle>{state ? 'Could not update' : 'Connecting to the preview server.'}</EmptyTitle>
                   <EmptyDescription>
-                    {state?.diagnostics[0]?.message ?? 'The last valid result remains available when one exists.'}
+                    {(state?.diagnostics.find((item) => item.severity === 'error') ?? state?.diagnostics[0])?.message ??
+                      'The last valid result remains available when one exists.'}
                   </EmptyDescription>
                 </EmptyHeader>
                 {state ? (

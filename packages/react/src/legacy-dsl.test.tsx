@@ -110,6 +110,7 @@ describe('DSL for migrated table templates', () => {
     expect(source).toContain('<style>@media (max-width: 480px) { a > b { color: red } }</style>')
     expect(source).toMatch(/<body style="margin:0">/)
     expect(source).not.toContain('role="presentation"')
+    expect(render(source, {})).toContain('<p>hi</p>')
   })
 
   it('keeps the React Email doctype by default', async () => {
