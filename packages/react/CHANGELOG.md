@@ -1,5 +1,22 @@
 # @vtex-email/react
 
+## 0.4.0
+
+### Minor Changes
+
+- 54927f6: Support migrating hand-written Handlebars email templates:
+
+  - Blocks can wrap table rows: anchors are located with the parse5 tokenizer instead of the tree builder, whose table rules moved or closed hosts between `<tr>` elements.
+  - Paths accept Handlebars segment literals (`content.[Tipo Documento]`).
+  - New experimental capabilities: `eval` (`Vtex.Eval`, emitted as `{{#eval "code" name=path}}{{/eval}}`) and `formatDiscount`. Inline helpers accept named arguments through `Vtex.Helper` `hash`.
+  - `Vtex.attr` writes dynamic `href`/`src`/`alt`/`title` on any element.
+  - `Email` accepts `head`, `htmlAttributes`, `bodyStyle`, `bodyTable`, and `doctype`.
+
+### Patch Changes
+
+- Updated dependencies [54927f6]
+  - @vtex-email/core@0.4.0
+
 ## 0.3.0
 
 ### Minor Changes
