@@ -405,10 +405,7 @@ describe('preview session', () => {
       }),
     })
     await session.open()
-    await session.ingest([
-      path.join(root, 'schemas', 'alpha.ts'),
-      path.join(root, 'fixtures', 'alpha', 'two.json'),
-    ])
+    await session.ingest([path.join(root, 'schemas', 'alpha.ts'), path.join(root, 'fixtures', 'alpha', 'two.json')])
     expect(refreshed).toBe(1)
     expect(session.state().status).toBe('stale')
     expect(session.state().diagnostics.some((item) => item.code === 'PATH001')).toBe(true)
