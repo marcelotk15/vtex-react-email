@@ -1,5 +1,14 @@
 # @vtex-email/cli
 
+## 0.2.3
+
+### Patch Changes
+
+- Updated dependencies [495a201]
+  - @vtex-email/core@0.4.1
+  - @vtex-email/react@0.4.1
+  - @vtex-email/vtex@0.4.1
+
 ## 0.2.2
 
 ### Patch Changes

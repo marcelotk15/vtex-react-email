@@ -1,5 +1,11 @@
 # @vtex-email/core
 
+## 0.4.1
+
+### Patch Changes
+
+- 495a201: Preview accepts templates built with `Email doctype={null}`: the single-document check (HTML001) allows a missing doctype and still rejects duplicated documents. The preview's "Could not update" panel now shows the first error diagnostic instead of the first diagnostic of any severity.
+
 ## 0.4.0
 
 ### Minor Changes
