@@ -1,8 +1,8 @@
-import { DynamicButton, DynamicImg, DynamicLink } from './attributes'
+import { attributeToken, DynamicButton, DynamicImg, DynamicLink } from './attributes'
 import { Each, Eq, Group, HasSubStr, If, IfCond, Math, RichShippingData, Unless, With } from './blocks'
 import { expr } from './expr'
 import { Trans } from './trans'
-import { Helper, Value } from './values'
+import { Eval, Helper, Value } from './values'
 
 export const Vtex = {
   Each,
@@ -17,9 +17,27 @@ export const Vtex = {
   RichShippingData,
   Value,
   Helper,
+  Eval,
   Link: DynamicLink,
   Img: DynamicImg,
   Button: DynamicButton,
+  attr: attributeToken,
 }
 
-export { Each, Eq, expr, Group, HasSubStr, Helper, If, IfCond, Math, RichShippingData, Trans, Unless, Value, With }
+export {
+  Each,
+  Eq,
+  Eval,
+  expr,
+  Group,
+  HasSubStr,
+  Helper,
+  If,
+  IfCond,
+  Math,
+  RichShippingData,
+  Trans,
+  Unless,
+  Value,
+  With,
+}

@@ -1,0 +1,255 @@
+{
+  "meta": {
+    "description": "04-invoiced sanitized flat envelope from Message Center",
+    "origin": "sanitized",
+    "event": "04-invoiced",
+    "purpose": "preview",
+    "expectedLocale": "pt-BR",
+    "expect": "valid"
+  },
+  "data": {
+    "package": {
+      "items": [
+        {
+          "itemIndex": 0,
+          "quantity": 1,
+          "price": 750,
+          "description": null,
+          "unitMultiplier": 0
+        }
+      ],
+      "courier": "Dummy",
+      "invoiceNumber": "45464336",
+      "description": null,
+      "invoiceValue": 750,
+      "invoiceUrl": "https://example.com/invoice",
+      "issuanceDate": "2024-01-25T10:16:40.305Z",
+      "trackingNumber": "23442534",
+      "invoiceKey": "8989",
+      "trackingUrl": "https://www.google.com",
+      "embeddedInvoice": "",
+      "type": "Output",
+      "courierStatus": null,
+      "cfop": null,
+      "restitutions": null,
+      "volumes": 1,
+      "EnableInferItems": null
+    },
+    "subjectItemAttachment": {
+      "item": "Ração Balance Cães",
+      "totalItems": 1
+    },
+    "cancellationReason": null,
+    "paymentData": {
+      "giftCards": [],
+      "transactions": [
+        {
+          "isActive": true,
+          "transactionId": "11C93FFB076B48BC9B14017E520EFEB1",
+          "merchantName": "Example Store",
+          "payments": [
+            {
+              "id": "EE10B70BB9114666967D86036F5535B4",
+              "paymentSystem": "6",
+              "paymentSystemName": "Boleto Bancário",
+              "value": 4399,
+              "installments": 1,
+              "referenceValue": 4399,
+              "group": "bankInvoice",
+              "url": null,
+              "lastDigits": null
+            }
+          ]
+        }
+      ]
+    },
+    "items": [
+      {
+        "additionalInfo": {
+          "categoriesIds": "/9303/",
+          "brandName": "Brand",
+          "brandId": "9280"
+        },
+        "sellerSku": "115499147",
+        "uniqueId": "4CC12D5F1A514FF6BC65610B36A2FDF6",
+        "id": "115499147",
+        "productId": "115498926",
+        "name": "Ração Balance Cães",
+        "skuName": "Ração Balance Cães",
+        "tax": 0,
+        "price": 750,
+        "listPrice": 1000,
+        "sellingPrice": 750,
+        "isGift": false,
+        "quantity": 1,
+        "seller": "1",
+        "imageUrl": "https://codeby.vteximg.com.br/arquivos/ids/161334-300-800/dog3.jpg?v=637895279495630000",
+        "detailUrl": "/racao-balance/p",
+        "bundleItems": [],
+        "priceDefinition": {
+          "calculatedSellingPrice": 750,
+          "total": 750,
+          "sellingPrices": [{ "value": 750, "quantity": 1 }]
+        }
+      }
+    ],
+    "sellers": [
+      {
+        "subSellerId": "1",
+        "id": "1",
+        "name": "Example Seller",
+        "logo": ""
+      }
+    ],
+    "giftRegistryData": null,
+    "orderId": "1405860509198-01",
+    "orderGroup": "1405860509198",
+    "state": "invoiced",
+    "sellerOrderId": "00-1405860509198-01",
+    "value": 4399,
+    "totals": [
+      { "id": "Items", "name": "Total dos Itens", "value": 2849 },
+      { "id": "Discounts", "name": "Total dos Descontos", "value": 0 },
+      { "id": "Shipping", "name": "Total do Frete", "value": 500 },
+      { "id": "Tax", "name": "Total da Taxa", "value": 1050 }
+    ],
+    "clientProfileData": {
+      "email": "customer@example.com",
+      "firstName": "Maria",
+      "lastName": "Silva",
+      "document": "00000000000",
+      "documentType": "cpf",
+      "phone": "+5500000000000",
+      "corporateName": null,
+      "tradeName": null,
+      "corporateDocument": null,
+      "stateInscription": "",
+      "corporatePhone": null,
+      "isCorporate": false
+    },
+    "shippingData": {
+      "address": {
+        "addressType": "residential",
+        "receiverName": "Maria Silva",
+        "addressId": "5118532841580",
+        "isDisposable": false,
+        "postalCode": "01000-000",
+        "city": "Rio de Janeiro",
+        "state": "RJ",
+        "country": "BRA",
+        "street": "Rua Exemplo",
+        "number": "30",
+        "neighborhood": "Centro",
+        "complement": null,
+        "reference": null,
+        "geoCoordinates": [-51.4779552, -0.0039779]
+      },
+      "logisticsInfo": [
+        {
+          "itemIndex": 0,
+          "selectedSla": "Dummy",
+          "selectedDeliveryChannel": "delivery",
+          "addressId": "5118532841580",
+          "itemId": "115499147",
+          "slas": [
+            {
+              "id": "Dummy",
+              "deliveryChannel": "delivery",
+              "name": "Dummy",
+              "deliveryIds": [
+                {
+                  "courierId": "Dummy",
+                  "warehouseId": "Top",
+                  "dockId": "Smk",
+                  "courierName": "Dummy",
+                  "quantity": 1,
+                  "kitItemDetails": []
+                }
+              ],
+              "shippingEstimate": "3d",
+              "shippingEstimateDate": null,
+              "lockTTL": "12d",
+              "availableDeliveryWindows": [],
+              "deliveryWindow": null,
+              "price": 5,
+              "listPrice": 5,
+              "tax": 0,
+              "pickupStoreInfo": {
+                "isPickupStore": false,
+                "friendlyName": null,
+                "address": null,
+                "additionalInfo": null,
+                "dockId": null
+              },
+              "pickupPointId": null,
+              "pickupDistance": 0,
+              "polygonName": "",
+              "transitTime": "3d"
+            }
+          ],
+          "shipsTo": ["BRA"],
+          "deliveryChannels": [{ "id": "delivery" }]
+        }
+      ],
+      "selectedAddresses": [
+        {
+          "addressType": "residential",
+          "receiverName": "Maria Silva",
+          "addressId": "5118532841580",
+          "isDisposable": false,
+          "postalCode": "01000-000",
+          "city": "Rio de Janeiro",
+          "state": "RJ",
+          "country": "BRA",
+          "street": "Rua Exemplo",
+          "number": "30",
+          "neighborhood": "Centro",
+          "complement": null,
+          "reference": null,
+          "geoCoordinates": [-51.4779552, -0.0039779]
+        }
+      ],
+      "availableAddresses": [
+        {
+          "addressType": "residential",
+          "receiverName": "Maria Silva",
+          "addressId": "5118532841580",
+          "isDisposable": false,
+          "postalCode": "01000-000",
+          "city": "Rio de Janeiro",
+          "state": "RJ",
+          "country": "BRA",
+          "street": "Rua Exemplo",
+          "number": "30",
+          "neighborhood": "Centro",
+          "complement": null,
+          "reference": null,
+          "geoCoordinates": [-51.4779552, -0.0039779]
+        }
+      ],
+      "pickupPoints": []
+    },
+    "clientPreferencesData": {
+      "locale": "pt-BR",
+      "optinNewsLetter": false
+    },
+    "storePreferencesData": {
+      "countryCode": "BRA",
+      "currencyCode": "BRL",
+      "currencySymbol": "R$"
+    },
+    "creationDate": "2024-01-25T10:14:12.7873096Z",
+    "lastChange": "2024-01-25T10:17:06.7469078Z",
+    "isCompleted": true,
+    "_accountInfo": {
+      "MainAccountName": "example",
+      "AccountName": "example",
+      "TradingName": "Example Store",
+      "CompanyName": "Example Store",
+      "HostName": "example",
+      "Id": "856900d6-9edc-4248-bf4c-05b60375bb4e",
+      "StoreUrl": "https://example.com",
+      "LogoUrl": "https://example.com/logo.png"
+    }
+  }
+}

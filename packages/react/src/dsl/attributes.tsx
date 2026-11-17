@@ -43,6 +43,11 @@ function readCompositePart(part: string | Expression, session: Session): SiteArg
   return { kind: 'path', emitted: resolved.emitted, path: resolved }
 }
 
+/**
+ * Value for a dynamic `href`, `src`, `alt`, or `title` on any element (`<a href={Vtex.attr('href', [...])}>`).
+ * Accepts a static string, an expression, or a composite of literals and paths. Static `href`/`src` must be
+ * https, mailto, or tel.
+ */
 export function attributeToken(name: DynamicAttribute, value: AttributeValue): string {
   const session = getSession()
   if (typeof value === 'string') {

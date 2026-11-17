@@ -80,7 +80,6 @@ export function classifyChange(input: {
     fixtures.delete(id)
     schemas.delete(id)
   }
-  for (const id of schemas) fixtures.delete(id)
   if (compile.size === 0 && fixtures.size === 0 && schemas.size === 0) return { kind: 'none' }
   return { kind: 'partial', compile: [...compile], fixtures: [...fixtures], schemas: [...schemas] }
 }

@@ -94,6 +94,20 @@ describe('isolated runtime', () => {
     expect(html.indexOf('express')).toBeLessThan(html.indexOf('normal'))
   })
 
+  it('simulates formatDiscount without sign and eval with named arguments', () => {
+    expect(renderTemplate('{{formatDiscount value}}', { value: -150050 }, p0Profile)).toBe('1500,50')
+    expect(renderTemplate('{{formatDiscount value}}', { value: null }, p0Profile)).toBe('0,00')
+    const source =
+      '{{#eval "var parts = \\"${BA}\\".split(\\"|\\"); parts[2] + \\" - <b>\\" + parts[1] / 100 + \\"</b>\\"" BA=agreement}}{{/eval}}'
+    expect(renderTemplate(source, { agreement: 'id|300000|Convenio' }, p0Profile)).toBe('Convenio - <b>3000</b>')
+  })
+
+  it('runs eval without access to host globals', () => {
+    expect(renderTemplate('{{#eval "typeof process + typeof require"}}{{/eval}}', {}, p0Profile)).toBe(
+      'undefinedundefined',
+    )
+  })
+
   it('rejects invalid dates and non-finite math', () => {
     expect(() => renderTemplate('{{formatDate bad}}', { bad: 'not-a-date' }, p0Profile)).toThrow(/formatDate/)
     expect(() => renderTemplate('{{math a "/" b}}', { a: 1, b: 0 }, p0Profile)).toThrow(/math/)

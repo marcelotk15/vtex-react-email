@@ -1,0 +1,345 @@
+{
+  "meta": {
+    "description": "03-payment-approved sanitized flat envelope from Message Center",
+    "origin": "sanitized",
+    "event": "03-payment-approved",
+    "purpose": "preview",
+    "expectedLocale": "pt-BR",
+    "expect": "valid"
+  },
+  "data": {
+    "package": null,
+    "subjectItemAttachment": {
+      "item": "Ração Balance Cães",
+      "totalItems": 1
+    },
+    "cancellationReason": null,
+    "paymentData": {
+      "giftCards": [
+        {
+          "id": "xpto1",
+          "redemptionCode": null,
+          "name": null,
+          "caption": "gift card by id",
+          "value": 0,
+          "balance": 0,
+          "provider": "BemolValeCredito",
+          "groupName": null,
+          "inUse": false,
+          "isSpecialCard": true
+        },
+        {
+          "id": "xpto1",
+          "redemptionCode": null,
+          "name": null,
+          "caption": "gift card by id",
+          "value": 0,
+          "balance": 0,
+          "provider": "BemolCrediario",
+          "groupName": null,
+          "inUse": false,
+          "isSpecialCard": true
+        },
+        {
+          "id": "xpto1",
+          "redemptionCode": null,
+          "name": null,
+          "caption": "gift card by id",
+          "value": 0,
+          "balance": 0,
+          "provider": "BemolBonus",
+          "groupName": null,
+          "inUse": false,
+          "isSpecialCard": true
+        }
+      ],
+      "transactions": [
+        {
+          "isActive": true,
+          "transactionId": "623B08215E114B1E9E4ABCB20A57BA8C",
+          "merchantName": "Example Store",
+          "payments": [
+            {
+              "id": "BD365AB9937A45B3976388276BBDB5B7",
+              "paymentSystem": "2",
+              "paymentSystemName": "Visa",
+              "value": 197000,
+              "installments": 1,
+              "referenceValue": 197000,
+              "cardHolder": null,
+              "cardNumber": null,
+              "firstDigits": "498408",
+              "lastDigits": "2448",
+              "cvv2": null,
+              "expireMonth": null,
+              "expireYear": null,
+              "url": null,
+              "giftCardId": null,
+              "giftCardName": null,
+              "giftCardCaption": null,
+              "redemptionCode": null,
+              "group": "creditCard",
+              "tid": "sv4qae",
+              "dueDate": null,
+              "connectorResponses": {
+                "Tid": "sv4qae",
+                "ReturnCode": null,
+                "Message": "Payment has been approved",
+                "authId": "mucci3",
+                "nsu": "ks0vzn"
+              },
+              "giftCardProvider": null,
+              "giftCardAsDiscount": null,
+              "koinUrl": null,
+              "accountId": "0785C474A062426A8D583E164FB7A9CC",
+              "parentAccountId": null,
+              "bankIssuedInvoiceIdentificationNumber": null,
+              "bankIssuedInvoiceIdentificationNumberFormatted": null,
+              "bankIssuedInvoiceBarCodeNumber": null,
+              "bankIssuedInvoiceBarCodeType": null,
+              "billingAddress": null,
+              "paymentOrigin": null
+            }
+          ]
+        }
+      ]
+    },
+    "cancellationRequests": null,
+    "invoiceData": null,
+    "clientProfileData": {
+      "id": "clientProfileData",
+      "email": "customer@example.com",
+      "firstName": "Maria",
+      "lastName": "Silva",
+      "documentType": "cpf",
+      "document": "00000000000",
+      "phone": "+5500000000000",
+      "corporateName": null,
+      "tradeName": null,
+      "corporateDocument": null,
+      "stateInscription": "",
+      "corporatePhone": null,
+      "isCorporate": false,
+      "userProfileId": "4288ba08-15b6-438c-9ed5-411f6b72bbf9",
+      "userProfileVersion": null,
+      "customerClass": null,
+      "customerCode": null
+    },
+    "shippingData": {
+      "id": "shippingData",
+      "address": {
+        "addressType": "residential",
+        "receiverName": "Maria Silva",
+        "addressId": "5186724680292",
+        "versionId": null,
+        "entityId": null,
+        "postalCode": "01000-000",
+        "city": "Sao Paulo",
+        "state": "SP",
+        "country": "BRA",
+        "street": "Rua Exemplo",
+        "number": "100",
+        "neighborhood": "Centro",
+        "complement": null,
+        "reference": null,
+        "geoCoordinates": [-51.4779552, -0.0039779]
+      },
+      "logisticsInfo": [
+        {
+          "itemIndex": 0,
+          "itemId": "115499147",
+          "selectedDeliveryChannel": "delivery",
+          "selectedSla": "Entrega padrão",
+          "lockTTL": "12d",
+          "price": 500,
+          "listPrice": 500,
+          "sellingPrice": 500,
+          "deliveryWindow": null,
+          "deliveryCompany": null,
+          "shippingEstimate": "3bd",
+          "shippingEstimateDate": "2026-05-05T20:26:30.1789844Z",
+          "slas": [
+            {
+              "id": "Entrega padrão",
+              "name": "Entrega padrão",
+              "shippingEstimate": "3bd",
+              "shippingEstimateDate": "2026-05-05T20:26:30.1789844Z",
+              "deliveryWindow": null,
+              "availableDeliveryWindows": [],
+              "deliveryIds": [
+                {
+                  "courierId": "1",
+                  "courierName": "Transportadora",
+                  "dockId": "1",
+                  "quantity": 1,
+                  "warehouseId": "1_1",
+                  "accountCarrierName": "example",
+                  "kitItemDetails": []
+                }
+              ],
+              "listPrice": 500,
+              "price": 500,
+              "deliveryChannel": "delivery",
+              "pickupStoreInfo": {
+                "additionalInfo": null,
+                "address": null,
+                "dockId": null,
+                "friendlyName": null,
+                "isPickupStore": false
+              },
+              "polygonName": "",
+              "lockTTL": "12d",
+              "pickupPointId": null,
+              "transitTime": "3bd",
+              "pickupDistance": null
+            }
+          ],
+          "shipsTo": ["BRA"],
+          "deliveryIds": [
+            {
+              "courierId": "1",
+              "courierName": "Transportadora",
+              "dockId": "1",
+              "quantity": 1,
+              "warehouseId": "1_1",
+              "accountCarrierName": "example",
+              "kitItemDetails": []
+            }
+          ],
+          "deliveryChannels": [
+            { "id": "delivery", "stockBalance": 0 },
+            { "id": "pickup-in-point", "stockBalance": 0 }
+          ],
+          "deliveryChannel": null,
+          "pickupStoreInfo": {
+            "additionalInfo": null,
+            "address": null,
+            "dockId": null,
+            "friendlyName": null,
+            "isPickupStore": false
+          },
+          "addressId": "5186724680292",
+          "versionId": null,
+          "entityId": null,
+          "polygonName": "",
+          "pickupPointId": null,
+          "transitTime": "3bd"
+        }
+      ],
+      "trackingHints": [],
+      "selectedAddresses": [
+        {
+          "addressId": "5186724680292",
+          "versionId": null,
+          "entityId": null,
+          "addressType": "residential",
+          "receiverName": "Maria Silva",
+          "street": "Rua Exemplo",
+          "number": "100",
+          "complement": null,
+          "neighborhood": "Centro",
+          "postalCode": "01000-000",
+          "city": "Sao Paulo",
+          "state": "SP",
+          "country": "BRA",
+          "reference": null,
+          "geoCoordinates": [-51.4779552, -0.0039779]
+        }
+      ],
+      "availableAddresses": [
+        {
+          "addressId": "5186724680292",
+          "versionId": null,
+          "entityId": null,
+          "addressType": "residential",
+          "receiverName": "Maria Silva",
+          "street": "Rua Exemplo",
+          "number": "100",
+          "complement": null,
+          "neighborhood": "Centro",
+          "postalCode": "01000-000",
+          "city": "Sao Paulo",
+          "state": "SP",
+          "country": "BRA",
+          "reference": null,
+          "geoCoordinates": [-51.4779552, -0.0039779]
+        }
+      ],
+      "contactInformation": [],
+      "contactsInfo": []
+    },
+    "customData": null,
+    "items": [
+      {
+        "additionalInfo": {
+          "categoriesIds": "/9303/",
+          "brandName": "Brand",
+          "brandId": "9280"
+        },
+        "sellerSku": "115499147",
+        "uniqueId": "178D06B35E854C77A9A68C65C41C70FB",
+        "id": "115499147",
+        "productId": "115498926",
+        "name": "Ração Balance Cães",
+        "skuName": "Ração Balance Cães",
+        "tax": 0,
+        "price": 196500,
+        "listPrice": 196500,
+        "sellingPrice": 196500,
+        "isGift": false,
+        "quantity": 1,
+        "seller": "codebyiglu2703234",
+        "imageUrl": "https://codeby.vteximg.com.br/arquivos/ids/161334-300-800/dog3.jpg?v=637895279495630000",
+        "detailUrl": "/racao-balance/p",
+        "bundleItems": [],
+        "priceDefinition": {
+          "calculatedSellingPrice": 196500,
+          "total": 196500,
+          "sellingPrices": [{ "value": 196500, "quantity": 1 }]
+        }
+      }
+    ],
+    "sellers": [
+      {
+        "subSellerId": "1",
+        "id": "codebyiglu2703234",
+        "name": "Example Seller",
+        "logo": ""
+      }
+    ],
+    "giftRegistryData": null,
+    "orderId": "1628760510947-01",
+    "orderGroup": "1628760510947",
+    "state": "payment-approved",
+    "sellerOrderId": "CDB-1628760510947-01",
+    "value": 197000,
+    "totals": [
+      { "id": "Items", "name": "Total dos Itens", "value": 196500 },
+      { "id": "Discounts", "name": "Total dos Descontos", "value": 0 },
+      { "id": "Shipping", "name": "Total do Frete", "value": 500 },
+      { "id": "Tax", "name": "Total da Taxa", "value": 0 }
+    ],
+    "clientPreferencesData": {
+      "locale": "pt-BR",
+      "optinNewsLetter": false
+    },
+    "storePreferencesData": {
+      "countryCode": "BRA",
+      "currencyCode": "BRL",
+      "currencySymbol": "R$"
+    },
+    "creationDate": "2026-04-30T20:25:51.0326599Z",
+    "lastChange": "2026-04-30T20:26:30.6598242Z",
+    "isCompleted": true,
+    "_accountInfo": {
+      "MainAccountName": "example",
+      "AccountName": "example",
+      "TradingName": "Example Store",
+      "CompanyName": "Example Store",
+      "HostName": "example",
+      "Id": "856900d6-9edc-4248-bf4c-05b60375bb4e",
+      "StoreUrl": "https://example.com",
+      "LogoUrl": "https://example.com/logo.png"
+    }
+  }
+}

@@ -49,7 +49,7 @@ describe('P1 DSL', () => {
     expect(html).toContain('title="{{name}}"')
     expect(compiled.manifest.homologation).toBe('experimental')
     expect(compiled.manifest.capabilities.some((item) => item.name === 'unless')).toBe(true)
-    expect(compiled.diagnostics.some((item) => item.code === 'TARGET001')).toBe(true)
+    expect(compiled.diagnostics.some((item) => item.code === 'TARGET001')).toBe(false)
     expect(compiled.manifest.locales).toEqual(['pt-BR'])
   })
 

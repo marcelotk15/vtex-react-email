@@ -113,24 +113,24 @@ export function createPreviewSession(input: {
       if (token !== generation || closed) return state
       failed = !applyCompile(ids, result)
     }
-    if (!failed && plan.kind === 'partial') {
-      for (const id of plan.schemas) {
-        const current = emails.find((email) => email.id === id)
-        if (!current) continue
-        const revalidated = await input.services.revalidateSchema(current)
-        if (token !== generation || closed) return state
-        emails = emails.map((email) => (email.id === id ? revalidated : email))
-        state = { ...state, diagnostics: revalidated.diagnostics }
-        if (revalidated.diagnostics.some((item) => item.severity === 'error')) failed = true
-      }
+    if (plan.kind === 'partial') {
       if (!failed) {
-        for (const id of plan.fixtures) {
+        for (const id of plan.schemas) {
           const current = emails.find((email) => email.id === id)
           if (!current) continue
-          const refreshed = await input.services.refreshFixtures(current)
+          const revalidated = await input.services.revalidateSchema(current)
           if (token !== generation || closed) return state
-          emails = emails.map((email) => (email.id === id ? refreshed : email))
+          emails = emails.map((email) => (email.id === id ? revalidated : email))
+          state = { ...state, diagnostics: revalidated.diagnostics }
+          if (revalidated.diagnostics.some((item) => item.severity === 'error')) failed = true
         }
+      }
+      for (const id of plan.fixtures) {
+        const current = emails.find((email) => email.id === id)
+        if (!current) continue
+        const refreshed = await input.services.refreshFixtures(current)
+        if (token !== generation || closed) return state
+        emails = emails.map((email) => (email.id === id ? refreshed : email))
       }
     }
     if (token !== generation || closed) return state
@@ -182,20 +182,20 @@ export function createPreviewSession(input: {
 
   function applyCompile(ids: readonly string[] | null, result: ProjectResult): boolean {
     state = { ...state, diagnostics: result.diagnostics }
-    if (!result.ok) return false
+    if (!result.ok && result.emails.length === 0) return false
     if (ids === null) {
       emails = result.emails.slice()
-      return true
+    } else {
+      for (const email of result.emails) {
+        const index = emails.findIndex((item) => item.id === email.id)
+        if (index >= 0) emails[index] = email
+        else emails.push(email)
+      }
+      for (const id of ids) {
+        if (result.removedEmailIds?.includes(id)) emails = emails.filter((email) => email.id !== id)
+      }
     }
-    for (const email of result.emails) {
-      const index = emails.findIndex((item) => item.id === email.id)
-      if (index >= 0) emails[index] = email
-      else emails.push(email)
-    }
-    for (const id of ids) {
-      if (result.removedEmailIds?.includes(id)) emails = emails.filter((email) => email.id !== id)
-    }
-    return true
+    return result.ok
   }
 
   async function evaluate(): Promise<PreviewResult> {

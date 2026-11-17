@@ -25,4 +25,4 @@ Path analysis enriches the `logisticsInfo` element schema with those derived fie
 
 - Store templates can keep logistics sections that depend on selected SLA fields.
 - Composition from `group` alone is insufficient; emission of this helper is required for fidelity.
-- `eval` remains unsupported.
+- `eval` remained unsupported here; it is available since as an experimental capability (see README, `Vtex.Eval`).

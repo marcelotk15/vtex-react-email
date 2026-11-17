@@ -70,7 +70,7 @@ export default function Replaced() {
           </Section>
         </Vtex.Each>
       </Section>
-      <Vtex.IfCond operator="!=" path="split" right={true}>
+      <Vtex.Unless path="split">
         <Section className="w-full border-t border-[#dddddd] px-8 py-4 max-[480px]:px-4">
           <Text className="m-0 text-xl">
             <Trans id="payment.title" />
@@ -79,7 +79,7 @@ export default function Replaced() {
             <PaymentList />
           </Vtex.Each>
         </Section>
-      </Vtex.IfCond>
+      </Vtex.Unless>
       <Vtex.Each path="orders">
         <Section className="w-full border-t border-[#dddddd] px-8 py-4 max-[480px]:px-4">
           <Text className="m-0 text-2xl">

@@ -31,6 +31,8 @@ export interface Session {
   nextIndex: number
   templateId: string
   file?: string
+  /** Doctype requested by the Email adapter. undefined keeps the React Email default; null writes none. */
+  doctype?: string | null
 }
 
 const sessionKey = Symbol.for('vtex-email.compile-session')

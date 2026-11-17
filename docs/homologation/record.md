@@ -1,6 +1,6 @@
 # Evidence record
 
-Copy this template for each run. Leave the file empty until there is a real run. Do not fill the result with the local expectation. Do not invent a SHA: this directory is not yet a git repository.
+Copy this template for each run. Filled Message Center runs for basic-store 01–03 live in [records/basic-store-01-03-message-center.md](records/basic-store-01-03-message-center.md). Do not fill the result with the local expectation. Do not invent a SHA: this directory is not yet a git repository.
 
 ## Template
 
@@ -15,7 +15,7 @@ Copy this template for each run. Leave the file empty until there is a real run.
 
 ## State promotion
 
-A capability becomes `verified` only for the behavior the record shows on the target. `formatCurrency` for the pair `20000` to `200,00` does not cover another number. `eq` with a literal remains `experimental` until Message Center accepts the selection and the single document. Linux, macOS, and any Node other than `24.21.0` remain pending until a log of that run.
+A capability becomes `verified` only for the behavior the record shows on the target. `formatCurrency` for the pairs recorded in [records/basic-store-01-03-message-center.md](records/basic-store-01-03-message-center.md) does not cover another number. Linux, macOS, and any Node other than `24.21.0` remain pending until a log of that run.
 
 Browser view, Message Center execution, and real client rendering are separate records. One does not fill another.
 

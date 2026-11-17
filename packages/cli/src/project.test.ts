@@ -60,16 +60,22 @@ describe('synthetic seed project', () => {
       expect(merged.includes(SEED_FREEZE_MARKER)).toBe(false)
       expect(opsHtml.includes(SEED_FREEZE_MARKER)).toBe(false)
       expect(welcome?.diagnostics.some((item) => item.code === 'CSS002' || item.code === 'PATH001')).toBe(false)
+      expect(welcome?.manifest?.capabilities.some((item) => item.name === 'eq' && item.evidence === 'verified')).toBe(
+        true,
+      )
       expect(
-        welcome?.manifest?.capabilities.some((item) => item.name === 'eq' && item.evidence === 'experimental'),
+        welcome?.diagnostics.some((item) => item.code === 'TARGET001' && item.message.includes('Capability eq')),
+      ).toBe(false)
+      expect(ops?.manifest?.capabilities.some((item) => item.name === 'eq' && item.evidence === 'verified')).toBe(true)
+      expect(
+        ops?.manifest?.capabilities.some((item) => item.name === 'hasSubStr' && item.evidence === 'experimental'),
       ).toBe(true)
       expect(
-        welcome?.diagnostics.some(
-          (item) => item.code === 'TARGET001' && item.severity === 'warning' && item.message.includes('Capability eq'),
+        ops?.diagnostics.some(
+          (item) =>
+            item.code === 'TARGET001' && item.severity === 'warning' && item.message.includes('Capability hasSubStr'),
         ),
       ).toBe(true)
-      expect(ops?.manifest?.capabilities.some((item) => item.name === 'eq')).toBe(true)
-      expect(ops?.diagnostics.some((item) => item.message.includes('Capability eq'))).toBe(true)
       expect(first.manifest?.homologation).toBe('experimental')
 
       const fixtureFile = path.join(root, 'src/fixtures/welcome/full.jsonc')
@@ -141,7 +147,8 @@ describe('synthetic seed project', () => {
       expect(promoted.wrote).toEqual([])
       expect(
         promoted.diagnostics.some(
-          (item) => item.code === 'TARGET001' && item.severity === 'error' && item.message.includes('Capability eq'),
+          (item) =>
+            item.code === 'TARGET001' && item.severity === 'error' && item.message.includes('Capability hasSubStr'),
         ),
       ).toBe(true)
       expect(await readFile(welcomeFile, 'utf8')).toBe(before)
@@ -181,7 +188,7 @@ describe('synthetic seed project', () => {
       const blocked = path.join(tmpdir(), `vtex-preview-blocked-${Date.now()}`)
       const failed = await exportPreview({
         configPath,
-        emailId: SEED_WELCOME,
+        emailId: SEED_OPS,
         fixtureId: 'full',
         outDir: blocked,
         warningsAsErrors: true,
@@ -224,8 +231,13 @@ describe('synthetic seed project', () => {
         welcome?.diagnostics.some(
           (item) => item.code === 'TARGET001' && item.severity === 'error' && item.message.includes('Capability eq'),
         ),
+      ).toBe(false)
+      expect(
+        ops?.diagnostics.some(
+          (item) =>
+            item.code === 'TARGET001' && item.severity === 'error' && item.message.includes('Capability hasSubStr'),
+        ),
       ).toBe(true)
-      expect(ops?.diagnostics.some((item) => item.message.includes('Capability eq'))).toBe(true)
     })
   }, 120_000)
 })

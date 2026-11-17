@@ -1,6 +1,6 @@
 # Each and nested loops
 
-Capability: `each`. Current state: `documented`. The 2026-10-02 proof on Node `24.21.0` on Windows showed emission and local evaluation. It does not change the state.
+Capability: `each`. Current state: `verified` for Message Center runs of basic-store 01–03 with sanitized fixtures ([records](../records/basic-store-01-03-message-center.md)). The 2026-10-02 local proof on Node `24.21.0` on Windows showed emission and local evaluation only.
 
 ## Minimal template
 
@@ -34,8 +34,8 @@ Resolved HTML with the three names and indication of two orders. Layer: Message 
 
 ## Approval
 
-Three items and separate contexts, in the same count as the local result. It does not unlock object iteration.
+Message Center: loops on 01–03 sanitized payloads with correct item counts ([records](../records/basic-store-01-03-message-center.md)). Local golden proof: three items and separate contexts. It does not unlock object iteration.
 
 ## Divergence
 
-Record the observed count. `each` remains `documented`.
+Record the observed count. Unseen iteration shapes stay outside the verified scope.

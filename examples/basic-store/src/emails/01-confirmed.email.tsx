@@ -38,7 +38,7 @@ export default function Confirmed() {
         </Vtex.Each>
       </Section>
 
-      <Vtex.IfCond operator="!=" path="split" right={true}>
+      <Vtex.Unless path="split">
         <Section className="w-full border-t border-[#dddddd] px-8 py-4 max-[480px]:px-4">
           <Text className="m-0 text-xl">
             <Trans id="payment.title" />
@@ -52,7 +52,7 @@ export default function Confirmed() {
             </Section>
           </Vtex.Each>
         </Section>
-      </Vtex.IfCond>
+      </Vtex.Unless>
 
       <Vtex.Each path="orders">
         <Section className="w-full border-t border-[#dddddd] px-8 py-4 max-[480px]:px-4">
@@ -66,7 +66,7 @@ export default function Confirmed() {
             <Trans id="package.seller" /> <Vtex.Value path="sellers.0.name" />
           </Text>
 
-          <Vtex.IfCond operator="==" path="../split" right={true}>
+          <Vtex.If path="../split">
             <Section className="pb-3 align-top max-[480px]:w-full min-[480px]:float-left min-[480px]:w-1/2">
               <Text className="text-xl">
                 <Trans id="payment.title" />
@@ -80,7 +80,7 @@ export default function Confirmed() {
                 </Section>
               </Vtex.Each>
             </Section>
-          </Vtex.IfCond>
+          </Vtex.If>
 
           <Totals />
           <OrderPackages />
