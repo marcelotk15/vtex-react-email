@@ -1,5 +1,5 @@
 import { attributeToken, DynamicButton, DynamicImg, DynamicLink } from './attributes'
-import { Each, Eq, Group, HasSubStr, If, IfCond, Math, RichShippingData, Unless, With } from './blocks'
+import { Compare, Each, Eq, Group, HasSubStr, If, IfCond, Math, RichShippingData, Unless, With } from './blocks'
 import { expr } from './expr'
 import { Trans } from './trans'
 import { Eval, Helper, Value } from './values'
@@ -9,6 +9,7 @@ export const Vtex = {
   If,
   Unless,
   IfCond,
+  Compare,
   HasSubStr,
   Group,
   Eq,
@@ -34,6 +35,7 @@ export {
   Helper,
   If,
   IfCond,
+  Compare,
   Math,
   RichShippingData,
   Trans,

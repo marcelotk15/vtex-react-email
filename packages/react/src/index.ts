@@ -19,6 +19,7 @@ export {
   Helper,
   If,
   IfCond,
+  Compare,
   Math,
   RichShippingData,
   Trans,

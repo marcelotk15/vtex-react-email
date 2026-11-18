@@ -247,6 +247,14 @@ export const messageCenterSimulator: LocalSimulator = {
       },
     },
     {
+      name: 'compare',
+      kind: 'block',
+      evidence: 'experimental',
+      note: 'Local Message Center compare simulation.',
+      apply: (context, [left, operator, right], options) =>
+        compareValues(left, operator, right) ? options.fn(context) : options.inverse(context),
+    },
+    {
       name: 'hasSubStr',
       kind: 'block',
       evidence: 'experimental',

@@ -122,6 +122,17 @@ export const messageCenterEmission: EmissionProfile = {
       elseContext: 'preserve',
     },
     {
+      name: 'compare',
+      form: 'block',
+      evidence: 'experimental',
+      note: 'Compares a path to a path or literal and preserves context in both branches. Inequality is observed in Message Center templates.',
+      arity: { min: 2, max: 2 },
+      args: ['literal', 'expression'],
+      literals: [{ index: 0, values: comparisonOperators }],
+      context: 'preserve',
+      elseContext: 'preserve',
+    },
+    {
       name: 'hasSubStr',
       form: 'block',
       evidence: 'experimental',

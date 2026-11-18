@@ -90,26 +90,32 @@ function asExpression(
   return expr.literal(value)
 }
 
-export function IfCond({
-  path,
-  operator,
-  value,
-  right,
-  children,
-  fallback,
-}: {
+type ComparisonProps = {
   path: string
   operator: ComparisonOperator
   value?: string | number | boolean | null
   right?: Expression | string | number | boolean | null
   children: ReactNode
   fallback?: ReactNode
-}) {
+}
+
+function comparison(
+  helper: 'compare' | 'ifCond',
+  { path, operator, value, right, children, fallback }: ComparisonProps,
+) {
   const session = getSession()
   const operand = right !== undefined ? asExpression(right, session) : asExpression(value, session)
-  return blockRegion(path, 'ifCond', children, fallback, {
+  return blockRegion(path, helper, children, fallback, {
     args: [readArgument(expr.literal(operator), session), readArgument(operand, session)],
   })
+}
+
+export function IfCond(props: ComparisonProps) {
+  return comparison('ifCond', props)
+}
+
+export function Compare(props: ComparisonProps) {
+  return comparison('compare', props)
 }
 
 export function HasSubStr({
