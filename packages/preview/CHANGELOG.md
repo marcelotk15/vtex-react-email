@@ -1,5 +1,11 @@
 # @vtex-email/preview
 
+## 0.1.5
+
+### Patch Changes
+
+- @vtex-email/cli@0.2.4
+
 ## 0.1.4
 
 ### Patch Changes
