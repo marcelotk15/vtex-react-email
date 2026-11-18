@@ -3,6 +3,7 @@ export type BlockName =
   | 'if'
   | 'unless'
   | 'ifCond'
+  | 'compare'
   | 'hasSubStr'
   | 'group'
   | 'eq'

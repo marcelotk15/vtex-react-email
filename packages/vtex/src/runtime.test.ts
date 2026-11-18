@@ -42,6 +42,22 @@ describe('isolated runtime', () => {
     expect(html).toBe('many|same|https://example.com/3')
   })
 
+  it('simulates compare with a literal or path and keeps context in both branches', () => {
+    const html = renderTemplate(
+      '{{#each items}}{{#compare quantity ">=" ../minimum}}{{name}}{{else}}{{#compare name "!=" "hidden"}}low:{{name}}{{/compare}}{{/compare}};{{/each}}',
+      {
+        minimum: 2,
+        items: [
+          { name: 'A', quantity: 2 },
+          { name: 'B', quantity: 1 },
+          { name: 'hidden', quantity: 0 },
+        ],
+      },
+      p0Profile,
+    )
+    expect(html).toBe('A;low:B;;')
+  })
+
   it('simulates ifCond, hasSubStr, group, and formatDate', () => {
     const html = renderTemplate(
       '{{#ifCond name "===" "Destinatario"}}yes{{else}}no{{/ifCond}}|{{#hasSubStr categoriesIds "/9293/"}}ticket{{else}}plain{{/hasSubStr}}|{{#group items by="packageId"}}{{#each items}}{{name}}-{{/each}}{{/group}}|{{formatDate dueDate}}',
