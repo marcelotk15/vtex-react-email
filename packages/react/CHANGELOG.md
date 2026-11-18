@@ -1,5 +1,16 @@
 # @vtex-email/react
 
+## 0.5.0
+
+### Minor Changes
+
+- 32da1b1: Add the Message Center `compare` block helper to the React DSL and local simulator. Templates can use `Vtex.Compare` with a path or literal operand and an optional fallback in both preview and build.
+
+### Patch Changes
+
+- Updated dependencies [32da1b1]
+  - @vtex-email/core@0.4.2
+
 ## 0.4.1
 
 ### Patch Changes
